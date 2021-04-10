@@ -38,7 +38,9 @@ class Action;
 class Screen
 {
 private:
-	SDL_Surface *_screen;
+	SDL_Window *_window;
+	SDL_Renderer *_renderer;
+	SDL_Texture *_screen;
 	int _bpp;
 	int _baseWidth, _baseHeight;
 	double _scaleX, _scaleY;
@@ -50,6 +52,7 @@ private:
 	OpenGL glOutput;
 	Surface *_surface;
 	SDL_Rect _clear;
+	std::string _title;
 	/// Sets the _flags and _bpp variables based on game options; needed in more than one place now
 	void makeVideoFlags();
 public:
@@ -57,7 +60,7 @@ public:
 	static const int ORIGINAL_HEIGHT;
 
 	/// Creates a new display screen.
-	Screen();
+	Screen(const std::string &title);
 	/// Cleans up the display screen.
 	~Screen();
 	/// Get horizontal offset.
@@ -98,6 +101,8 @@ public:
 	static bool useOpenGL();
 	/// update the game scale as required.
 	static void updateScale(int type, int &width, int &height, bool change);
+
+	SDL_Window *getWindow() const { return _window; }
 };
 
 }
