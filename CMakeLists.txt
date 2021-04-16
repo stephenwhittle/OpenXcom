@@ -6,7 +6,7 @@ set ( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" )
 include(GNUInstallDirs)
 
 # For yaml-cpp
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 17)
 # use std=c++11 rather than std=gnu++11
 set (CMAKE_CXX_EXTENSIONS OFF)
 
@@ -49,6 +49,11 @@ set ( DEPS_DIR "${default_deps_dir}" CACHE STRING "Dependencies directory" )
 # Add check for library (SDL_gfx, yaml-cpp )
 if ( IS_DIRECTORY ${DEPS_DIR}/include )
    include_directories ( SYSTEM ${DEPS_DIR}/include/SDL ${DEPS_DIR}/include/yaml-cpp ${DEPS_DIR}/include )
+
+    include_directories ( ${DEPS_DIR}/include/modio/common )
+    include_directories ( ${DEPS_DIR}/include/modio/win32 )
+    include_directories ( ${DEPS_DIR}/include/modio/ext )
+    include_directories ( ${DEPS_DIR}/include/modio/ms-common )
    if ( CMAKE_CL_64 )
      link_directories ( ${DEPS_DIR}/lib/x64 )
    else ( )

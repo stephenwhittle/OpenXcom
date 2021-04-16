@@ -43,13 +43,15 @@ private:
 	Text *_txtMaster;
 	ComboBox *_cbxMasters;
 	TextList *_lstMods;
-	TextButton *_btnOk, *_btnCancel;
+	TextButton *_btnOk, *_btnCancel, *_btnOpenModBrowser;
 	Text *_txtTooltip;
 	std::string _currentTooltip;
 	std::vector<const ModInfo *> _masters;
 	std::string _curMasterId;
 	std::vector< std::pair<std::string, bool> > _mods;
 	size_t _curMasterIdx;
+	/// This may be better stored in OptionsModBrowserState
+	bool _bTickModioSDK = false;
 public:
 	/// Creates the Mods state.
 	OptionsModsState();
@@ -83,6 +85,11 @@ public:
 	void btnOkClick(Action *action);
 	/// Handler for clicking the Cancel button.
 	void btnCancelClick(Action *action);
+	/// Handler for clicking the Open Mod Browser button.
+	void btnOpenModBrowserClick(Action* action);
+
+	void think() override;
+
 };
 
 }

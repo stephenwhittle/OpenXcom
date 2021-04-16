@@ -31,6 +31,9 @@
 #include "../Engine/Options.h"
 #include "../Engine/Action.h"
 #include "StartState.h"
+#include "ErrorMessageState.h"
+#include "modio/ModioSDK.h"
+#include "../Mod/RuleInterface.h"
 
 namespace OpenXcom
 {
@@ -50,7 +53,7 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 
 	_btnOk = new TextButton(100, 16, 8, 176);
 	_btnCancel = new TextButton(100, 16, 212, 176);
-
+	_btnOpenModBrowser = new TextButton(100, 16, 106, 176);
 	_txtTooltip = new Text(305, 25, 8, 148);
 
 	// Set palette
@@ -62,6 +65,7 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 	add(_lstMods, "optionLists", "modsMenu");
 	add(_btnOk, "button", "optionsMenu");
 	add(_btnCancel, "button", "optionsMenu");
+	add(_btnOpenModBrowser, "button", "optionsMenu");
 	add(_txtTooltip, "tooltip", "optionsMenu");
 
 	add(_cbxMasters, "button", "modsMenu");
@@ -142,6 +146,10 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 	_btnCancel->setText(tr("STR_CANCEL"));
 	_btnCancel->onMouseClick((ActionHandler)&OptionsModsState::btnCancelClick);
 	_btnCancel->onKeyboardPress((ActionHandler)&OptionsModsState::btnCancelClick, Options::keyCancel);
+
+	_btnOpenModBrowser->setText("Mod Browser");
+	_btnOpenModBrowser->onMouseClick((ActionHandler)&OptionsModsState::btnOpenModBrowserClick);
+	_btnOpenModBrowser->onKeyboardPress((ActionHandler)&OptionsModsState::btnOpenModBrowserClick);
 
 	_txtTooltip->setWordWrap(true);
 }
@@ -495,6 +503,30 @@ void OptionsModsState::btnCancelClick(Action *)
 	Options::reload = false;
 	Options::load();
 	_game->popState();
+}
+
+void OptionsModsState::btnOpenModBrowserClick(Action* action)
+{
+	Modio::InitializeAsync(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio", [this](Modio::ErrorCode ec) {
+		if (!ec)
+		{
+			//create mod browser state, open it
+		}
+		else
+		{
+			_game->pushState(new ErrorMessageState((std::string("mod.io SDK init failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
+		}
+	});
+	_bTickModioSDK = true;
+}
+
+void OptionsModsState::think()
+{
+	State::think();
+	if (_bTickModioSDK)
+	{
+		Modio::RunPendingHandlers();
+	}
 }
 
 /**

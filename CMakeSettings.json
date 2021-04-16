@@ -1,0 +1,15 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x86-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x86" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "-DMODIO_API_KEY=31672f8640babdcfe91a4a12d16e3423 -DMODIO_DEFAULT_SERVER=LIVE -DMODIO_BUILD_TESTS=OFF -DMODIO_PLATFORM=WIN",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": ""
+    }
+  ]
+}

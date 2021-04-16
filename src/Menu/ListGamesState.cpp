@@ -37,7 +37,7 @@
 namespace OpenXcom
 {
 
-struct compareSaveName : public std::binary_function<SaveInfo&, SaveInfo&, bool>
+struct compareSaveName 
 {
 	bool _reverse;
 
@@ -56,7 +56,7 @@ struct compareSaveName : public std::binary_function<SaveInfo&, SaveInfo&, bool>
 	}
 };
 
-struct compareSaveTimestamp : public std::binary_function<SaveInfo&, SaveInfo&, bool>
+struct compareSaveTimestamp
 {
 	bool _reverse;
 
