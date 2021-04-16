@@ -33,6 +33,7 @@
 #include "StartState.h"
 #include "ErrorMessageState.h"
 #include "modio/ModioSDK.h"
+#include "OptionsModBrowserState.h"
 #include "../Mod/RuleInterface.h"
 
 namespace OpenXcom
@@ -510,7 +511,7 @@ void OptionsModsState::btnOpenModBrowserClick(Action* action)
 	Modio::InitializeAsync(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio", [this](Modio::ErrorCode ec) {
 		if (!ec)
 		{
-			//create mod browser state, open it
+			_game->pushState(new OptionsModBrowserState());
 		}
 		else
 		{

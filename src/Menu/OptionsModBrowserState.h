@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../Engine/State.h"
+#include "OptionsModBrowserAuthState.h"
 
-#include "modio/ModioSDK.h"
 
 namespace OpenXcom
 {
@@ -12,11 +12,16 @@ class TextList;
 class TextButton;
 class ComboBox;
 
-class OptionsModBrowserState L public State
+class OptionsModBrowserState : public State
 {
 private:
 	Window *_window;
 	TextList *_modList;
+
+public:
+	void init() override;
+
+	void think() override;
 
 };
 }

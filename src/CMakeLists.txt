@@ -223,6 +223,8 @@ set ( menu_src
   Menu/OptionsGeoscapeState.cpp
   Menu/OptionsInformExtendedState.cpp
   Menu/OptionsModsState.cpp
+  Menu/OptionsModBrowserAuthState.cpp
+  Menu/OptionsModBrowserState.cpp
   Menu/OptionsNoAudioState.cpp
   Menu/OptionsVideoState.cpp
   Menu/PauseState.cpp
