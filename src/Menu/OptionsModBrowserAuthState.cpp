@@ -3,6 +3,7 @@
 #include "../Interface/TextEdit.h"
 #include "../Interface/Text.h"
 #include "../Interface/TextButton.h"
+#include "../Interface/LayoutDriver.h"
 #include "modio/ModioSDK.h"
 
 void OpenXcom::OptionsModBrowserAuthState::think()
@@ -27,4 +28,11 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	add(_sendCodeRequestBtn, "button", "optionsMenu");
 	add(_authCodeInput, "text1", "optionsMenu");
 	add(_submitAuthBtn, "button", "optionsMenu");
+	LayoutDriver d = LayoutDriver(LayoutDirection::Vertical, _window,
+		LayoutParam(_authRequiredText).Proportional(1, 2).OtherAxisStretch(),
+		LayoutParam(_emailAddrInput).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_sendCodeRequestBtn).Proportional(1, 1).OtherAxisCenter(),
+		LayoutParam(_authCodeInput).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_submitAuthBtn).Proportional(1, 1).OtherAxisCenter());
+	d.ApplyLayout();
 }
