@@ -63,6 +63,16 @@ namespace OpenXcom
 		Surface* _rootElement = nullptr;
 		LayoutDirection _direction = LayoutDirection::Horizontal;
 		std::vector<LayoutParam> _childElements;
+		struct
+		{
+			int Top = 0;
+			int Bottom = 0;
+			int Left = 0;
+			int Right = 0;
+			int HPadding() { return Left + Right; }
+			int VPadding() { return Top + Bottom; }
+		} _padding;
+
 		/// Helper method to make ApplyLayout a little more terse
 		bool Horizontal() { return _direction == LayoutDirection::Horizontal; }
 	public:
@@ -72,12 +82,31 @@ namespace OpenXcom
 			_direction(Direction),
 			_childElements{ Children... } {};
 
-
+		LayoutDriver& Padding(int AllValue)
+		{
+			_padding.Top = AllValue;
+			_padding.Left = AllValue;
+			_padding.Bottom = AllValue;
+			_padding.Right = AllValue;
+			return *this;
+		}
+		LayoutDriver& Padding(int VPadding, int HPadding)
+		{
+			_padding.Top = VPadding;
+			_padding.Bottom = VPadding;
+			_padding.Left = HPadding;
+			_padding.Right = HPadding;
+		}
 		void ApplyLayout()
 		{
 			{
-				int AvailableSpace = Horizontal() ? _rootElement->getWidth() : _rootElement->getHeight();
-				int OffAxisAvailableSpace = Horizontal() ? _rootElement->getHeight() : _rootElement->getWidth();
+				int AvailableSpace = Horizontal() ? _rootElement->getWidth() - _padding.HPadding() : _rootElement->getHeight() - _padding.VPadding();
+				int OffAxisAvailableSpace = Horizontal() ? _rootElement->getHeight() - _padding.VPadding() : _rootElement->getWidth() - _padding.HPadding();
+
+				int OffAxisCenter = Horizontal() ?
+					_rootElement->getY() + _padding.Top + (OffAxisAvailableSpace / 2) :
+					_rootElement->getX() + _padding.Left + (OffAxisAvailableSpace / 2);
+
 				//get the desired widths of all absolute elements
 
 				int DesiredSpace = 0;
@@ -101,7 +130,7 @@ namespace OpenXcom
 				int RemainingSpace = AvailableSpace - DesiredSpace;
 				if (RemainingSpace > 0)
 				{
-					int CurrentPosition = 0;
+					int CurrentPosition = Horizontal() ? _padding.Left : _padding.Top;
 
 					for (LayoutParam& Child : _childElements)
 					{
@@ -116,12 +145,15 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setHeight(OffAxisAvailableSpace);
-									Child.getWidget()->setY(_rootElement->getY());
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getY() + _rootElement->getHeight() / 2;
 									Child.getWidget()->setY(OffAxisCenter - Child.getWidget()->getHeight() / 2);
+								}
+								else
+								{
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 							}
 							else
@@ -131,13 +163,17 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setWidth(OffAxisAvailableSpace);
-									Child.getWidget()->setX(_rootElement->getX());
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getX() + _rootElement->getWidth() / 2;
 									Child.getWidget()->setX(OffAxisCenter - Child.getWidget()->getWidth() / 2);
 								}
+								else
+								{
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
+								}
+
 							}
 
 							CurrentPosition += DesiredDimension;
@@ -151,12 +187,15 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setHeight(OffAxisAvailableSpace);
-									Child.getWidget()->setY(_rootElement->getY());
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getY() + _rootElement->getHeight() / 2;
 									Child.getWidget()->setY(OffAxisCenter - Child.getWidget()->getHeight() / 2);
+								}
+								else
+								{
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 								CurrentPosition += Child.desiredX;
 							}
@@ -167,13 +206,17 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setWidth(OffAxisAvailableSpace);
-									Child.getWidget()->setX(_rootElement->getX());
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getX() + _rootElement->getWidth() / 2;
 									Child.getWidget()->setX(OffAxisCenter - Child.getWidget()->getWidth() / 2);
 								}
+								else
+								{
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
+								}
+
 								CurrentPosition += Child.desiredY;
 							}
 						}
@@ -197,12 +240,15 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setHeight(OffAxisAvailableSpace);
-									Child.getWidget()->setY(_rootElement->getY());
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getY() + _rootElement->getHeight() / 2;
 									Child.getWidget()->setY(OffAxisCenter - Child.getWidget()->getHeight() / 2);
+								}
+								else
+								{
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 							}
 							else
@@ -212,13 +258,17 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setWidth(OffAxisAvailableSpace);
-									Child.getWidget()->setX(_rootElement->getX());
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getX() + _rootElement->getWidth() / 2;
 									Child.getWidget()->setX(OffAxisCenter - Child.getWidget()->getWidth() / 2);
 								}
+								else
+								{
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
+								}
+
 							}
 
 							CurrentPosition += DesiredDimension;
@@ -236,12 +286,15 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setHeight(OffAxisAvailableSpace);
-									Child.getWidget()->setY(_rootElement->getY());
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getY() + _rootElement->getHeight() / 2;
 									Child.getWidget()->setY(OffAxisCenter - Child.getWidget()->getHeight() / 2);
+								}
+								else
+								{
+									Child.getWidget()->setY(_rootElement->getY() + _padding.Top);
 								}
 							}
 							else
@@ -251,21 +304,21 @@ namespace OpenXcom
 								if (Child.alignment == LayoutAlignment::Stretch)
 								{
 									Child.getWidget()->setWidth(OffAxisAvailableSpace);
-									Child.getWidget()->setX(_rootElement->getX());
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
 								}
 								else if (Child.alignment == LayoutAlignment::Center)
 								{
-									int OffAxisCenter = _rootElement->getX() + _rootElement->getWidth() / 2;
 									Child.getWidget()->setX(OffAxisCenter - Child.getWidget()->getWidth() / 2);
+								}
+								else
+								{
+									Child.getWidget()->setX(_rootElement->getX() + _padding.Left);
 								}
 							}
 
 							CurrentPosition += DesiredDimension;
 						}
 					}
-					/// get how much we need to scale down by
-					/// absolute ones get their desired size scaled by that factor, and then set
-					/// proportional ones 
 				}
 			}
 		}

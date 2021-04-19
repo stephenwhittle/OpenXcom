@@ -14,11 +14,16 @@ class OptionsModBrowserAuthState : public State
 {
 private:
 	Window* _window;
+	InteractiveSurface* _modioLogo;
 	Text* _authRequiredText;
 	TextEdit* _emailAddrInput;
 	TextButton* _sendCodeRequestBtn;
 	TextEdit* _authCodeInput;
 	TextButton* _submitAuthBtn;
+	/// Handler for requesting an email auth code.
+	void submitEmailClick(Action* action);
+	/// Handler for submitting an email auth code.
+	void submitAuthCodeClick(Action* action);
 
 public:
 	void think() override;

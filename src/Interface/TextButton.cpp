@@ -348,6 +348,26 @@ void TextButton::setWidth(int width)
 	_text->setWidth(width);
 }
 
+void TextButton::autoWidth(int maximum, int padding)
+{
+	_text->setWordWrap(false);
+	int TextWidth = _text->getTextWidth();
+	if ((TextWidth + (2 * padding)) < maximum)
+	{
+		setWidth(TextWidth + (2* padding) );
+		// We need to have the text Surface's width > the calculated text width or we still get wrapping
+		if (padding == 0)
+		{
+			_text->setWidth(TextWidth +1);
+		}
+	}
+	else
+	{
+		setWidth(maximum);
+	}
+	_text->setWordWrap(true);
+}
+
 void TextButton::setHeight(int height)
 {
 	Surface::setHeight(height);

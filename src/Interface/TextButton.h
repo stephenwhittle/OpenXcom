@@ -86,6 +86,10 @@ public:
 	/// Attaches this button to a combobox.
 	void setComboBox(ComboBox *comboBox);
 	void setWidth(int width);
+	/// Sets the text button to expand its width up to the specified maximum size to avoid wrapping.
+	/// @param maximum the maximum width the button should be before wrapping
+	/// @param padding the padding in pixels to add before and after the enclosed text
+	void autoWidth(int maximum, int padding = 4);
 	void setHeight(int height);
 	void setGeoscapeButton(bool geo);
 };

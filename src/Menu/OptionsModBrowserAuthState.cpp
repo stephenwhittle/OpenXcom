@@ -4,16 +4,49 @@
 #include "../Interface/Text.h"
 #include "../Interface/TextButton.h"
 #include "../Interface/LayoutDriver.h"
+#include "../Engine/InteractiveSurface.h"
+#include "../Engine/FileMap.h"
+#include "../Engine/Options.h"
+#include "../Engine/Game.h"
+#include "../Menu/ErrorMessageState.h"
+#include "../Mod/RuleInterface.h"
+#include "../Mod/Mod.h"
 #include "modio/ModioSDK.h"
+
+void OpenXcom::OptionsModBrowserAuthState::submitEmailClick(Action* action)
+{
+	Modio::RequestEmailAuthCodeAsync(Modio::EmailAddress(_emailAddrInput->getText()), [this](Modio::ErrorCode ec) {
+		if (ec)
+		{
+			_game->pushState(new ErrorMessageState((std::string("mod.io SDK auth failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
+		}
+	});
+}
+
+void OpenXcom::OptionsModBrowserAuthState::submitAuthCodeClick(Action* action)
+{
+	Modio::AuthenticateUserEmailAsync(Modio::EmailAuthCode(_authCodeInput->getText()), [this](Modio::ErrorCode ec) {
+		if (ec)
+		{
+			_game->pushState(new ErrorMessageState((std::string("mod.io SDK auth failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
+		}
+		else
+		{
+			_game->popState();
+		}
+	});
+}
 
 void OpenXcom::OptionsModBrowserAuthState::think()
 {
 	State::think();
+	Modio::RunPendingHandlers();
 }
 
 OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 {
 	_window = new Window(this, 320, 200, 0, 0, POPUP_VERTICAL);
+	_modioLogo = new InteractiveSurface(100, 100);
 	_authRequiredText = new Text(240, 100);
 	_emailAddrInput = new TextEdit(this, 240, 16);
 	_sendCodeRequestBtn = new TextButton(50, 16);
@@ -28,11 +61,33 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	add(_sendCodeRequestBtn, "button", "optionsMenu");
 	add(_authCodeInput, "text1", "optionsMenu");
 	add(_submitAuthBtn, "button", "optionsMenu");
+
+	_authRequiredText->setText("Please enter the email address for your mod.io account to authenticate and manage your OpenXcom mod subscriptions");
+	_authRequiredText->setColor(138);
+	_authRequiredText->setWordWrap(true);
+	_authRequiredText->setAlign(ALIGN_CENTER);
+
+	_emailAddrInput->setTooltip("Email Address");
+	_emailAddrInput->setText("Email Address");
+	_sendCodeRequestBtn->setText("Submit code request");
+	_sendCodeRequestBtn->autoWidth(300);
+	_sendCodeRequestBtn->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::submitEmailClick);
+	_authCodeInput->setTooltip("Enter the code sent to your email here");
+	_authCodeInput->setText("Authentication Code");
+	_submitAuthBtn->setText("Submit authentication code");
+	_submitAuthBtn->autoWidth(300);
+	_submitAuthBtn->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::submitAuthCodeClick);
 	LayoutDriver d = LayoutDriver(LayoutDirection::Vertical, _window,
-		LayoutParam(_authRequiredText).Proportional(1, 2).OtherAxisStretch(),
+		LayoutParam(_modioLogo).Proportional(1, 3).OtherAxisStretch(),
+		LayoutParam(_authRequiredText).Proportional(1, 1).OtherAxisStretch(),
 		LayoutParam(_emailAddrInput).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_sendCodeRequestBtn).Proportional(1, 1).OtherAxisCenter(),
-		LayoutParam(_authCodeInput).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_submitAuthBtn).Proportional(1, 1).OtherAxisCenter());
+		LayoutParam(_sendCodeRequestBtn).Absolute(1, 16).OtherAxisCenter(),
+		LayoutParam(_authCodeInput).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_submitAuthBtn).Absolute(1, 16).OtherAxisCenter())
+		.Padding(4);
+
 	d.ApplyLayout();
+
+	_modioLogo->loadImage(FileMap::getFilePath("modiocolor.png"));
+	recenter(Options::baseXResolution, Options::baseYResolution);
 }
