@@ -9,7 +9,7 @@ class Window;
 class Text;
 class TextButton;
 class TextEdit;
-
+class LayoutGroup;
 class OptionsModBrowserAuthState : public State
 {
 private:
@@ -20,6 +20,7 @@ private:
 	TextButton* _sendCodeRequestBtn;
 	TextEdit* _authCodeInput;
 	TextButton* _submitAuthBtn;
+	LayoutGroup* _emailWidgetGroup;
 	/// Handler for requesting an email auth code.
 	void submitEmailClick(Action* action);
 	/// Handler for submitting an email auth code.

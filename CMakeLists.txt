@@ -7,6 +7,7 @@ include(GNUInstallDirs)
 
 # For yaml-cpp
 set (CMAKE_CXX_STANDARD 17)
+add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 # use std=c++11 rather than std=gnu++11
 set (CMAKE_CXX_EXTENSIONS OFF)
 

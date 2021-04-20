@@ -188,6 +188,8 @@ set ( interface_src
   Interface/FpsCounter.cpp
   Interface/Frame.cpp
   Interface/ImageButton.cpp
+  Interface/LayoutDriver.cpp
+  Interface/LayoutGroup.cpp
   Interface/NumberText.cpp
   Interface/ScrollBar.cpp
   Interface/Slider.cpp

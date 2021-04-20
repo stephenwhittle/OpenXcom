@@ -4,6 +4,7 @@
 #include "../Interface/Text.h"
 #include "../Interface/TextButton.h"
 #include "../Interface/LayoutDriver.h"
+#include "../Interface/LayoutGroup.h"
 #include "../Engine/InteractiveSurface.h"
 #include "../Engine/FileMap.h"
 #include "../Engine/Options.h"
@@ -77,11 +78,15 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	_submitAuthBtn->setText("Submit authentication code");
 	_submitAuthBtn->autoWidth(300);
 	_submitAuthBtn->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::submitAuthCodeClick);
+
+	_emailWidgetGroup = LayoutGroup::Horizontal(320, 16, LayoutParam(_emailAddrInput).Proportional(4, 1), LayoutParam(_sendCodeRequestBtn).KeepSize());
+
+
+
 	LayoutDriver d = LayoutDriver(LayoutDirection::Vertical, _window,
 		LayoutParam(_modioLogo).Proportional(1, 3).OtherAxisStretch(),
 		LayoutParam(_authRequiredText).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_emailAddrInput).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_sendCodeRequestBtn).Absolute(1, 16).OtherAxisCenter(),
+		LayoutParam(_emailWidgetGroup).Absolute(1,16).OtherAxisStretch(),
 		LayoutParam(_authCodeInput).Absolute(1, 16).OtherAxisStretch(),
 		LayoutParam(_submitAuthBtn).Absolute(1, 16).OtherAxisCenter())
 		.Padding(4);
@@ -89,5 +94,5 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	d.ApplyLayout();
 
 	_modioLogo->loadImage(FileMap::getFilePath("modiocolor.png"));
-	recenter(Options::baseXResolution, Options::baseYResolution);
+	centerAllSurfaces();
 }
