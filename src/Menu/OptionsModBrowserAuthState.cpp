@@ -57,6 +57,7 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	setInterface("optionsMenu");
 
 	add(_window, "window", "optionsMenu");
+	
 	add(_authRequiredText, "text", "optionsMenu");
 	add(_emailAddrInput, "text1", "optionsMenu");
 	add(_sendCodeRequestBtn, "button", "optionsMenu");
@@ -78,21 +79,21 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	_submitAuthBtn->setText("Submit authentication code");
 	_submitAuthBtn->autoWidth(300);
 	_submitAuthBtn->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::submitAuthCodeClick);
-
-	_emailWidgetGroup = LayoutGroup::Horizontal(320, 16, LayoutParam(_emailAddrInput).Proportional(4, 1), LayoutParam(_sendCodeRequestBtn).KeepSize());
-
+	//Todo: set height of text edits to the maximum height of the font in question so they are centered vertically
+	_emailWidgetGroup = LayoutGroup::Horizontal(320, 16, LayoutParam(_emailAddrInput).Proportional(4, 1).OtherAxisStretch(), LayoutParam(_sendCodeRequestBtn).KeepSize());
+	_codeWidgetGroup = LayoutGroup::Horizontal(320, 16, LayoutParam(_authCodeInput).Proportional(4, 1).OtherAxisCenter(), LayoutParam(_submitAuthBtn).KeepSize());
 
 
 	LayoutDriver d = LayoutDriver(LayoutDirection::Vertical, _window,
 		LayoutParam(_modioLogo).Proportional(1, 3).OtherAxisStretch(),
 		LayoutParam(_authRequiredText).Proportional(1, 1).OtherAxisStretch(),
 		LayoutParam(_emailWidgetGroup).Absolute(1,16).OtherAxisStretch(),
-		LayoutParam(_authCodeInput).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_submitAuthBtn).Absolute(1, 16).OtherAxisCenter())
+		LayoutParam(_codeWidgetGroup).Absolute(1,16).OtherAxisStretch())
 		.Padding(4);
 
 	d.ApplyLayout();
 
 	_modioLogo->loadImage(FileMap::getFilePath("modiocolor.png"));
+
 	centerAllSurfaces();
 }

@@ -21,6 +21,7 @@ private:
 	TextEdit* _authCodeInput;
 	TextButton* _submitAuthBtn;
 	LayoutGroup* _emailWidgetGroup;
+	LayoutGroup* _codeWidgetGroup;
 	/// Handler for requesting an email auth code.
 	void submitEmailClick(Action* action);
 	/// Handler for submitting an email auth code.

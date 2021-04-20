@@ -1,6 +1,10 @@
 #pragma once
 
 #include "../Engine/State.h"
+//TODO@modio-sdk : hacky, need to remove when we work out why asio's defines aren't being set correctly
+#include "modio/detail/ModioDefines.h"
+#include "modio/core/entities/ModioModInfoList.h"
+#include "modio/core/ModioStdTypes.h" //For Modio::Optional
 
 
 namespace OpenXcom
@@ -21,7 +25,8 @@ private:
 	TextEdit* _searchText;
 	TextButton* _searchButton;
 	LayoutGroup* _searchBar;
-
+	Modio::Optional<Modio::ModInfoList> _currentModResults;
+	void UpdateModList();
 public:
 	OptionsModBrowserState();
 	void init() override;

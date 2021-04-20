@@ -410,6 +410,7 @@ if ( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
 endif ()
 
 if ( MSVC )
+  
   if ( ENABLE_WARNING )
     add_compile_options ( /W${MSVC_WARNING_LEVEL} )
   else ()
