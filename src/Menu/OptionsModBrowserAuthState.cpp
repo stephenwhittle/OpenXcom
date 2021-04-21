@@ -41,7 +41,6 @@ void OpenXcom::OptionsModBrowserAuthState::submitAuthCodeClick(Action* action)
 void OpenXcom::OptionsModBrowserAuthState::think()
 {
 	State::think();
-	Modio::RunPendingHandlers();
 }
 
 OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()

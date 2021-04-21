@@ -508,26 +508,7 @@ void OptionsModsState::btnCancelClick(Action *)
 
 void OptionsModsState::btnOpenModBrowserClick(Action* action)
 {
-	Modio::InitializeAsync(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio", [this](Modio::ErrorCode ec) {
-		if (!ec)
-		{
-			_game->pushState(new OptionsModBrowserState());
-		}
-		else
-		{
-			_game->pushState(new ErrorMessageState((std::string("mod.io SDK init failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
-		}
-	});
-	_bTickModioSDK = true;
-}
-
-void OptionsModsState::think()
-{
-	State::think();
-	if (_bTickModioSDK)
-	{
-		Modio::RunPendingHandlers();
-	}
+	_game->pushState(new OptionsModBrowserState());
 }
 
 /**

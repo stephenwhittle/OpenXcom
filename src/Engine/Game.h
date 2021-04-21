@@ -54,7 +54,6 @@ private:
 	unsigned int _timeOfLastFrame;
 	int _timeUntilNextFrame;
 	static const double VOLUME_GRADIENT;
-
 public:
 	/// Creates a new game and initializes SDL.
 	Game(const std::string &title);

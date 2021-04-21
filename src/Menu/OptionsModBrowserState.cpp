@@ -117,7 +117,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	LayoutDriver Driver = LayoutDriver(LayoutDirection::Vertical, _window,
 		LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(),
 		LayoutParam(_modList).Proportional(1, 1).KeepSize(),
-		LayoutParam(_details).Proportional(1, 1))
+		LayoutParam(_details).Proportional(1, 1).OtherAxisStretch())
 		.Padding(4);
 	Driver.ApplyLayout();
 
@@ -128,7 +128,7 @@ void OpenXcom::OptionsModBrowserState::init()
 {
 	State::init();
 
-	if (!Modio::QueryUserProfile().has_value())
+	if (!Modio::QueryUserProfile())
 	{
 		_game->pushState(new OptionsModBrowserAuthState());
 	}
@@ -149,7 +149,7 @@ void OpenXcom::OptionsModBrowserState::init()
 void OpenXcom::OptionsModBrowserState::think()
 {
 	State::think();
-	Modio::RunPendingHandlers();
+	
 }
 
 void OpenXcom::OptionsModBrowserState::onModSelected(Action* action)

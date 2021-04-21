@@ -50,8 +50,7 @@ private:
 	std::string _curMasterId;
 	std::vector< std::pair<std::string, bool> > _mods;
 	size_t _curMasterIdx;
-	/// This may be better stored in OptionsModBrowserState
-	bool _bTickModioSDK = false;
+
 public:
 	/// Creates the Mods state.
 	OptionsModsState();
@@ -87,8 +86,6 @@ public:
 	void btnCancelClick(Action *action);
 	/// Handler for clicking the Open Mod Browser button.
 	void btnOpenModBrowserClick(Action* action);
-
-	void think() override;
 
 };
 
