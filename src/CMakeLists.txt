@@ -199,6 +199,7 @@ set ( interface_src
   Interface/TextList.cpp
   Interface/ToggleTextButton.cpp
   Interface/Window.cpp
+  Interface/Utilities.cpp
 )
 
 set ( menu_src

@@ -11,6 +11,8 @@
 #include "../Mod/Mod.h"
 #include "modio/core/entities/ModioModInfo.h"
 #include "modio/ModioSDK.h"
+#include "../Interface/Utilities.h"
+#include "../Engine/CrossPlatform.h"
 #include <map>
 
 void OpenXcom::OptionsModBrowserState::UpdateModList()
@@ -20,23 +22,43 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 		std::map<Modio::ModID, Modio::ModCollectionEntry> SubscribedMods = Modio::QueryUserSubscriptions();
 		_modList->clearList();
 		//todo:@modio make these autosize if we can
-		_modList->setColumns(3, 80, 200, 35);
+		textContext Context
+		{
+			_game->getMod()->getFont("FONT_BIG"),
+			_game->getMod()->getFont("FONT_SMALL"),
+			_game->getLanguage(),
+			35,
+			16,
+			false
+		};
+		//TODO:@modio expose to localization
+		int ActionColumnWidth = processText("Unsubscribe",Context).getTextWidth();
+		_modList->setColumns(2, 120 ,ActionColumnWidth);
+
 		for (const Modio::ModInfo& Info : *_currentModResults)
 		{
-			_modList->addRow(3, Info.ProfileName.c_str(), Info.ProfileDescriptionPlaintext.c_str(), "Subscribe");
+			_modList->addRow(2, Info.ProfileName.c_str(),"Subscribe");
 			std::size_t CurrentRowIndex = _modList->getRows() - 1;
 			if (SubscribedMods.count(Info.ModId))
 			{
-				_modList->setCellText(CurrentRowIndex, 2, "Unsubscribe");
-				_modList->setCellColor(CurrentRowIndex, 2, 127);
+				_modList->setCellText(CurrentRowIndex, 1, "Unsubscribe");
+				//_modList->setCellColor(CurrentRowIndex, 1, 127);
 			}
 			else
 			{
 				//_modList->setCellText(CurrentRowIndex, 2, "Subscribe");
-				_modList->setCellColor(CurrentRowIndex, 2, 6);
+				//_modList->setCellColor(CurrentRowIndex, 2, 6);
 			}
 		}
 	}
+}
+
+void OpenXcom::OptionsModBrowserState::updateModDetails(Modio::ModInfo modDetails)
+{
+	_modName->setText("Mod Name: " + modDetails.ProfileName);
+	_modUpdated->setText("Mod Updated: " + CrossPlatform::timeToString((time_t)modDetails.ProfileDateUpdated).first);
+	_modCreated->setText("Mod Creator: " + modDetails.ProfileSubmittedBy.Username);
+	_modDesc->setText("Mod Description: " + modDetails.ProfileDescriptionPlaintext);
 }
 
 OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
@@ -44,7 +66,12 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_window = new Window(this, 320, 200);
 	_searchText = new TextEdit(this, 240, 16);
 	_searchButton = new TextButton(50, 16);
-	_modList = new TextList(320, 100);
+	//making the text list a bit narrower so the arrows are in the main window
+	_modList = new TextList(320 - (12 + 11), 100);
+	_modName = new Text(320, 16);
+	_modUpdated = new Text(320, 16);
+	_modCreated = new Text(320, 16);
+	_modDesc = new Text(320, 16);
 
 	setInterface("optionsMenu");
 
@@ -53,13 +80,43 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	add(_searchButton, "button", "optionsMenu");
 	add(_modList, "optionLists", "controlsMenu");
 
+	add(_modName, "text", "modsMenu");
+	add(_modUpdated, "text", "modsMenu");
+	add(_modCreated, "text", "modsMenu");
+	add(_modDesc, "text", "modsMenu");
+	
 	_searchButton->setText("Search");
 	_searchButton->autoWidth(100);
 	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).KeepSize());
-	
+
+	_modName->setText("Mod Name:");
+	_modUpdated->setText("Mod Updated:");
+	_modCreated->setText("Mod Creator:");
+	_modDesc->setText("Mod Description:");
+	_modDesc->setWordWrap(true);
 	//_modList->initText(_game->getMod()->getFont("FONT_BIG"), _game->getMod()->getFont("FONT_SMALL"), _game->getLanguage());
 
-	LayoutDriver Driver = LayoutDriver(LayoutDirection::Vertical, _window, LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(), LayoutParam(_modList).Proportional(1,1).OtherAxisStretch())
+	_modList->setBackground(_window);
+	_modList->setSelectable(true);
+	_modList->onMouseClick((ActionHandler)&OptionsModBrowserState::onModSelected);
+
+	_detailsHeader = LayoutGroup::Horizontal(320, 16,
+		LayoutParam(_modName).Proportional(2, 1),
+		LayoutParam(_modCreated).Proportional(2, 1),
+		LayoutParam(_modUpdated).Proportional(1, 1));
+
+	_details = LayoutGroup::Vertical(320, 100,
+		LayoutParam(_detailsHeader).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_modDesc).Proportional(1, 1).OtherAxisStretch());
+
+	add(_detailsHeader);
+	add(_details);
+
+
+	LayoutDriver Driver = LayoutDriver(LayoutDirection::Vertical, _window,
+		LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_modList).Proportional(1, 1).KeepSize(),
+		LayoutParam(_details).Proportional(1, 1))
 		.Padding(4);
 	Driver.ApplyLayout();
 
@@ -94,4 +151,13 @@ void OpenXcom::OptionsModBrowserState::think()
 {
 	State::think();
 	Modio::RunPendingHandlers();
+}
+
+void OpenXcom::OptionsModBrowserState::onModSelected(Action* action)
+{
+	int selectionIndex = _modList->getSelectedRow();
+	if (_currentModResults)
+	{
+		updateModDetails((*_currentModResults)[selectionIndex]);
+	}
 }

@@ -63,7 +63,7 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	add(_sendCodeRequestBtn, "button", "optionsMenu");
 	add(_authCodeInput, "text1", "optionsMenu");
 	add(_submitAuthBtn, "button", "optionsMenu");
-
+	add(_modioLogo);
 	_authRequiredText->setText("Please enter the email address for your mod.io account to authenticate and manage your OpenXcom mod subscriptions");
 	_authRequiredText->setColor(138);
 	_authRequiredText->setWordWrap(true);
@@ -94,6 +94,6 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	d.ApplyLayout();
 
 	_modioLogo->loadImage(FileMap::getFilePath("modiocolor.png"));
-
+	
 	centerAllSurfaces();
 }

@@ -25,13 +25,23 @@ private:
 	TextEdit* _searchText;
 	TextButton* _searchButton;
 	LayoutGroup* _searchBar;
+
+	LayoutGroup* _details;
+	Text* _modName;
+	Text* _modUpdated;
+	Text* _modCreated;
+	LayoutGroup* _detailsHeader;
+	Text* _modDesc;
+
 	Modio::Optional<Modio::ModInfoList> _currentModResults;
 	void UpdateModList();
+	void updateModDetails(Modio::ModInfo modDetails);
 public:
 	OptionsModBrowserState();
 	void init() override;
 
 	void think() override;
-
+	/// Handler for showing mod details when one is clicked in the list
+	void onModSelected(Action* action);
 };
 }
