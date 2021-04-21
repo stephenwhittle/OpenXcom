@@ -43,5 +43,9 @@ public:
 	void think() override;
 	/// Handler for showing mod details when one is clicked in the list
 	void onModSelected(Action* action);
+	/// Handler for clicking the search button
+	void onSearchClicked(Action* action);
+	/// Handler for clicking the subscribe button for a mod
+	void onSubscribeClicked(Action* action);
 };
 }

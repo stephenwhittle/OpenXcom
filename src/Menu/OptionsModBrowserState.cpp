@@ -87,6 +87,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	
 	_searchButton->setText("Search");
 	_searchButton->autoWidth(100);
+	_searchButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSearchClicked);
 	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).KeepSize());
 
 	_modName->setText("Mod Name:");
@@ -133,8 +134,6 @@ void OpenXcom::OptionsModBrowserState::init()
 	}
 	else
 	{
-		
-
 		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
 		{
 			if (!ec)
@@ -159,5 +158,46 @@ void OpenXcom::OptionsModBrowserState::onModSelected(Action* action)
 	if (_currentModResults)
 	{
 		updateModDetails((*_currentModResults)[selectionIndex]);
+	}
+}
+
+void OpenXcom::OptionsModBrowserState::onSearchClicked(Action* action)
+{
+	if (!_searchText->getText().empty())
+	{
+		Modio::ListAllModsAsync(Modio::FilterParams().NameContains(_searchText->getText()), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
+		{
+			if (!ec)
+			{
+				_currentModResults = Mods;
+				UpdateModList();
+			}
+		});
+	}
+	else
+	{
+		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
+		{
+			if (!ec)
+			{
+				_currentModResults = Mods;
+				UpdateModList();
+			}
+		});
+	}
+}
+
+void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
+{
+	int selectionIndex = _modList->getSelectedRow();
+	if (_currentModResults)
+	{
+		Modio::SubscribeToModAsync((*_currentModResults)[selectionIndex].ModId, [](Modio::ErrorCode ec)
+		{
+			if (ec)
+			{
+				//error state
+			}
+		});
 	}
 }
