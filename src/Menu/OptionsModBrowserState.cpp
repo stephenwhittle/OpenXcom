@@ -5,6 +5,7 @@
 #include "../Interface/TextButton.h"
 #include "../Interface/TextEdit.h"
 #include "../Interface/TextList.h"
+#include "../Interface/Bar.h"
 #include "OptionsModBrowserAuthState.h"
 #include "../Interface/Window.h"
 #include "../Engine/Game.h"
@@ -22,32 +23,15 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 		std::map<Modio::ModID, Modio::ModCollectionEntry> SubscribedMods = Modio::QueryUserSubscriptions();
 		_modList->clearList();
 		//todo:@modio make these autosize if we can
-		textContext Context
-		{
-			_game->getMod()->getFont("FONT_BIG"),
-			_game->getMod()->getFont("FONT_SMALL"),
-			_game->getLanguage(),
-			35,
-			16,
-			false
-		};
-		//TODO:@modio expose to localization
-		int ActionColumnWidth = processText("Unsubscribe",Context).getTextWidth();
-		_modList->setColumns(2, 120 ,ActionColumnWidth);
+		_modList->setColumns(1, 320 - (12 + 11));
 
 		for (const Modio::ModInfo& Info : *_currentModResults)
 		{
-			_modList->addRow(2, Info.ProfileName.c_str(),"Subscribe");
+			_modList->addRow(1, Info.ProfileName.c_str());
 			std::size_t CurrentRowIndex = _modList->getRows() - 1;
 			if (SubscribedMods.count(Info.ModId))
 			{
-				_modList->setCellText(CurrentRowIndex, 1, "Unsubscribe");
-				//_modList->setCellColor(CurrentRowIndex, 1, 127);
-			}
-			else
-			{
-				//_modList->setCellText(CurrentRowIndex, 2, "Subscribe");
-				//_modList->setCellColor(CurrentRowIndex, 2, 6);
+				_modList->setCellColor(CurrentRowIndex, 1, 6);
 			}
 		}
 	}
@@ -55,10 +39,7 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 
 void OpenXcom::OptionsModBrowserState::updateModDetails(Modio::ModInfo modDetails)
 {
-	_modName->setText("Mod Name: " + modDetails.ProfileName);
-	_modUpdated->setText("Mod Updated: " + CrossPlatform::timeToString((time_t)modDetails.ProfileDateUpdated).first);
-	_modCreated->setText("Mod Creator: " + modDetails.ProfileSubmittedBy.Username);
-	_modDesc->setText("Mod Description: " + modDetails.ProfileDescriptionPlaintext);
+	_modDesc->setText(modDetails.ProfileDescriptionPlaintext);
 }
 
 OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
@@ -68,10 +49,21 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_searchButton = new TextButton(50, 16);
 	//making the text list a bit narrower so the arrows are in the main window
 	_modList = new TextList(320 - (12 + 11), 100);
-	_modName = new Text(320, 16);
-	_modUpdated = new Text(320, 16);
-	_modCreated = new Text(320, 16);
+	_modListScrollPlaceholder = new Surface(13, 16);
+	_prevButton = new TextButton(50, 16);
+	_nextButton = new TextButton(50, 16);
+	_queueSeparator = new Surface(50, 16);
+	_progress = new Bar(50, 16);
+	_queueButton = new TextButton(50, 16);
+
+
 	_modDesc = new Text(320, 16);
+
+	_subscribeButton = new TextButton(50, 16);
+	_detailsButton = new TextButton(50, 16);
+	_actionButtonSeparator = new Surface(50, 16);
+	_optionsButton = new TextButton(50, 16);
+	_backButton = new TextButton(50, 16);
 
 	setInterface("optionsMenu");
 
@@ -79,45 +71,78 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	add(_searchText, "text", "modsMenu");
 	add(_searchButton, "button", "optionsMenu");
 	add(_modList, "optionLists", "controlsMenu");
+	add(_modListScrollPlaceholder);
 
-	add(_modName, "text", "modsMenu");
-	add(_modUpdated, "text", "modsMenu");
-	add(_modCreated, "text", "modsMenu");
+	add(_prevButton, "button", "optionsMenu");
+	add(_nextButton, "button", "optionsMenu");
+	add(_queueSeparator);
+	add(_progress);
+	add(_queueButton, "button", "optionsMenu");
+
 	add(_modDesc, "text", "modsMenu");
-	
+
+	add(_subscribeButton, "button", "optionsMenu");
+	add(_detailsButton, "button", "optionsMenu");
+	add(_actionButtonSeparator);
+	add(_optionsButton, "button", "optionsMenu");
+	add(_backButton, "button", "optionsMenu");
+
+
+
 	_searchButton->setText("Search");
 	_searchButton->autoWidth(100);
 	_searchButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSearchClicked);
-	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).KeepSize());
+	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).Proportional(1,1));
 
-	_modName->setText("Mod Name:");
-	_modUpdated->setText("Mod Updated:");
-	_modCreated->setText("Mod Creator:");
-	_modDesc->setText("Mod Description:");
-	_modDesc->setWordWrap(true);
-	//_modList->initText(_game->getMod()->getFont("FONT_BIG"), _game->getMod()->getFont("FONT_SMALL"), _game->getLanguage());
+	_prevButton->setText("Prev");
+	_nextButton->setText("Next");
+	_queueButton->setText("0 in queue");
 
-	_modList->setBackground(_window);
+	_modList->setBackground(_modList);
 	_modList->setSelectable(true);
 	_modList->onMouseClick((ActionHandler)&OptionsModBrowserState::onModSelected);
 
-	_detailsHeader = LayoutGroup::Horizontal(320, 16,
-		LayoutParam(_modName).Proportional(2, 1),
-		LayoutParam(_modCreated).Proportional(2, 1),
-		LayoutParam(_modUpdated).Proportional(1, 1));
+	_modListGroup = LayoutGroup::Horizontal(320, 100,
+		LayoutParam(_modList).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_modListScrollPlaceholder).Absolute(23, 1).OtherAxisStretch());
 
-	_details = LayoutGroup::Vertical(320, 100,
-		LayoutParam(_detailsHeader).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_modDesc).Proportional(1, 1).OtherAxisStretch());
+	_browseNavButtonGroup = LayoutGroup::Horizontal(320, 100,
+		LayoutParam(_prevButton).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_nextButton).Proportional(1, 1).OtherAxisStretch());
 
-	add(_detailsHeader);
-	add(_details);
+	_browseButtonGroup = LayoutGroup::Vertical(320, 100,
+		LayoutParam(_browseNavButtonGroup).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_queueSeparator).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_progress).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_queueButton).Absolute(1, 16).OtherAxisStretch());
 
+	_browseGroup = LayoutGroup::Horizontal(320,100,
+		LayoutParam(_modListGroup).Proportional(4,1).OtherAxisStretch(),
+		LayoutParam(_browseButtonGroup).Proportional(1, 1).OtherAxisStretch());
+
+
+	_modDesc->setWordWrap(true);
+
+	_subscribeButton->setText("Subscribe");
+	_detailsButton->setText("Details");
+	_optionsButton->setText("Options");
+	_backButton->setText("Back");
+
+	_actionButtonGroup = LayoutGroup::Vertical(320, 100,
+		LayoutParam(_subscribeButton).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_detailsButton).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_actionButtonSeparator).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_optionsButton).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_backButton).Absolute(1,16).OtherAxisStretch());
+
+	_detailsGroup = LayoutGroup::Horizontal(320, 100,
+		LayoutParam(_modDesc).Proportional(4, 1).OtherAxisStretch(),
+		LayoutParam(_actionButtonGroup).Proportional(1, 1).OtherAxisStretch());
 
 	LayoutDriver Driver = LayoutDriver(LayoutDirection::Vertical, _window,
 		LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_modList).Proportional(1, 1).KeepSize(),
-		LayoutParam(_details).Proportional(1, 1).OtherAxisStretch())
+		LayoutParam(_browseGroup).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_detailsGroup).Proportional(1, 1).OtherAxisStretch())
 		.Padding(4);
 	Driver.ApplyLayout();
 

@@ -16,22 +16,42 @@ class TextEdit;
 class TextButton;
 class ComboBox;
 class LayoutGroup;
+class Bar;
 
 class OptionsModBrowserState : public State
 {
 private:
 	Window *_window;
-	TextList *_modList;
 	TextEdit* _searchText;
 	TextButton* _searchButton;
 	LayoutGroup* _searchBar;
 
-	LayoutGroup* _details;
-	Text* _modName;
-	Text* _modUpdated;
-	Text* _modCreated;
-	LayoutGroup* _detailsHeader;
+	TextList* _modList;
+	Surface* _modListScrollPlaceholder;
+	LayoutGroup* _modListGroup;
+	TextButton* _prevButton;
+	TextButton* _nextButton;
+	LayoutGroup* _browseNavButtonGroup;
+	//May end up being text instead for the label for the bar
+	Surface* _queueSeparator;
+	Bar* _progress;
+	TextButton* _queueButton;
+	LayoutGroup* _browseButtonGroup;
+
+	LayoutGroup* _browseGroup;
+
 	Text* _modDesc;
+
+	TextButton* _subscribeButton;
+	TextButton* _detailsButton;
+	Surface* _actionButtonSeparator;
+	TextButton* _optionsButton;
+	TextButton* _backButton;
+	LayoutGroup* _actionButtonGroup;
+
+	LayoutGroup* _detailsGroup;
+
+
 
 	Modio::Optional<Modio::ModInfoList> _currentModResults;
 	void UpdateModList();
