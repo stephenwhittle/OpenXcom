@@ -38,6 +38,12 @@ void OpenXcom::OptionsModBrowserAuthState::submitAuthCodeClick(Action* action)
 	});
 }
 
+void OpenXcom::OptionsModBrowserAuthState::onBackClick(Action* action)
+{
+	_game->popState();
+	_game->popState();
+}
+
 void OpenXcom::OptionsModBrowserAuthState::think()
 {
 	State::think();
@@ -45,14 +51,14 @@ void OpenXcom::OptionsModBrowserAuthState::think()
 
 OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 {
-	_window = new Window(this, 320, 200, 0, 0, POPUP_VERTICAL);
+	_window = new Window(this, 320, 200);
 	_modioLogo = new InteractiveSurface(100, 100);
 	_authRequiredText = new Text(240, 100);
 	_emailAddrInput = new TextEdit(this, 240, 16);
 	_sendCodeRequestBtn = new TextButton(50, 16);
 	_authCodeInput = new TextEdit(this, 240, 16);
 	_submitAuthBtn = new TextButton(50, 16);
-
+	_backButton = new TextButton(50, 16);
 	setInterface("optionsMenu");
 
 	add(_window, "window", "optionsMenu");
@@ -63,21 +69,28 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	add(_authCodeInput, "text1", "optionsMenu");
 	add(_submitAuthBtn, "button", "optionsMenu");
 	add(_modioLogo);
+	add(_backButton, "button", "optionsMenu");
+
 	_authRequiredText->setText("Please enter the email address for your mod.io account to authenticate and manage your OpenXcom mod subscriptions");
 	_authRequiredText->setColor(138);
 	_authRequiredText->setWordWrap(true);
 	_authRequiredText->setAlign(ALIGN_CENTER);
 
 	_emailAddrInput->setTooltip("Email Address");
-	_emailAddrInput->setText("Email Address");
+	_emailAddrInput->setColor(133);
 	_sendCodeRequestBtn->setText("Submit code request");
 	_sendCodeRequestBtn->autoWidth(300);
 	_sendCodeRequestBtn->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::submitEmailClick);
 	_authCodeInput->setTooltip("Enter the code sent to your email here");
-	_authCodeInput->setText("Authentication Code");
+	_authCodeInput->setColor(133);
 	_submitAuthBtn->setText("Submit authentication code");
 	_submitAuthBtn->autoWidth(300);
 	_submitAuthBtn->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::submitAuthCodeClick);
+
+	_backButton->setText("Cancel");
+	_backButton->autoWidth(100);
+	_backButton->onMouseClick((ActionHandler)&OptionsModBrowserAuthState::onBackClick);
+
 	//Todo: set height of text edits to the maximum height of the font in question so they are centered vertically
 	_emailWidgetGroup = LayoutGroup::Horizontal(320, 16, LayoutParam(_emailAddrInput).Proportional(4, 1).OtherAxisStretch(), LayoutParam(_sendCodeRequestBtn).KeepSize());
 	_codeWidgetGroup = LayoutGroup::Horizontal(320, 16, LayoutParam(_authCodeInput).Proportional(4, 1).OtherAxisCenter(), LayoutParam(_submitAuthBtn).KeepSize());
@@ -87,7 +100,8 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 		LayoutParam(_modioLogo).Proportional(1, 3).OtherAxisStretch(),
 		LayoutParam(_authRequiredText).Proportional(1, 1).OtherAxisStretch(),
 		LayoutParam(_emailWidgetGroup).Absolute(1,16).OtherAxisStretch(),
-		LayoutParam(_codeWidgetGroup).Absolute(1,16).OtherAxisStretch())
+		LayoutParam(_codeWidgetGroup).Absolute(1,16).OtherAxisStretch(),
+		LayoutParam(_backButton).Absolute(1,16).KeepSize())
 		.Padding(4);
 
 	d.ApplyLayout();

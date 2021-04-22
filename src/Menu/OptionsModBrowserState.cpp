@@ -1,4 +1,6 @@
 #include "OptionsModBrowserState.h"
+#include "OptionsModBrowserAuthState.h"
+#include "../Engine/CrossPlatform.h"
 #include "../Engine/Game.h"
 #include "../Interface/LayoutDriver.h"
 #include "../Interface/LayoutGroup.h"
@@ -6,14 +8,11 @@
 #include "../Interface/TextEdit.h"
 #include "../Interface/TextList.h"
 #include "../Interface/Bar.h"
-#include "OptionsModBrowserAuthState.h"
 #include "../Interface/Window.h"
-#include "../Engine/Game.h"
+#include "../Interface/Utilities.h"
 #include "../Mod/Mod.h"
 #include "modio/core/entities/ModioModInfo.h"
 #include "modio/ModioSDK.h"
-#include "../Interface/Utilities.h"
-#include "../Engine/CrossPlatform.h"
 #include <map>
 
 void OpenXcom::OptionsModBrowserState::UpdateModList()
