@@ -54,7 +54,7 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 
 	_btnOk = new TextButton(100, 16, 8, 176);
 	_btnCancel = new TextButton(100, 16, 212, 176);
-	_btnOpenModBrowser = new TextButton(100, 16, 106, 176);
+	_btnOpenModBrowser = new TextButton(100, 16, 110, 176);
 	_txtTooltip = new Text(305, 25, 8, 148);
 
 	// Set palette
@@ -67,6 +67,14 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 	add(_btnOk, "button", "optionsMenu");
 	add(_btnCancel, "button", "optionsMenu");
 	add(_btnOpenModBrowser, "button", "optionsMenu");
+	if (Options::enableModioSDK)
+	{
+		_btnOpenModBrowser->setHidden(false);
+	}
+	else
+	{
+		_btnOpenModBrowser->setHidden(true);
+	}
 	add(_txtTooltip, "tooltip", "optionsMenu");
 
 	add(_cbxMasters, "button", "modsMenu");

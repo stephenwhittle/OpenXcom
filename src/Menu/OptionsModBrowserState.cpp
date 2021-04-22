@@ -47,6 +47,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_window = new Window(this, 320, 200);
 	_searchText = new TextEdit(this, 240, 16);
 	_searchButton = new TextButton(50, 16);
+	_searchBarPadding = new Surface(1, 1);
 	//making the text list a bit narrower so the arrows are in the main window
 	_modList = new TextList(320 - (12 + 11), 100);
 	_modListScrollPlaceholder = new Surface(13, 16);
@@ -55,7 +56,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_queueSeparator = new Surface(50, 16);
 	_progress = new Bar(50, 16);
 	_queueButton = new TextButton(50, 16);
-
+	_browseGroupPadding = new Surface(1, 1);
 
 	_modDesc = new Text(320, 16);
 
@@ -70,6 +71,8 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	add(_window, "window", "optionsMenu");
 	add(_searchText, "text", "modsMenu");
 	add(_searchButton, "button", "optionsMenu");
+	add(_searchBarPadding);
+
 	add(_modList, "optionLists", "controlsMenu");
 	add(_modListScrollPlaceholder);
 
@@ -78,6 +81,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	add(_queueSeparator);
 	add(_progress);
 	add(_queueButton, "button", "optionsMenu");
+	add(_browseGroupPadding);
 
 	add(_modDesc, "text", "modsMenu");
 
@@ -92,13 +96,15 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_searchButton->setText("Search");
 	_searchButton->autoWidth(100);
 	_searchButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSearchClicked);
+	
 	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).Proportional(1,1));
 
 	_prevButton->setText("Prev");
 	_nextButton->setText("Next");
+	_progress->setHidden(true);
 	_queueButton->setText("0 in queue");
 
-	_modList->setBackground(_modList);
+	_modList->setBackground(_window);
 	_modList->setSelectable(true);
 	_modList->onMouseClick((ActionHandler)&OptionsModBrowserState::onModSelected);
 
@@ -124,9 +130,16 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_modDesc->setWordWrap(true);
 
 	_subscribeButton->setText("Subscribe");
+	_subscribeButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSubscribeClicked);
+
 	_detailsButton->setText("Details");
-	_optionsButton->setText("Options");
+	_detailsButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onDetailsClicked);
+
+	_optionsButton->setText("User Config");
+	_optionsButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onOptionsClicked);
+
 	_backButton->setText("Back");
+	_backButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onBackClicked);
 
 	_actionButtonGroup = LayoutGroup::Vertical(320, 100,
 		LayoutParam(_subscribeButton).Absolute(1, 16).OtherAxisStretch(),
@@ -141,11 +154,15 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 
 	LayoutDriver Driver = LayoutDriver(LayoutDirection::Vertical, _window,
 		LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(),
+		LayoutParam(_searchBarPadding).Absolute(1,8).OtherAxisStretch(),
 		LayoutParam(_browseGroup).Proportional(1, 1).OtherAxisStretch(),
+		LayoutParam(_browseGroupPadding).Absolute(1,8).OtherAxisStretch(),
 		LayoutParam(_detailsGroup).Proportional(1, 1).OtherAxisStretch())
 		.Padding(4);
 	Driver.ApplyLayout();
 
+	//Workaround - forces the selector Surface to be resized based on the new size driven by the LayoutDriver
+	_modList->setSmall();
 	centerAllSurfaces();
 }
 
@@ -225,4 +242,19 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 			}
 		});
 	}
+}
+
+void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action* action)
+{
+
+}
+
+void OpenXcom::OptionsModBrowserState::onOptionsClicked(Action* action)
+{
+
+}
+
+void OpenXcom::OptionsModBrowserState::onBackClicked(Action* action)
+{
+	_game->popState();
 }

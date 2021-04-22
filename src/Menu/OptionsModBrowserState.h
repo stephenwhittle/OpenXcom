@@ -24,6 +24,7 @@ private:
 	Window *_window;
 	TextEdit* _searchText;
 	TextButton* _searchButton;
+	Surface* _searchBarPadding;
 	LayoutGroup* _searchBar;
 
 	TextList* _modList;
@@ -38,6 +39,7 @@ private:
 	TextButton* _queueButton;
 	LayoutGroup* _browseButtonGroup;
 
+	Surface* _browseGroupPadding;
 	LayoutGroup* _browseGroup;
 
 	Text* _modDesc;
@@ -67,5 +69,11 @@ public:
 	void onSearchClicked(Action* action);
 	/// Handler for clicking the subscribe button for a mod
 	void onSubscribeClicked(Action* action);
+	/// Handler for clicking the details button for a mod
+	void onDetailsClicked(Action* action);
+	/// Handler for clicking the subscribe button for a mod
+	void onOptionsClicked(Action* action);
+	/// Handler for clicking the subscribe button for a mod
+	void onBackClicked(Action* action);
 };
 }
