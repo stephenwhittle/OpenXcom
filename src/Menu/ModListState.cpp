@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenXcom.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "OptionsModsState.h"
-#include "OptionsInformExtendedState.h"
+#include "ModListState.h"
+#include "ModConfirmExtendedState.h"
 #include <climits>
 #include <algorithm>
 #include "../Engine/Game.h"
@@ -43,7 +43,7 @@ namespace OpenXcom
  * Initializes all the elements in the Mod Options window.
  * @param game Pointer to the core game.
  */
-OptionsModsState::OptionsModsState() : _curMasterIdx(0)
+ModListState::ModListState() : _curMasterIdx(0)
 {
 	// Create objects
 	_window = new Window(this, 320, 200, 0, 0);
@@ -58,14 +58,15 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 	_txtTooltip = new Text(305, 25, 8, 148);
 
 	// Set palette
-	setInterface("optionsMenu");
+	setInterface("modsMenu");
 
-	add(_window, "window", "optionsMenu");
+	add(_window, "window", "modsMenu");
 
 	add(_txtMaster, "text", "modsMenu");
 	add(_lstMods, "optionLists", "modsMenu");
-	add(_btnOk, "button", "optionsMenu");
-	add(_btnCancel, "button", "optionsMenu");
+	add(_btnOk, "button2", "modsMenu");
+	add(_btnCancel, "button2", "modsMenu");
+	add(_txtTooltip, "tooltip", "modsMenu");
 	add(_btnOpenModBrowser, "button", "optionsMenu");
 	if (Options::enableModioSDK)
 	{
@@ -75,9 +76,8 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 	{
 		_btnOpenModBrowser->setHidden(true);
 	}
-	add(_txtTooltip, "tooltip", "optionsMenu");
 
-	add(_cbxMasters, "button", "modsMenu");
+	add(_cbxMasters, "button1", "modsMenu");
 
 	centerAllSurfaces();
 
@@ -125,13 +125,13 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 
 	_cbxMasters->setOptions(masterNames);
 	_cbxMasters->setSelected(_curMasterIdx);
-	_cbxMasters->onChange((ActionHandler)&OptionsModsState::cbxMasterChange);
-	_cbxMasters->onMouseIn((ActionHandler)&OptionsModsState::txtTooltipIn);
-	_cbxMasters->onMouseOut((ActionHandler)&OptionsModsState::txtTooltipOut);
-	_cbxMasters->onMouseOver((ActionHandler)&OptionsModsState::cbxMasterHover);
-	_cbxMasters->onListMouseIn((ActionHandler)&OptionsModsState::txtTooltipIn);
-	_cbxMasters->onListMouseOut((ActionHandler)&OptionsModsState::txtTooltipOut);
-	_cbxMasters->onListMouseOver((ActionHandler)&OptionsModsState::cbxMasterHover);
+	_cbxMasters->onChange((ActionHandler)&ModListState::cbxMasterChange);
+	_cbxMasters->onMouseIn((ActionHandler)&ModListState::txtTooltipIn);
+	_cbxMasters->onMouseOut((ActionHandler)&ModListState::txtTooltipOut);
+	_cbxMasters->onMouseOver((ActionHandler)&ModListState::cbxMasterHover);
+	_cbxMasters->onListMouseIn((ActionHandler)&ModListState::txtTooltipIn);
+	_cbxMasters->onListMouseOut((ActionHandler)&ModListState::txtTooltipOut);
+	_cbxMasters->onListMouseOver((ActionHandler)&ModListState::cbxMasterHover);
 
 	_lstMods->setArrowColumn(leftcol + 1, ARROW_VERTICAL);
 	_lstMods->setColumns(3, leftcol, arrowCol, rightcol);
@@ -139,46 +139,46 @@ OptionsModsState::OptionsModsState() : _curMasterIdx(0)
 	_lstMods->setSelectable(true);
 	_lstMods->setBackground(_window);
 	_lstMods->setWordWrap(true);
-	_lstMods->onMouseClick((ActionHandler)&OptionsModsState::lstModsClick);
-	_lstMods->onLeftArrowClick((ActionHandler)&OptionsModsState::lstModsLeftArrowClick);
-	_lstMods->onRightArrowClick((ActionHandler)&OptionsModsState::lstModsRightArrowClick);
-	_lstMods->onMousePress((ActionHandler)&OptionsModsState::lstModsMousePress);
-	_lstMods->onMouseIn((ActionHandler)&OptionsModsState::txtTooltipIn);
-	_lstMods->onMouseOut((ActionHandler)&OptionsModsState::txtTooltipOut);
-	_lstMods->onMouseOver((ActionHandler)&OptionsModsState::lstModsHover);
+	_lstMods->onMouseClick((ActionHandler)&ModListState::lstModsClick);
+	_lstMods->onLeftArrowClick((ActionHandler)&ModListState::lstModsLeftArrowClick);
+	_lstMods->onRightArrowClick((ActionHandler)&ModListState::lstModsRightArrowClick);
+	_lstMods->onMousePress((ActionHandler)&ModListState::lstModsMousePress);
+	_lstMods->onMouseIn((ActionHandler)&ModListState::txtTooltipIn);
+	_lstMods->onMouseOut((ActionHandler)&ModListState::txtTooltipOut);
+	_lstMods->onMouseOver((ActionHandler)&ModListState::lstModsHover);
 	lstModsRefresh(0);
 
 	_btnOk->setText(tr("STR_OK"));
-	_btnOk->onMouseClick((ActionHandler)&OptionsModsState::btnOkClick);
-	_btnOk->onKeyboardPress((ActionHandler)&OptionsModsState::btnOkClick, Options::keyOk);
+	_btnOk->onMouseClick((ActionHandler)&ModListState::btnOkClick);
+	_btnOk->onKeyboardPress((ActionHandler)&ModListState::btnOkClick, Options::keyOk);
 
 	_btnCancel->setText(tr("STR_CANCEL"));
-	_btnCancel->onMouseClick((ActionHandler)&OptionsModsState::btnCancelClick);
-	_btnCancel->onKeyboardPress((ActionHandler)&OptionsModsState::btnCancelClick, Options::keyCancel);
+	_btnCancel->onMouseClick((ActionHandler)&ModListState::btnCancelClick);
+	_btnCancel->onKeyboardPress((ActionHandler)&ModListState::btnCancelClick, Options::keyCancel);
 
 	_btnOpenModBrowser->setText("Mod Browser");
-	_btnOpenModBrowser->onMouseClick((ActionHandler)&OptionsModsState::btnOpenModBrowserClick);
-	_btnOpenModBrowser->onKeyboardPress((ActionHandler)&OptionsModsState::btnOpenModBrowserClick);
+	_btnOpenModBrowser->onMouseClick((ActionHandler)&ModListState::btnOpenModBrowserClick);
+	_btnOpenModBrowser->onKeyboardPress((ActionHandler)&ModListState::btnOpenModBrowserClick);
 
 	_txtTooltip->setWordWrap(true);
 }
 
-OptionsModsState::~OptionsModsState()
+ModListState::~ModListState()
 {
 
 }
 
-std::string OptionsModsState::makeTooltip(const ModInfo &modInfo)
+std::string ModListState::makeTooltip(const ModInfo &modInfo)
 {
 	return tr("STR_MODS_TOOLTIP").arg(modInfo.getVersion()).arg(modInfo.getAuthor()).arg(modInfo.getDescription());
 }
 
-void OptionsModsState::cbxMasterHover(Action *)
+void ModListState::cbxMasterHover(Action *)
 {
 	_txtTooltip->setText(makeTooltip(*_masters[_cbxMasters->getHoveredListIdx()]));
 }
 
-void OptionsModsState::cbxMasterChange(Action *)
+void ModListState::cbxMasterChange(Action *)
 {
 	const ModInfo *masterModInfo = _masters[_cbxMasters->getSelected()];
 
@@ -186,7 +186,7 @@ void OptionsModsState::cbxMasterChange(Action *)
 	{
 		if (!masterModInfo->getRequiredExtendedVersion().empty())
 		{
-			_game->pushState(new OptionsInformExtendedState(this, true));
+			_game->pushState(new ModConfirmExtendedState(this, true));
 			return;
 		}
 	}
@@ -194,7 +194,7 @@ void OptionsModsState::cbxMasterChange(Action *)
 	changeMasterMod();
 }
 
-void OptionsModsState::changeMasterMod()
+void ModListState::changeMasterMod()
 {
 	std::string masterId = _masters[_cbxMasters->getSelected()]->getId();
 	for (std::vector< std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
@@ -215,12 +215,12 @@ void OptionsModsState::changeMasterMod()
 	lstModsRefresh(0);
 }
 
-void OptionsModsState::revertMasterMod()
+void ModListState::revertMasterMod()
 {
 	_cbxMasters->setSelected(_curMasterIdx);
 }
 
-void OptionsModsState::lstModsRefresh(size_t scrollLoc)
+void ModListState::lstModsRefresh(size_t scrollLoc)
 {
 	_lstMods->clearList();
 	_mods.clear();
@@ -242,7 +242,7 @@ void OptionsModsState::lstModsRefresh(size_t scrollLoc)
 	_lstMods->scrollTo(scrollLoc);
 }
 
-void OptionsModsState::lstModsHover(Action *)
+void ModListState::lstModsHover(Action *)
 {
 	size_t selectedRow = _lstMods->getSelectedRow();
 	if ((unsigned int)-1 != selectedRow)
@@ -252,7 +252,7 @@ void OptionsModsState::lstModsHover(Action *)
 	}
 }
 
-void OptionsModsState::lstModsClick(Action *action)
+void ModListState::lstModsClick(Action *action)
 {
 	if (action->getAbsoluteXMouse() >= _lstMods->getArrowsLeftEdge() &&
 		action->getAbsoluteXMouse() <= _lstMods->getArrowsRightEdge())
@@ -269,7 +269,7 @@ void OptionsModsState::lstModsClick(Action *action)
 		const ModInfo *modInfo = &Options::getModInfos().at(mod.first);
 		if (!modInfo->getRequiredExtendedVersion().empty())
 		{
-			_game->pushState(new OptionsInformExtendedState(this, false));
+			_game->pushState(new ModConfirmExtendedState(this, false));
 			return;
 		}
 	}
@@ -278,7 +278,7 @@ void OptionsModsState::lstModsClick(Action *action)
 	toggleMod();
 }
 
-void OptionsModsState::toggleMod()
+void ModListState::toggleMod()
 {
 	std::pair<std::string, bool> &mod(_mods.at(_lstMods->getSelectedRow()));
 
@@ -298,7 +298,7 @@ void OptionsModsState::toggleMod()
 	Options::reload = true;
 }
 
-void OptionsModsState::lstModsLeftArrowClick(Action *action)
+void ModListState::lstModsLeftArrowClick(Action *action)
 {
 	unsigned int row = _lstMods->getSelectedRow();
 	if (row <= 0)
@@ -339,7 +339,7 @@ static void _moveAbove(const std::pair<std::string, bool> &srcMod, const std::pa
 	}
 }
 
-void OptionsModsState::moveModUp(Action *action, unsigned int row, bool max)
+void ModListState::moveModUp(Action *action, unsigned int row, bool max)
 {
 	if (max)
 	{
@@ -376,7 +376,7 @@ void OptionsModsState::moveModUp(Action *action, unsigned int row, bool max)
 	Options::reload = true;
 }
 
-void OptionsModsState::lstModsRightArrowClick(Action *action)
+void ModListState::lstModsRightArrowClick(Action *action)
 {
 	unsigned int row = _lstMods->getSelectedRow();
 	size_t numMods = _mods.size();
@@ -418,7 +418,7 @@ static void _moveBelow(const std::pair<std::string, bool> &srcMod, const std::pa
 	}
 }
 
-void OptionsModsState::moveModDown(Action *action, unsigned int row, bool max)
+void ModListState::moveModDown(Action *action, unsigned int row, bool max)
 {
 	if (max)
 	{
@@ -460,7 +460,7 @@ void OptionsModsState::moveModDown(Action *action, unsigned int row, bool max)
 	Options::reload = true;
 }
 
-void OptionsModsState::lstModsMousePress(Action *action)
+void ModListState::lstModsMousePress(Action *action)
 {
 	if (Options::changeValueByMouseWheel == 0)
 		return;
@@ -490,13 +490,13 @@ void OptionsModsState::lstModsMousePress(Action *action)
  * Restarts game with new mods.
  * @param action Pointer to an action.
  */
-void OptionsModsState::btnOkClick(Action *)
+void ModListState::btnOkClick(Action *)
 {
 	Options::save();
 	if (Options::reload)
 	{
 		_game->setState(new StartState);
-}
+	}
 	else
 	{
 		_game->popState();
@@ -507,14 +507,14 @@ void OptionsModsState::btnOkClick(Action *)
  * Ignores mod changes and returns to the previous screen.
  * @param action Pointer to an action.
  */
-void OptionsModsState::btnCancelClick(Action *)
+void ModListState::btnCancelClick(Action *)
 {
 	Options::reload = false;
 	Options::load();
 	_game->popState();
 }
 
-void OptionsModsState::btnOpenModBrowserClick(Action* action)
+void ModListState::btnOpenModBrowserClick(Action* action)
 {
 	_game->pushState(new OptionsModBrowserState());
 }
@@ -523,7 +523,7 @@ void OptionsModsState::btnOpenModBrowserClick(Action* action)
  * Shows a tooltip for the appropriate button.
  * @param action Pointer to an action.
  */
-void OptionsModsState::txtTooltipIn(Action *action)
+void ModListState::txtTooltipIn(Action *action)
 {
 	_currentTooltip = action->getSender()->getTooltip();
 	_txtTooltip->setText(tr(_currentTooltip));
@@ -533,7 +533,7 @@ void OptionsModsState::txtTooltipIn(Action *action)
  * Clears the tooltip text.
  * @param action Pointer to an action.
  */
-void OptionsModsState::txtTooltipOut(Action *action)
+void ModListState::txtTooltipOut(Action *action)
 {
 	if (_currentTooltip == action->getSender()->getTooltip())
 	{

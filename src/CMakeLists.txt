@@ -224,12 +224,12 @@ set ( menu_src
   Menu/OptionsControlsState.cpp
   Menu/OptionsDefaultsState.cpp
   Menu/OptionsGeoscapeState.cpp
-  Menu/OptionsInformExtendedState.cpp
-  Menu/OptionsModsState.cpp
   Menu/OptionsModBrowserAuthState.cpp
   Menu/OptionsModBrowserDetailsState.cpp
   Menu/OptionsModBrowserState.cpp
   Menu/OptionsModBrowserUserConfigState.cpp
+  Menu/ModConfirmExtendedState.cpp
+  Menu/ModListState.cpp
   Menu/OptionsNoAudioState.cpp
   Menu/OptionsVideoState.cpp
   Menu/PauseState.cpp

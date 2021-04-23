@@ -19,22 +19,21 @@
 
 #include "Options.h"
 #include "../version.h"
+#include "CrossPlatform.h"
+#include "Exception.h"
+#include "FileMap.h"
+#include "Logger.h"
+#include "Screen.h"
 #include <SDL.h>
 #include <SDL_keysym.h>
 #include <SDL_mixer.h>
-#include <stdio.h>
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
-#include <fstream>
-#include <algorithm>
+#include <stdio.h>
 #include <yaml-cpp/yaml.h>
-#include "Exception.h"
-#include "Logger.h"
-#include "CrossPlatform.h"
-#include "FileMap.h"
-#include "Screen.h"
-
 
 #pragma push_macro("Log")
 #undef Log
@@ -71,13 +70,13 @@ void create()
 	_info.push_back(OptionInfo("displayHeight", &displayHeight, Screen::ORIGINAL_HEIGHT));
 	_info.push_back(OptionInfo("fullscreen", &fullscreen, true));
 	_info.push_back(OptionInfo("asyncBlit", &asyncBlit, false));
-	_info.push_back(OptionInfo("keyboardMode", (int*)&keyboardMode, KEYBOARD_OFF));
+	_info.push_back(OptionInfo("keyboardMode", (int *)&keyboardMode, KEYBOARD_OFF));
 #else
-	_info.push_back(OptionInfo("displayWidth", &displayWidth, Screen::ORIGINAL_WIDTH*2));
-	_info.push_back(OptionInfo("displayHeight", &displayHeight, Screen::ORIGINAL_HEIGHT*2));
+	_info.push_back(OptionInfo("displayWidth", &displayWidth, Screen::ORIGINAL_WIDTH * 2));
+	_info.push_back(OptionInfo("displayHeight", &displayHeight, Screen::ORIGINAL_HEIGHT * 2));
 	_info.push_back(OptionInfo("fullscreen", &fullscreen, false));
 	_info.push_back(OptionInfo("asyncBlit", &asyncBlit, true));
-	_info.push_back(OptionInfo("keyboardMode", (int*)&keyboardMode, KEYBOARD_ON));
+	_info.push_back(OptionInfo("keyboardMode", (int *)&keyboardMode, KEYBOARD_ON));
 #endif
 
 	_info.push_back(OptionInfo("maxFrameSkip", &maxFrameSkip, 0));
@@ -102,19 +101,19 @@ void create()
 	_info.push_back(OptionInfo("useOpenGLSmoothing", &useOpenGLSmoothing, true));
 	_info.push_back(OptionInfo("debug", &debug, false));
 	_info.push_back(OptionInfo("debugUi", &debugUi, false));
-	_info.push_back(OptionInfo("soundVolume", &soundVolume, 2*(MIX_MAX_VOLUME/3)));
-	_info.push_back(OptionInfo("musicVolume", &musicVolume, 2*(MIX_MAX_VOLUME/3)));
-	_info.push_back(OptionInfo("uiVolume", &uiVolume, MIX_MAX_VOLUME/3));
+	_info.push_back(OptionInfo("soundVolume", &soundVolume, 2 * (MIX_MAX_VOLUME / 3)));
+	_info.push_back(OptionInfo("musicVolume", &musicVolume, 2 * (MIX_MAX_VOLUME / 3)));
+	_info.push_back(OptionInfo("uiVolume", &uiVolume, MIX_MAX_VOLUME / 3));
 	_info.push_back(OptionInfo("language", &language, ""));
 	_info.push_back(OptionInfo("battleScrollSpeed", &battleScrollSpeed, 8));
-	_info.push_back(OptionInfo("battleEdgeScroll", (int*)&battleEdgeScroll, SCROLL_AUTO));
+	_info.push_back(OptionInfo("battleEdgeScroll", (int *)&battleEdgeScroll, SCROLL_AUTO));
 	_info.push_back(OptionInfo("battleDragScrollButton", &battleDragScrollButton, SDL_BUTTON_MIDDLE));
-	_info.push_back(OptionInfo("dragScrollTimeTolerance", &dragScrollTimeTolerance, 300)); // miliSecond
+	_info.push_back(OptionInfo("dragScrollTimeTolerance", &dragScrollTimeTolerance, 300));	// miliSecond
 	_info.push_back(OptionInfo("dragScrollPixelTolerance", &dragScrollPixelTolerance, 10)); // count of pixels
 	_info.push_back(OptionInfo("battleFireSpeed", &battleFireSpeed, 6));
 	_info.push_back(OptionInfo("battleXcomSpeed", &battleXcomSpeed, 30));
 	_info.push_back(OptionInfo("battleAlienSpeed", &battleAlienSpeed, 30));
-	_info.push_back(OptionInfo("battleNewPreviewPath", (int*)&battleNewPreviewPath, PATH_NONE)); // requires double-click to confirm moves
+	_info.push_back(OptionInfo("battleNewPreviewPath", (int *)&battleNewPreviewPath, PATH_NONE)); // requires double-click to confirm moves
 	_info.push_back(OptionInfo("fpsCounter", &fpsCounter, false));
 	_info.push_back(OptionInfo("globeDetail", &globeDetail, true));
 	_info.push_back(OptionInfo("globeRadarLines", &globeRadarLines, true));
@@ -130,21 +129,22 @@ void create()
 	_info.push_back(OptionInfo("windowedModePositionX", &windowedModePositionX, 0));
 	_info.push_back(OptionInfo("windowedModePositionY", &windowedModePositionY, 0));
 	_info.push_back(OptionInfo("borderless", &borderless, false));
-	_info.push_back(OptionInfo("captureMouse", (bool*)&captureMouse, false));
+	_info.push_back(OptionInfo("captureMouse", (bool *)&captureMouse, false));
 	_info.push_back(OptionInfo("battleTooltips", &battleTooltips, true));
 	_info.push_back(OptionInfo("keepAspectRatio", &keepAspectRatio, true));
 	_info.push_back(OptionInfo("nonSquarePixelRatio", &nonSquarePixelRatio, false));
 	_info.push_back(OptionInfo("cursorInBlackBandsInFullscreen", &cursorInBlackBandsInFullscreen, false));
 	_info.push_back(OptionInfo("cursorInBlackBandsInWindow", &cursorInBlackBandsInWindow, true));
 	_info.push_back(OptionInfo("cursorInBlackBandsInBorderlessWindow", &cursorInBlackBandsInBorderlessWindow, false));
-	_info.push_back(OptionInfo("saveOrder", (int*)&saveOrder, SORT_DATE_DESC));
+	_info.push_back(OptionInfo("saveOrder", (int *)&saveOrder, SORT_DATE_DESC));
 	_info.push_back(OptionInfo("geoClockSpeed", &geoClockSpeed, 80));
 	_info.push_back(OptionInfo("dogfightSpeed", &dogfightSpeed, 30));
 	_info.push_back(OptionInfo("geoScrollSpeed", &geoScrollSpeed, 20));
 	_info.push_back(OptionInfo("geoDragScrollButton", &geoDragScrollButton, SDL_BUTTON_MIDDLE));
-	_info.push_back(OptionInfo("preferredMusic", (int*)&preferredMusic, MUSIC_AUTO));
-	_info.push_back(OptionInfo("preferredSound", (int*)&preferredSound, SOUND_AUTO));
-	_info.push_back(OptionInfo("preferredVideo", (int*)&preferredVideo, VIDEO_FMV));
+	_info.push_back(OptionInfo("preferredMusic", (int *)&preferredMusic, MUSIC_AUTO));
+	_info.push_back(OptionInfo("preferredSound", (int *)&preferredSound, SOUND_AUTO));
+	_info.push_back(OptionInfo("preferredVideo", (int *)&preferredVideo, VIDEO_FMV));
+	_info.push_back(OptionInfo("wordwrap", (int *)&wordwrap, WRAP_AUTO));
 	_info.push_back(OptionInfo("musicAlwaysLoop", &musicAlwaysLoop, false));
 	_info.push_back(OptionInfo("touchEnabled", &touchEnabled, false));
 	_info.push_back(OptionInfo("rootWindowedMode", &rootWindowedMode, false));
@@ -166,13 +166,13 @@ void create()
 #ifdef __ANDROID_API__
 	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, true, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
 #elif __APPLE__
-	// todo: ask grussel how badly i messed this up.
-	#include "TargetConditionals.h"
-	#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-		_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, true, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
-	#else
-		_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, false, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
-	#endif
+// todo: ask grussel how badly i messed this up.
+#include "TargetConditionals.h"
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, true, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
+#else
+	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, false, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
+#endif
 #else
 	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, false, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
 #endif
@@ -298,7 +298,6 @@ void create()
 	_info.push_back(OptionInfo("FPS", &FPS, 60, "STR_FPS_LIMIT", "STR_GENERAL"));
 	_info.push_back(OptionInfo("FPSInactive", &FPSInactive, 30, "STR_FPS_INACTIVE_LIMIT", "STR_GENERAL"));
 #endif
-
 }
 
 // we can get fancier with these detection routines, but for now just look for
@@ -309,8 +308,7 @@ static bool _gameIsInstalled(const std::string &gameName)
 	// look for game data in either the data or user directories
 	std::string dataGameFolder = CrossPlatform::searchDataFolder(gameName);
 	std::string userGameFolder = _userFolder + gameName;
-	return (CrossPlatform::folderExists(dataGameFolder)	&& CrossPlatform::getFolderContents(dataGameFolder).size() >= 8)
-	    || (CrossPlatform::folderExists(userGameFolder)	&& CrossPlatform::getFolderContents(userGameFolder).size() >= 8);
+	return (CrossPlatform::folderExists(dataGameFolder) && CrossPlatform::getFolderContents(dataGameFolder).size() >= 8) || (CrossPlatform::folderExists(userGameFolder) && CrossPlatform::getFolderContents(userGameFolder).size() >= 8);
 }
 
 static bool _ufoIsInstalled()
@@ -339,8 +337,9 @@ static void _setDefaultMods()
 
 /**
  * Resets the options back to their defaults.
+ * @param includeMods Reset mods to default as well.
  */
-void resetDefault()
+void resetDefault(bool includeMods)
 {
 	for (std::vector<OptionInfo>::iterator i = _info.begin(); i != _info.end(); ++i)
 	{
@@ -348,10 +347,13 @@ void resetDefault()
 	}
 	backupDisplay();
 
-	mods.clear();
-	if (!_dataList.empty())
+	if (includeMods)
 	{
-		_setDefaultMods();
+		mods.clear();
+		if (!_dataList.empty())
+		{
+			_setDefaultMods();
+		}
 	}
 }
 
@@ -370,9 +372,9 @@ void loadArgs(int argc, char *argv[])
 		{
 			std::string argname;
 			if (arg[1] == '-' && arg.length() > 2)
-				argname = arg.substr(2, arg.length()-1);
+				argname = arg.substr(2, arg.length() - 1);
 			else
-				argname = arg.substr(1, arg.length()-1);
+				argname = arg.substr(1, arg.length() - 1);
 			std::transform(argname.begin(), argname.end(), argname.begin(), ::tolower);
 			if (argc > i + 1)
 			{
@@ -417,17 +419,23 @@ bool showHelp(int argc, char *argv[])
 {
 	std::ostringstream help;
 	help << "OpenXcom v" << OPENXCOM_VERSION_SHORT << std::endl;
-	help << "Usage: openxcom [OPTION]..." << std::endl << std::endl;
+	help << "Usage: openxcom [OPTION]..." << std::endl
+		 << std::endl;
 	help << "-data PATH" << std::endl;
-	help << "        use PATH as the default Data Folder instead of auto-detecting" << std::endl << std::endl;
+	help << "        use PATH as the default Data Folder instead of auto-detecting" << std::endl
+		 << std::endl;
 	help << "-user PATH" << std::endl;
-	help << "        use PATH as the default User Folder instead of auto-detecting" << std::endl << std::endl;
+	help << "        use PATH as the default User Folder instead of auto-detecting" << std::endl
+		 << std::endl;
 	help << "-cfg PATH  or  -config PATH" << std::endl;
-	help << "        use PATH as the default Config Folder instead of auto-detecting" << std::endl << std::endl;
+	help << "        use PATH as the default Config Folder instead of auto-detecting" << std::endl
+		 << std::endl;
 	help << "-master MOD" << std::endl;
-	help << "        set MOD to the current master mod (eg. -master xcom2)" << std::endl << std::endl;
+	help << "        set MOD to the current master mod (eg. -master xcom2)" << std::endl
+		 << std::endl;
 	help << "-KEY VALUE" << std::endl;
-	help << "        override option KEY with VALUE (eg. -displayWidth 640)" << std::endl << std::endl;
+	help << "        override option KEY with VALUE (eg. -displayWidth 640)" << std::endl
+		 << std::endl;
 	help << "-help" << std::endl;
 	help << "-?" << std::endl;
 	help << "        show command-line help" << std::endl;
@@ -438,9 +446,9 @@ bool showHelp(int argc, char *argv[])
 		{
 			std::string argname;
 			if (arg[1] == '-' && arg.length() > 2)
-				argname = arg.substr(2, arg.length()-1);
+				argname = arg.substr(2, arg.length() - 1);
 			else
-				argname = arg.substr(1, arg.length()-1);
+				argname = arg.substr(1, arg.length() - 1);
 			std::transform(argname.begin(), argname.end(), argname.begin(), ::tolower);
 			if (argname == "help" || argname == "?")
 			{
@@ -483,17 +491,15 @@ static void loadModFromPath(std::string modPath)
 		Log(LOG_VERBOSE) << "    " << *j;
 	}
 
-	if (("xcom1" == modInfo.getId() && !_ufoIsInstalled())
-		|| ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
+	if (("xcom1" == modInfo.getId() && !_ufoIsInstalled()) || ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
 	{
 		Log(LOG_VERBOSE) << "skipping " << modInfo.getId() << " since related game data isn't installed";
-		
 	}
 
 	_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
 }
 
-static void _scanMods(const std::string& modsDir)
+static void _scanMods(const std::string &modsDir, bool metadataOnly = false)
 {
 	if (!CrossPlatform::folderExists(modsDir))
 	{
@@ -501,17 +507,71 @@ static void _scanMods(const std::string& modsDir)
 		return;
 	}
 
-	std::vector<std::string> contents = CrossPlatform::getFolderContents(modsDir);
-	for (std::vector<std::string>::iterator i = contents.begin(); i != contents.end(); ++i)
+	const std::string metadataFile = "/metadata.yml";
+	if (metadataOnly && CrossPlatform::fileExists(modsDir + metadataFile))
 	{
-		std::string modPath = modsDir + CrossPlatform::PATH_SEPARATOR + *i;
-		if (!CrossPlatform::folderExists(modPath))
+		ModInfo modInfo(modsDir);
+		modInfo.load(modsDir + metadataFile);
+		_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
+	}
+	else
+	{
+		std::vector<std::string> contents = CrossPlatform::getFolderContents(modsDir);
+		for (std::vector<std::string>::iterator i = contents.begin(); i != contents.end(); ++i)
 		{
-			// skip non-directories (e.g. README.txt)
-			continue;
-		}
+			std::string modPath = modsDir + CrossPlatform::PATH_SEPARATOR + *i;
+			if (!CrossPlatform::folderExists(modPath))
+			{
+				// skip non-directories (e.g. README.txt)
+				continue;
+			}
 
-		loadModFromPath(modPath);
+			loadModFromPath(modPath);
+
+			Log(LOG_VERBOSE) << "- " << modPath;
+			ModInfo modInfo(modPath);
+
+			std::string metadataPath = modPath + metadataFile;
+			if (!CrossPlatform::fileExists(metadataPath))
+			{
+				Log(LOG_VERBOSE) << metadataPath << " not found;";
+				if (metadataOnly)
+				{
+					Log(LOG_VERBOSE) << "skipping invalid mod: " << *i;
+					continue;
+				}
+				else
+				{
+					Log(LOG_VERBOSE) << "using default values for mod: " << *i;
+				}
+			}
+			else
+			{
+				modInfo.load(metadataPath);
+			}
+
+			Log(LOG_VERBOSE) << "  id: " << modInfo.getId();
+			Log(LOG_VERBOSE) << "  name: " << modInfo.getName();
+			Log(LOG_VERBOSE) << "  version: " << modInfo.getVersion();
+			Log(LOG_VERBOSE) << "  description: " << modInfo.getDescription();
+			Log(LOG_VERBOSE) << "  author: " << modInfo.getAuthor();
+			Log(LOG_VERBOSE) << "  master: " << modInfo.getMaster();
+			Log(LOG_VERBOSE) << "  isMaster: " << modInfo.isMaster();
+			Log(LOG_VERBOSE) << "  loadResources:";
+			std::vector<std::string> externals = modInfo.getExternalResourceDirs();
+			for (std::vector<std::string>::iterator j = externals.begin(); j != externals.end(); ++j)
+			{
+				Log(LOG_VERBOSE) << "    " << *j;
+			}
+
+			if (("xcom1" == modInfo.getId() && !_ufoIsInstalled()) || ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
+			{
+				Log(LOG_VERBOSE) << "skipping " << modInfo.getId() << " since related game data isn't installed";
+				continue;
+			}
+
+			_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
+		}
 	}
 }
 
@@ -527,7 +587,7 @@ bool init(int argc, char *argv[])
 	if (showHelp(argc, argv))
 		return false;
 	create();
-	resetDefault();
+	resetDefault(true);
 	loadArgs(argc, argv);
 	setFolders();
 	_setDefaultMods();
@@ -552,7 +612,7 @@ bool init(int argc, char *argv[])
 	Log(LOG_INFO) << "Platform: Windows";
 #elif __APPLE__
 	Log(LOG_INFO) << "Platform: OSX";
-#elif  __ANDROID_API__
+#elif __ANDROID_API__
 	Log(LOG_INFO) << "Platform: Android";
 #else
 	Log(LOG_INFO) << "Platform: Unix-like";
@@ -596,7 +656,7 @@ void refreshMods()
 		{
 			Log(LOG_INFO) << "Loading auto-managed mods via mod.io SDK...";
 			std::map<Modio::ModID, Modio::ModCollectionEntry> sdkMods = Modio::QueryUserInstallations(true);
-			for (std::pair<const Modio::ModID, Modio::ModCollectionEntry>& sdkMod : sdkMods)
+			for (std::pair<const Modio::ModID, Modio::ModCollectionEntry> &sdkMod : sdkMods)
 			{
 				loadModFromPath(sdkMod.second.GetPath().string());
 			}
@@ -604,12 +664,10 @@ void refreshMods()
 	}
 
 	// remove mods from list that no longer exist
-	for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); )
+	for (std::vector<std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end();)
 	{
 		std::map<std::string, ModInfo>::const_iterator modIt = _modInfos.find(i->first);
-		if (_modInfos.end() == modIt
-			|| (i->first == "xcom1" && !_ufoIsInstalled())
-			|| (i->first == "xcom2" && !_tftdIsInstalled()))
+		if (_modInfos.end() == modIt || (i->first == "xcom1" && !_ufoIsInstalled()) || (i->first == "xcom2" && !_tftdIsInstalled()))
 		{
 			Log(LOG_VERBOSE) << "removing references to missing mod: " << i->first;
 			i = mods.erase(i);
@@ -625,7 +683,7 @@ void refreshMods()
 	for (std::map<std::string, ModInfo>::const_iterator i = _modInfos.begin(); i != _modInfos.end(); ++i)
 	{
 		bool found = false;
-		for (std::vector< std::pair<std::string, bool> >::iterator j = mods.begin(); j != mods.end(); ++j)
+		for (std::vector<std::pair<std::string, bool> >::iterator j = mods.begin(); j != mods.end(); ++j)
 		{
 			if (i->first == j->first)
 			{
@@ -717,8 +775,8 @@ void updateMods()
 	userSplitMasters();
 
 	Log(LOG_INFO) << "Active mods:";
-	std::vector<const ModInfo*> activeMods = Options::getActiveMods();
-	for (std::vector<const ModInfo*>::const_iterator i = activeMods.begin(); i != activeMods.end(); ++i)
+	std::vector<const ModInfo *> activeMods = Options::getActiveMods();
+	for (std::vector<const ModInfo *>::const_iterator i = activeMods.begin(); i != activeMods.end(); ++i)
 	{
 		Log(LOG_INFO) << "- " << (*i)->getId() << " v" << (*i)->getVersion();
 	}
@@ -780,7 +838,7 @@ void mapResources()
 	Log(LOG_INFO) << "Mapping resource files...";
 	FileMap::clear();
 
-	for (std::vector< std::pair<std::string, bool> >::reverse_iterator i = mods.rbegin(); i != mods.rend(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::reverse_iterator i = mods.rbegin(); i != mods.rend(); ++i)
 	{
 		if (!i->second)
 		{
@@ -895,7 +953,7 @@ void userSplitMasters()
 			{
 				std::string srcFile = _userFolder + (*j);
 				YAML::Node doc = YAML::LoadFile(srcFile);
-				std::vector<std::string> srcMods = doc["mods"].as<std::vector< std::string> >(std::vector<std::string>());
+				std::vector<std::string> srcMods = doc["mods"].as<std::vector<std::string> >(std::vector<std::string>());
 				if (std::find(srcMods.begin(), srcMods.end(), (*i)) != srcMods.end())
 				{
 					std::string dstFile = masterFolder + CrossPlatform::PATH_SEPARATOR + (*j);
@@ -985,49 +1043,49 @@ bool load(const std::string &filename)
 	return true;
 }
 
-void writeNode(const YAML::Node& node, YAML::Emitter& emitter)
+void writeNode(const YAML::Node &node, YAML::Emitter &emitter)
 {
 	switch (node.Type())
 	{
-		case YAML::NodeType::Sequence:
+	case YAML::NodeType::Sequence:
+	{
+		emitter << YAML::BeginSeq;
+		for (size_t i = 0; i < node.size(); i++)
 		{
-			emitter << YAML::BeginSeq;
-			for (size_t i = 0; i < node.size(); i++)
-			{
-				writeNode(node[i], emitter);
-			}
-			emitter << YAML::EndSeq;
-			break;
+			writeNode(node[i], emitter);
 		}
-		case YAML::NodeType::Map:
+		emitter << YAML::EndSeq;
+		break;
+	}
+	case YAML::NodeType::Map:
+	{
+		emitter << YAML::BeginMap;
+
+		// First collect all the keys
+		std::vector<std::string> keys(node.size());
+		int key_it = 0;
+		for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
 		{
-			emitter << YAML::BeginMap;
-
-			// First collect all the keys
-			std::vector<std::string> keys(node.size());
-			int key_it = 0;
-			for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
-			{
-				keys[key_it++] = it->first.as<std::string>();
-			}
-
-			// Then sort them
-			std::sort(keys.begin(), keys.end());
-
-			// Then emit all the entries in sorted order.
-			for(size_t i = 0; i < keys.size(); i++)
-			{
-				emitter << YAML::Key;
-				emitter << keys[i];
-				emitter << YAML::Value;
-				writeNode(node[keys[i]], emitter);
-			}
-			emitter << YAML::EndMap;
-			break;
+			keys[key_it++] = it->first.as<std::string>();
 		}
-		default:
-			emitter << node;
-			break;
+
+		// Then sort them
+		std::sort(keys.begin(), keys.end());
+
+		// Then emit all the entries in sorted order.
+		for (size_t i = 0; i < keys.size(); i++)
+		{
+			emitter << YAML::Key;
+			emitter << keys[i];
+			emitter << YAML::Value;
+			writeNode(node[keys[i]], emitter);
+		}
+		emitter << YAML::EndMap;
+		break;
+	}
+	default:
+		emitter << node;
+		break;
 	}
 }
 
@@ -1056,7 +1114,7 @@ bool save(const std::string &filename)
 		}
 		doc["options"] = node;
 
-		for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
+		for (std::vector<std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
 		{
 			YAML::Node mod;
 			mod["id"] = i->first;
@@ -1159,8 +1217,8 @@ const std::vector<OptionInfo> &getOptionInfo()
  */
 std::vector<const ModInfo *> getActiveMods()
 {
-	std::vector<const ModInfo*> activeMods;
-	for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
+	std::vector<const ModInfo *> activeMods;
+	for (std::vector<std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
 	{
 		if (i->second)
 		{
