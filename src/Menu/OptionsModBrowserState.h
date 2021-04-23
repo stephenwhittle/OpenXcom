@@ -54,7 +54,7 @@ private:
 	LayoutGroup* _detailsGroup;
 
 
-
+	int _currentSelectionIndex = -1;
 	Modio::Optional<Modio::ModInfoList> _currentModResults;
 	void UpdateModList();
 	void updateModDetails(Modio::ModInfo modDetails);
@@ -67,6 +67,7 @@ public:
 	void onModSelected(Action* action);
 	/// Handler for clicking the search button
 	void onSearchClicked(Action* action);
+	void onQueueClicked(Action *action);
 	/// Handler for clicking the subscribe button for a mod
 	void onSubscribeClicked(Action* action);
 	/// Handler for clicking the details button for a mod

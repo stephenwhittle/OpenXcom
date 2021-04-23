@@ -2,6 +2,10 @@
 
 #include "../Engine/State.h"
 
+#include "modio/detail/ModioDefines.h"
+
+#include "modio/core/entities/ModioModInfo.h"
+
 namespace OpenXcom
 {
 	class Window;
@@ -18,7 +22,6 @@ namespace OpenXcom
 		Text* _modCreator;
 		Text* _modRating;
 		LayoutGroup* _headingRow2;
-		LayoutGroup* _headingGroup;
 		Text* _modDescription;
 		LayoutGroup* _textGroup;
 
@@ -30,9 +33,9 @@ namespace OpenXcom
 		void onSubscribeButtonClicked(Action* Action);
 		//Handles back button click
 		void onBackButtonClicked(Action* Action);
-
+		Modio::ModInfo _modToDisplay;
 	public:
-		OptionsModBrowserDetailsState();
+		OptionsModBrowserDetailsState(Modio::ModInfo ModToDisplay);
 	};
 
 }

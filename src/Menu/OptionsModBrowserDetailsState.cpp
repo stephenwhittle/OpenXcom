@@ -5,8 +5,10 @@
 #include "../Interface/LayoutGroup.h"
 #include "../Interface/LayoutDriver.h"
 #include "../Engine/Game.h"
+#include "../Engine/CrossPlatform.h"
 
-OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState()
+OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState(Modio::ModInfo ModToDisplay)
+	: _modToDisplay(ModToDisplay)
 {
 	_window = new Window(this, 320, 200);
 	_modName = new Text(320, 16);
@@ -39,12 +41,13 @@ OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState()
 
 
 
-	_modName->setText("Mod Name: ");
-	_modUpdated->setText("Last Updated: ");
-	_modCreator->setText("Mod Uploader: ");
-	_modRating->setText("Mod Rating: ");
-	_modDescription->setText("Mod Description: ");
-	_modDescription->setScrollable(true);
+	_modName->setText("Mod Name: " + _modToDisplay.ProfileName);
+	_modUpdated->setText("Last Updated: " + CrossPlatform::timeToString(_modToDisplay.ProfileDateUpdated).first);
+	_modCreator->setText("Mod Uploader: " + _modToDisplay.ProfileSubmittedBy.Username);
+	_modRating->setText("Mod Rating: " + _modToDisplay.Stats.RatingDisplayText);
+	
+	
+
 	_subscribeButton->setText("Subscribe");
 	_backButton->setText("Back");
 	_backButton->onMouseClick((ActionHandler)&OptionsModBrowserDetailsState::onBackButtonClicked);
@@ -70,6 +73,10 @@ OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState()
 		LayoutParam(_buttonGroup).Proportional(1, 1).OtherAxisStretch()
 	).Padding(4);
 	topLevelLayout.ApplyLayout();
+
+	_modDescription->setWordWrap(true);
+	_modDescription->setScrollable(true);
+	_modDescription->setText("Mod Description:\n" + _modToDisplay.ProfileDescriptionPlaintext);
 
 	centerAllSurfaces();
 }

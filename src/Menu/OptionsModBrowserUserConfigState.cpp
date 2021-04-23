@@ -63,7 +63,10 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	{
 		if (!ec)
 		{
-			_currentUserIcon->loadImage(AvatarPath->string());
+			Surface *tmpSurface = new Surface(1, 1, 0, 0, 24);
+			tmpSurface->loadImage(AvatarPath->string());
+			tmpSurface->blit(_currentUserIcon);
+			//_currentUserIcon->loadImage(AvatarPath->string());
 		}
 	});
 

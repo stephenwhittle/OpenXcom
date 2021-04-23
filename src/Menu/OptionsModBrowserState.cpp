@@ -2,6 +2,7 @@
 #include "OptionsModBrowserAuthState.h"
 #include "OptionsModBrowserUserConfigState.h"
 #include "OptionsModBrowserDetailsState.h"
+#include "OptionsModBrowserQueueState.h"
 #include "../Engine/CrossPlatform.h"
 #include "../Engine/Game.h"
 #include "../Interface/LayoutDriver.h"
@@ -104,6 +105,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_nextButton->setText("Next");
 	_progress->setHidden(true);
 	_queueButton->setText("0 in queue");
+	_queueButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onQueueClicked);
 
 	_modList->setBackground(_window);
 	_modList->setSelectable(true);
@@ -175,7 +177,7 @@ void OpenXcom::OptionsModBrowserState::init()
 	{
 		_game->pushState(new OptionsModBrowserAuthState());
 	}
-	else
+	else if (!_currentModResults)
 	{
 		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
 		{
@@ -197,10 +199,10 @@ void OpenXcom::OptionsModBrowserState::think()
 
 void OpenXcom::OptionsModBrowserState::onModSelected(Action* action)
 {
-	int selectionIndex = _modList->getSelectedRow();
-	if (_currentModResults)
+	_currentSelectionIndex = _modList->getSelectedRow();
+	if (_currentModResults && _currentSelectionIndex >= 0)
 	{
-		updateModDetails((*_currentModResults)[selectionIndex]);
+		updateModDetails((*_currentModResults)[_currentSelectionIndex]);
 	}
 }
 
@@ -230,12 +232,16 @@ void OpenXcom::OptionsModBrowserState::onSearchClicked(Action* action)
 	}
 }
 
+void OpenXcom::OptionsModBrowserState::onQueueClicked(Action *action)
+{
+	_game->pushState(new OptionsModBrowserQueueState());
+}
+
 void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 {
-	int selectionIndex = _modList->getSelectedRow();
-	if (_currentModResults)
+	if (_currentModResults && _currentSelectionIndex >= 0)
 	{
-		Modio::SubscribeToModAsync((*_currentModResults)[selectionIndex].ModId, [](Modio::ErrorCode ec)
+		Modio::SubscribeToModAsync((*_currentModResults)[_currentSelectionIndex].ModId, [](Modio::ErrorCode ec)
 		{
 			if (ec)
 			{
@@ -247,7 +253,11 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 
 void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action* action)
 {
-	_game->pushState(new OptionsModBrowserDetailsState());
+
+	if (_currentModResults && _currentSelectionIndex >= 0)
+	{
+		_game->pushState(new OptionsModBrowserDetailsState((*_currentModResults)[_currentSelectionIndex]));
+	}
 }
 
 void OpenXcom::OptionsModBrowserState::onOptionsClicked(Action* action)

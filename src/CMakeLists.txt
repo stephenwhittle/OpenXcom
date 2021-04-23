@@ -226,6 +226,7 @@ set ( menu_src
   Menu/OptionsGeoscapeState.cpp
   Menu/OptionsModBrowserAuthState.cpp
   Menu/OptionsModBrowserDetailsState.cpp
+  Menu/OptionsModBrowserQueueState.cpp
   Menu/OptionsModBrowserState.cpp
   Menu/OptionsModBrowserUserConfigState.cpp
   Menu/ModConfirmExtendedState.cpp
