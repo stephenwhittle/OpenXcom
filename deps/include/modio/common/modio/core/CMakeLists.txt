@@ -1,0 +1,12 @@
+include(modio-code-generation)
+add_modio_implementation_file(${CMAKE_CURRENT_LIST_DIR}/ModioFilterParams.ipp)
+add_modio_implementation_file(${CMAKE_CURRENT_LIST_DIR}/ModioBuffer.ipp)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/ModioFilterParams.h)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/ModioModCollectionEntry.h)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/ModioStdTypes.h)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/entities/ModioModDetails.h)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/entities/ModioModTagOptions.h)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/entities/ModioUser.h)
+add_public_header(${MODIO_TARGET_NAME} ${CMAKE_CURRENT_LIST_DIR}/entities/ModioModInfoList.h)
+
+
