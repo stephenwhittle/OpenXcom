@@ -10,11 +10,13 @@ class Text;
 class TextButton;
 class TextEdit;
 class LayoutGroup;
+class Surface;
+
 class OptionsModBrowserAuthState : public State
 {
 private:
 	Window* _window;
-	InteractiveSurface* _modioLogo;
+	Surface* _modioLogo;
 	Text* _authRequiredText;
 	TextEdit* _emailAddrInput;
 	TextButton* _sendCodeRequestBtn;

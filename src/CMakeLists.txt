@@ -227,7 +227,9 @@ set ( menu_src
   Menu/OptionsInformExtendedState.cpp
   Menu/OptionsModsState.cpp
   Menu/OptionsModBrowserAuthState.cpp
+  Menu/OptionsModBrowserDetailsState.cpp
   Menu/OptionsModBrowserState.cpp
+  Menu/OptionsModBrowserUserConfigState.cpp
   Menu/OptionsNoAudioState.cpp
   Menu/OptionsVideoState.cpp
   Menu/PauseState.cpp

@@ -1,5 +1,7 @@
 #include "OptionsModBrowserState.h"
 #include "OptionsModBrowserAuthState.h"
+#include "OptionsModBrowserUserConfigState.h"
+#include "OptionsModBrowserDetailsState.h"
 #include "../Engine/CrossPlatform.h"
 #include "../Engine/Game.h"
 #include "../Interface/LayoutDriver.h"
@@ -245,12 +247,12 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 
 void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action* action)
 {
-
+	_game->pushState(new OptionsModBrowserDetailsState());
 }
 
 void OpenXcom::OptionsModBrowserState::onOptionsClicked(Action* action)
 {
-
+	_game->pushState(new OptionsModBrowserUserConfigState());
 }
 
 void OpenXcom::OptionsModBrowserState::onBackClicked(Action* action)

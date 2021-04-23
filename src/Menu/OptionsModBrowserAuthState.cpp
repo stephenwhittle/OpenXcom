@@ -52,7 +52,7 @@ void OpenXcom::OptionsModBrowserAuthState::think()
 OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 {
 	_window = new Window(this, 320, 200);
-	_modioLogo = new InteractiveSurface(100, 100);
+	_modioLogo = new Surface(100, 100);
 	_authRequiredText = new Text(240, 100);
 	_emailAddrInput = new TextEdit(this, 240, 16);
 	_sendCodeRequestBtn = new TextButton(50, 16);
