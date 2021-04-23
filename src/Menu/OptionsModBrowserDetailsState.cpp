@@ -44,6 +44,7 @@ OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState()
 	_modCreator->setText("Mod Uploader: ");
 	_modRating->setText("Mod Rating: ");
 	_modDescription->setText("Mod Description: ");
+	_modDescription->setScrollable(true);
 	_subscribeButton->setText("Subscribe");
 	_backButton->setText("Back");
 	_backButton->onMouseClick((ActionHandler)&OptionsModBrowserDetailsState::onBackButtonClicked);

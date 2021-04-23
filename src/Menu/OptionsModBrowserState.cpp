@@ -129,7 +129,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 
 
 	_modDesc->setWordWrap(true);
-
+	_modDesc->setScrollable(true);
 	_subscribeButton->setText("Subscribe");
 	_subscribeButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSubscribeClicked);
 
