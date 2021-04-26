@@ -33,7 +33,7 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 			std::size_t CurrentRowIndex = _modList->getRows() - 1;
 			if (SubscribedMods.count(Info.ModId))
 			{
-				_modList->setCellColor(CurrentRowIndex, 1, 6);
+				_modList->setCellColor(CurrentRowIndex, 0, 6);
 			}
 		}
 	}
@@ -42,6 +42,16 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 void OpenXcom::OptionsModBrowserState::updateModDetails(Modio::ModInfo modDetails)
 {
 	_modDesc->setText(modDetails.ProfileDescriptionPlaintext);
+	if (Modio::QueryUserSubscriptions().count(modDetails.ModId))
+	{
+		_subscribeButton->setText("Unsubscribe");
+		_subscribeButtonAction = SubscribeButtonMode::Unsubscribe;
+	}
+	else
+	{
+		_subscribeButton->setText("Subscribe");
+		_subscribeButtonAction = SubscribeButtonMode::Subscribe;
+	}
 }
 
 OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
@@ -247,13 +257,27 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 {
 	if (_currentModResults && _currentSelectionIndex >= 0)
 	{
-		Modio::SubscribeToModAsync((*_currentModResults)[_currentSelectionIndex].ModId, [](Modio::ErrorCode ec)
+		if (_subscribeButtonAction == SubscribeButtonMode::Subscribe)
 		{
-			if (ec)
-			{
-				//error state
-			}
-		});
+			Modio::SubscribeToModAsync((*_currentModResults)[_currentSelectionIndex].ModId, [this](Modio::ErrorCode ec) {
+				if (!ec)
+				{
+					UpdateModList();
+					updateModDetails((*_currentModResults)[_currentSelectionIndex]);
+				}
+			});
+		}
+		else
+		{
+			Modio::UnsubscribeFromModAsync((*_currentModResults)[_currentSelectionIndex].ModId, [this](Modio::ErrorCode ec) {
+				if (!ec)
+				{
+					UpdateModList();
+					updateModDetails((*_currentModResults)[_currentSelectionIndex]);
+				}
+
+			});
+		}
 	}
 }
 

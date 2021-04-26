@@ -56,6 +56,12 @@ private:
 
 	int _currentSelectionIndex = -1;
 	Modio::Optional<Modio::ModInfoList> _currentModResults;
+	enum class SubscribeButtonMode
+	{
+		Subscribe,
+		Unsubscribe
+	};
+	SubscribeButtonMode _subscribeButtonAction = SubscribeButtonMode::Subscribe;
 	void UpdateModList();
 	void updateModDetails(Modio::ModInfo modDetails);
 public:
