@@ -126,6 +126,7 @@ MainMenuState::MainMenuState()
 				break;
 			}
 		});
+		Modio::FetchExternalUpdatesAsync([](Modio::ErrorCode ec) {});
 	}
 }
 

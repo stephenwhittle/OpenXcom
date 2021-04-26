@@ -24,6 +24,10 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 	{
 		std::map<Modio::ModID, Modio::ModCollectionEntry> SubscribedMods = Modio::QueryUserSubscriptions();
 		_modList->clearList();
+
+		//Workaround - forces the selector Surface to be resized based on the new size driven by the LayoutDriver
+		_modList->setSmall();
+
 		//todo:@modio make these autosize if we can
 		_modList->setColumns(1, 320 - (12 + 11));
 
@@ -276,7 +280,7 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 					updateModDetails((*_currentModResults)[_currentSelectionIndex]);
 				}
 
-			});
+			});	
 		}
 	}
 }
