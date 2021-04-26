@@ -169,6 +169,12 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	centerAllSurfaces();
 }
 
+ OpenXcom::OptionsModBrowserState::~OptionsModBrowserState()
+{
+	 Options::updateMods();
+	 _game->loadMods();
+ }
+
 void OpenXcom::OptionsModBrowserState::init()
 {
 	State::init();

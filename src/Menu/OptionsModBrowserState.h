@@ -60,6 +60,7 @@ private:
 	void updateModDetails(Modio::ModInfo modDetails);
 public:
 	OptionsModBrowserState();
+  virtual ~OptionsModBrowserState();
 	void init() override;
 
 	void think() override;

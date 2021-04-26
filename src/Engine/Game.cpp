@@ -151,17 +151,6 @@ void Game::run()
 	static const ApplicationState kbFocusRun[4] = { RUNNING, RUNNING, SLOWED, PAUSED };
 	static const ApplicationState stateRun[4] = { SLOWED, PAUSED, PAUSED, PAUSED };
 
-	if (Options::enableModioSDK)
-	{
-		Modio::InitializeAsync(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio", [this](Modio::ErrorCode ec) {
-			if (ec)
-			{
-				//_game->pushState(new ErrorMessageState((std::string("mod.io SDK init failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
-			}
-		});
-		
-	}
-
 	// this will avoid processing SDL's resize event on startup, workaround for the heap allocation error it causes.
 	bool startupEvent = Options::allowResize;
 	while (!_quit)
@@ -357,7 +346,7 @@ void Game::run()
 		}
 		Modio::RunPendingHandlers();	
 	}
-	Modio::Shutdown();
+	
 	Options::save();
 }
 

@@ -221,7 +221,8 @@ namespace Modio
 				 {Modio::Detail::Constants::JSONKeys::ModEntryProfile, Entry.ModProfile},
 				 {Modio::Detail::Constants::JSONKeys::ModEntrySubCount, Entry.LocalUserSubscriptions},
 				 {Modio::Detail::Constants::JSONKeys::ModEntryState, Entry.CurrentState.load()},
-				 {Modio::Detail::Constants::JSONKeys::ModSizeOnDisk, Entry.SizeOnDisk}});
+				 {Modio::Detail::Constants::JSONKeys::ModSizeOnDisk, Entry.SizeOnDisk},
+				 {Modio::Detail::Constants::JSONKeys::ModPathOnDisk, Entry.PathOnDisk}});
 		}
 
 		friend void from_json(const nlohmann::json& j, ModCollectionEntry& Entry)
@@ -234,6 +235,7 @@ namespace Modio
 			Modio::ModState StateTmp = ModState::InstallationPending;
 			Modio::Detail::ParseSafe(j, StateTmp, Modio::Detail::Constants::JSONKeys::ModEntryState);
 			Entry.CurrentState.store(StateTmp);
+			Modio::Detail::ParseSafe(j, Entry.PathOnDisk, Modio::Detail::Constants::JSONKeys::ModPathOnDisk);
 		}
 
 		friend void BeginTransactionImpl(ModCollectionEntry& Entry)

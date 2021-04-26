@@ -70,6 +70,12 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 		}
 	});
 
+	Modio::Optional<Modio::User> CurrentUser = Modio::QueryUserProfile();
+	if (CurrentUser.has_value())
+	{
+		_currentUserValue->setText(CurrentUser->Username);
+	}
+
 	centerAllSurfaces();
 
 }
