@@ -76,7 +76,7 @@ namespace Modio
 				}
 				else
 				{
-					asio::dispatch(Modio::Detail::Services::GetGlobalContext().get_executor(), std::move(Operation));
+					asio::post(Modio::Detail::Services::GetGlobalContext().get_executor(), std::move(Operation));
 				}
 			}
 
