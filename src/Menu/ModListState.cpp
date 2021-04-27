@@ -17,24 +17,24 @@
  * along with OpenXcom.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ModListState.h"
-#include "ModConfirmExtendedState.h"
-#include <climits>
-#include <algorithm>
+#include "../Engine/Action.h"
 #include "../Engine/Game.h"
-#include "../Mod/Mod.h"
 #include "../Engine/LocalizedText.h"
-#include "../Interface/Window.h"
-#include "../Interface/TextList.h"
+#include "../Engine/Options.h"
+#include "../Interface/ComboBox.h"
 #include "../Interface/Text.h"
 #include "../Interface/TextButton.h"
-#include "../Interface/ComboBox.h"
-#include "../Engine/Options.h"
-#include "../Engine/Action.h"
-#include "StartState.h"
-#include "ErrorMessageState.h"
-#include "modio/ModioSDK.h"
-#include "OptionsModBrowserState.h"
+#include "../Interface/TextList.h"
+#include "../Interface/Window.h"
+#include "../Mod/Mod.h"
 #include "../Mod/RuleInterface.h"
+#include "ErrorMessageState.h"
+#include "ModConfirmExtendedState.h"
+#include "OptionsModBrowserState.h"
+#include "StartState.h"
+#include "modio/ModioSDK.h"
+#include <algorithm>
+#include <climits>
 
 namespace OpenXcom
 {
@@ -84,6 +84,7 @@ ModListState::ModListState() : _curMasterIdx(0)
 	// how much room do we need for YES/NO
 	Text text = Text(100, 9, 0, 0);
 	text.initText(_game->getMod()->getFont("FONT_BIG"), _game->getMod()->getFont("FONT_SMALL"), _game->getLanguage());
+
 	text.setText(tr("STR_YES"));
 	int yes = text.getTextWidth();
 	text.setText(tr("STR_NO"));
@@ -98,33 +99,6 @@ ModListState::ModListState() : _curMasterIdx(0)
 
 	_txtMaster->setText(tr("STR_BASE_GAME"));
 
-	// scan for masters
-	Options::refreshMods();
-	const std::map<std::string, ModInfo> &modInfos(Options::getModInfos());
-	std::vector<std::string> masterNames;
-	for (std::vector< std::pair<std::string, bool> >::const_iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
-	{
-		std::string modId = i->first;
-		const ModInfo *modInfo = &modInfos.at(modId);
-		if (!modInfo->isMaster())
-		{
-			continue;
-		}
-
-		if (i->second)
-		{
-			_curMasterId = modId;
-		}
-		else if (_curMasterId.empty())
-		{
-			++_curMasterIdx;
-		}
-		_masters.push_back(modInfo);
-		masterNames.push_back(modInfo->getName());
-	}
-
-	_cbxMasters->setOptions(masterNames);
-	_cbxMasters->setSelected(_curMasterIdx);
 	_cbxMasters->onChange((ActionHandler)&ModListState::cbxMasterChange);
 	_cbxMasters->onMouseIn((ActionHandler)&ModListState::txtTooltipIn);
 	_cbxMasters->onMouseOut((ActionHandler)&ModListState::txtTooltipOut);
@@ -165,7 +139,6 @@ ModListState::ModListState() : _curMasterIdx(0)
 
 ModListState::~ModListState()
 {
-
 }
 
 std::string ModListState::makeTooltip(const ModInfo &modInfo)
@@ -197,7 +170,7 @@ void ModListState::cbxMasterChange(Action *)
 void ModListState::changeMasterMod()
 {
 	std::string masterId = _masters[_cbxMasters->getSelected()]->getId();
-	for (std::vector< std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
 	{
 		if (masterId == i->first)
 		{
@@ -226,7 +199,7 @@ void ModListState::lstModsRefresh(size_t scrollLoc)
 	_mods.clear();
 
 	// only show mods that work with the current master
-	for (std::vector< std::pair<std::string, bool> >::const_iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::const_iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
 	{
 		ModInfo modInfo = Options::getModInfo(i->first);
 		if (modInfo.isMaster() || !modInfo.canActivate(_curMasterId))
@@ -248,7 +221,6 @@ void ModListState::lstModsHover(Action *)
 	if ((unsigned int)-1 != selectedRow)
 	{
 		_txtTooltip->setText(makeTooltip(Options::getModInfos().at(_mods[selectedRow].first)));
-
 	}
 }
 
@@ -282,14 +254,14 @@ void ModListState::toggleMod()
 {
 	std::pair<std::string, bool> &mod(_mods.at(_lstMods->getSelectedRow()));
 
-	for (std::vector< std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
 	{
 		if (mod.first != i->first)
 		{
 			continue;
 		}
 
-		mod.second = ! mod.second;
+		mod.second = !mod.second;
 		i->second = mod.second;
 		_lstMods->setCellText(_lstMods->getSelectedRow(), 2, (mod.second ? tr("STR_YES") : tr("STR_NO")));
 
@@ -319,7 +291,7 @@ void ModListState::lstModsLeftArrowClick(Action *action)
 static void _moveAbove(const std::pair<std::string, bool> &srcMod, const std::pair<std::string, bool> &destMod)
 {
 	// insert copy of srcMod above destMod
-	for (std::vector< std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
 	{
 		if (destMod.first == i->first)
 		{
@@ -329,7 +301,7 @@ static void _moveAbove(const std::pair<std::string, bool> &srcMod, const std::pa
 	}
 
 	// remove old copy of srcMod in separate loop since the insert above invalidated the iterator
-	for (std::vector< std::pair<std::string, bool> >::reverse_iterator i = Options::mods.rbegin(); i != Options::mods.rend(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::reverse_iterator i = Options::mods.rbegin(); i != Options::mods.rend(); ++i)
 	{
 		if (srcMod.first == i->first)
 		{
@@ -360,13 +332,13 @@ void ModListState::moveModUp(Action *action, unsigned int row, bool max)
 		{
 			int ydiff = _lstMods->getTextHeight(row - 1);
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-				 action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
+						  action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
 		}
 		else
 		{
 			int ydiff = _lstMods->getRowY(row) - _lstMods->getY();
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-				 action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
+						  action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
 			_lstMods->scrollTo(targetScrollPos);
 		}
 
@@ -398,7 +370,7 @@ void ModListState::lstModsRightArrowClick(Action *action)
 static void _moveBelow(const std::pair<std::string, bool> &srcMod, const std::pair<std::string, bool> &destMod)
 {
 	// insert copy of srcMod below destMod
-	for (std::vector< std::pair<std::string, bool> >::reverse_iterator i = Options::mods.rbegin(); i != Options::mods.rend(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::reverse_iterator i = Options::mods.rbegin(); i != Options::mods.rend(); ++i)
 	{
 		if (destMod.first == i->first)
 		{
@@ -408,7 +380,7 @@ static void _moveBelow(const std::pair<std::string, bool> &srcMod, const std::pa
 	}
 
 	// remove old copy of srcMod in separate loop since the insert above invalidated the iterator
-	for (std::vector< std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	for (std::vector<std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
 	{
 		if (srcMod.first == i->first)
 		{
@@ -444,13 +416,13 @@ void ModListState::moveModDown(Action *action, unsigned int row, bool max)
 		{
 			int ydiff = _lstMods->getTextHeight(row + 1);
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-				 action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
+						  action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
 		}
 		else
 		{
 			int ydiff = _lstMods->getY() + _lstMods->getHeight() - (_lstMods->getRowY(row) + _lstMods->getTextHeight(row));
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-				 action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
+						  action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
 			_lstMods->scrollTo(targetScrollPos - _lstMods->getVisibleRows() + 1);
 		}
 
@@ -514,9 +486,52 @@ void ModListState::btnCancelClick(Action *)
 	_game->popState();
 }
 
-void ModListState::btnOpenModBrowserClick(Action* action)
+void ModListState::btnOpenModBrowserClick(Action *action)
 {
+	_reloadModsRequired = true;
 	_game->pushState(new OptionsModBrowserState());
+}
+
+void ModListState::init()
+{
+	State::init();
+
+	if (_reloadModsRequired)
+	{
+		// scan for masters
+		Options::refreshMods();
+		Options::reload = true;
+
+		_reloadModsRequired = false;
+	}
+
+	const std::map<std::string, ModInfo> &modInfos(Options::getModInfos());
+	std::vector<std::string> masterNames;
+	for (std::vector<std::pair<std::string, bool> >::const_iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	{
+		std::string modId = i->first;
+		const ModInfo *modInfo = &modInfos.at(modId);
+		if (!modInfo->isMaster())
+		{
+			continue;
+		}
+
+		if (i->second)
+		{
+			_curMasterId = modId;
+		}
+		else if (_curMasterId.empty())
+		{
+			++_curMasterIdx;
+		}
+		_masters.push_back(modInfo);
+		masterNames.push_back(modInfo->getName());
+	}
+
+	_cbxMasters->setOptions(masterNames);
+	_cbxMasters->setSelected(_curMasterIdx);
+
+	lstModsRefresh(0);
 }
 
 /**

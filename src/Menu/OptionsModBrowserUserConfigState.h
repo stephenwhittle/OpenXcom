@@ -1,5 +1,14 @@
 #pragma once
 #include "../Engine/State.h"
+#include <map>
+
+#include "modio/detail/ModioDefines.h"
+
+namespace Modio
+{
+class ModID;
+class ModCollectionEntry;
+}
 
 namespace OpenXcom
 {
@@ -21,7 +30,7 @@ class OptionsModBrowserUserConfigState : public State
 	Text *_currentModsLabel;
 	TextList *_currentUserMods;
 	TextButton *_unsubscribeButton;
-	LayoutGroup *_modListGroup;
+	Surface *_modListSeparator;
 	LayoutGroup *_userGroup;
 	TextButton *_logoutButton;
 	TextButton *_switchUserButton;
@@ -35,8 +44,14 @@ class OptionsModBrowserUserConfigState : public State
 	/// Handler for showing mod details when one is clicked in the list
 	void onSwitchUserClicked(Action *action);
 	void onUpdateClicked(Action *action);
+	void onUnsubscribeClicked(Action *action);
 	/// Handler for showing mod details when one is clicked in the list
 	void onBackClicked(Action *action);
+	std::map<Modio::ModID, Modio::ModCollectionEntry> _userSubscriptions;
+	void updateSubscriptionList();
+	void updateModActionButton();
+	void onModSelected(Action *action);
+	int _currentModIndex = -1;
 
   public:
 	OptionsModBrowserUserConfigState();

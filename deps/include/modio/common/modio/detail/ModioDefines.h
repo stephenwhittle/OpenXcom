@@ -114,6 +114,7 @@
 #endif
 
 #ifdef _WIN32
+	#define NOCRYPT
 	// Set the proper SDK version before including asio
 	#include <SDKDDKVer.h>
 	// Note asio includes Windows.h.

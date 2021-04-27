@@ -138,11 +138,7 @@ MainMenuState::~MainMenuState()
 	if (Options::enableModioSDK)
 	{
 		Modio::DisableModManagement();
-		Options::updateMods();
-		_game->loadMods();
 	}
-
-	
 }
 
 /**

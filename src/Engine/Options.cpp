@@ -658,7 +658,18 @@ void refreshMods()
 			std::map<Modio::ModID, Modio::ModCollectionEntry> sdkMods = Modio::QueryUserInstallations(true);
 			for (std::pair<const Modio::ModID, Modio::ModCollectionEntry> &sdkMod : sdkMods)
 			{
-				loadModFromPath(sdkMod.second.GetPath().string());
+				//By default the SDK will retain the enclosing folder present in the zip uploaded to mod.io, so search in the directories for the correct metadata file
+				for (const Modio::filesystem::directory_entry &entry : Modio::filesystem::recursive_directory_iterator(sdkMod.second.GetPath()))
+				{
+					if (entry.is_regular_file())
+					{
+						if (entry.path().filename() == Modio::filesystem::path("metadata.yml"))
+						{
+							loadModFromPath(entry.path().parent_path());
+							break;
+						}
+					}
+				}
 			}
 		}
 	}

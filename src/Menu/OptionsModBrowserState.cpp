@@ -1,23 +1,23 @@
 #include "OptionsModBrowserState.h"
-#include "OptionsModBrowserAuthState.h"
-#include "OptionsModBrowserUserConfigState.h"
-#include "OptionsModBrowserDetailsState.h"
-#include "OptionsModBrowserQueueState.h"
 #include "../Engine/CrossPlatform.h"
 #include "../Engine/Game.h"
+#include "../Interface/Bar.h"
 #include "../Interface/LayoutDriver.h"
 #include "../Interface/LayoutGroup.h"
 #include "../Interface/TextButton.h"
 #include "../Interface/TextEdit.h"
 #include "../Interface/TextList.h"
-#include "../Interface/Bar.h"
-#include "../Interface/Window.h"
 #include "../Interface/Utilities.h"
+#include "../Interface/Window.h"
 #include "../Mod/Mod.h"
+#include "OptionsModBrowserAuthState.h"
+#include "OptionsModBrowserDetailsState.h"
+#include "OptionsModBrowserQueueState.h"
+#include "OptionsModBrowserUserConfigState.h"
 #include "modio/core/entities/ModioModInfo.h"
-#include "modio/ModioSDK.h"
 #include <map>
 
+#include "modio/ModioSDK.h"
 void OpenXcom::OptionsModBrowserState::UpdateModList()
 {
 	if (_currentModResults)
@@ -31,7 +31,7 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 		//todo:@modio make these autosize if we can
 		_modList->setColumns(1, 320 - (12 + 11));
 
-		for (const Modio::ModInfo& Info : *_currentModResults)
+		for (const Modio::ModInfo &Info : *_currentModResults)
 		{
 			_modList->addRow(1, Info.ProfileName.c_str());
 			std::size_t CurrentRowIndex = _modList->getRows() - 1;
@@ -107,13 +107,11 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	add(_optionsButton, "button", "optionsMenu");
 	add(_backButton, "button", "optionsMenu");
 
-
-
 	_searchButton->setText("Search");
 	_searchButton->autoWidth(100);
 	_searchButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSearchClicked);
-	
-	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).Proportional(1,1));
+
+	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).Proportional(1, 1));
 
 	_prevButton->setText("Prev");
 	_nextButton->setText("Next");
@@ -126,23 +124,22 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_modList->onMouseClick((ActionHandler)&OptionsModBrowserState::onModSelected);
 
 	_modListGroup = LayoutGroup::Horizontal(320, 100,
-		LayoutParam(_modList).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_modListScrollPlaceholder).Absolute(23, 1).OtherAxisStretch());
+											LayoutParam(_modList).Proportional(1, 1).OtherAxisStretch(),
+											LayoutParam(_modListScrollPlaceholder).Absolute(23, 1).OtherAxisStretch());
 
 	_browseNavButtonGroup = LayoutGroup::Horizontal(320, 100,
-		LayoutParam(_prevButton).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_nextButton).Proportional(1, 1).OtherAxisStretch());
+													LayoutParam(_prevButton).Proportional(1, 1).OtherAxisStretch(),
+													LayoutParam(_nextButton).Proportional(1, 1).OtherAxisStretch());
 
 	_browseButtonGroup = LayoutGroup::Vertical(320, 100,
-		LayoutParam(_browseNavButtonGroup).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_queueSeparator).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_progress).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_queueButton).Absolute(1, 16).OtherAxisStretch());
+											   LayoutParam(_browseNavButtonGroup).Absolute(1, 16).OtherAxisStretch(),
+											   LayoutParam(_queueSeparator).Proportional(1, 1).OtherAxisStretch(),
+											   LayoutParam(_progress).Absolute(1, 16).OtherAxisStretch(),
+											   LayoutParam(_queueButton).Absolute(1, 16).OtherAxisStretch());
 
-	_browseGroup = LayoutGroup::Horizontal(320,100,
-		LayoutParam(_modListGroup).Proportional(4,1).OtherAxisStretch(),
-		LayoutParam(_browseButtonGroup).Proportional(1, 1).OtherAxisStretch());
-
+	_browseGroup = LayoutGroup::Horizontal(320, 100,
+										   LayoutParam(_modListGroup).Proportional(4, 1).OtherAxisStretch(),
+										   LayoutParam(_browseButtonGroup).Proportional(1, 1).OtherAxisStretch());
 
 	_modDesc->setWordWrap(true);
 	_modDesc->setScrollable(true);
@@ -159,23 +156,23 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_backButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onBackClicked);
 
 	_actionButtonGroup = LayoutGroup::Vertical(320, 100,
-		LayoutParam(_subscribeButton).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_detailsButton).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_actionButtonSeparator).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_optionsButton).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_backButton).Absolute(1,16).OtherAxisStretch());
+											   LayoutParam(_subscribeButton).Absolute(1, 16).OtherAxisStretch(),
+											   LayoutParam(_detailsButton).Absolute(1, 16).OtherAxisStretch(),
+											   LayoutParam(_actionButtonSeparator).Proportional(1, 1).OtherAxisStretch(),
+											   LayoutParam(_optionsButton).Absolute(1, 16).OtherAxisStretch(),
+											   LayoutParam(_backButton).Absolute(1, 16).OtherAxisStretch());
 
 	_detailsGroup = LayoutGroup::Horizontal(320, 100,
-		LayoutParam(_modDesc).Proportional(4, 1).OtherAxisStretch(),
-		LayoutParam(_actionButtonGroup).Proportional(1, 1).OtherAxisStretch());
+											LayoutParam(_modDesc).Proportional(4, 1).OtherAxisStretch(),
+											LayoutParam(_actionButtonGroup).Proportional(1, 1).OtherAxisStretch());
 
 	LayoutDriver Driver = LayoutDriver(LayoutDirection::Vertical, _window,
-		LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(),
-		LayoutParam(_searchBarPadding).Absolute(1,8).OtherAxisStretch(),
-		LayoutParam(_browseGroup).Proportional(1, 1).OtherAxisStretch(),
-		LayoutParam(_browseGroupPadding).Absolute(1,8).OtherAxisStretch(),
-		LayoutParam(_detailsGroup).Proportional(1, 1).OtherAxisStretch())
-		.Padding(4);
+									   LayoutParam(_searchBar).Absolute(1, 16).OtherAxisStretch(),
+									   LayoutParam(_searchBarPadding).Absolute(1, 8).OtherAxisStretch(),
+									   LayoutParam(_browseGroup).Proportional(1, 1).OtherAxisStretch(),
+									   LayoutParam(_browseGroupPadding).Absolute(1, 8).OtherAxisStretch(),
+									   LayoutParam(_detailsGroup).Proportional(1, 1).OtherAxisStretch())
+							  .Padding(4);
 	Driver.ApplyLayout();
 
 	//Workaround - forces the selector Surface to be resized based on the new size driven by the LayoutDriver
@@ -183,11 +180,9 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	centerAllSurfaces();
 }
 
- OpenXcom::OptionsModBrowserState::~OptionsModBrowserState()
+OpenXcom::OptionsModBrowserState::~OptionsModBrowserState()
 {
-	 Options::updateMods();
-	 _game->loadMods();
- }
+}
 
 void OpenXcom::OptionsModBrowserState::init()
 {
@@ -199,39 +194,7 @@ void OpenXcom::OptionsModBrowserState::init()
 	}
 	else if (!_currentModResults)
 	{
-		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
-		{
-			if (!ec)
-			{
-				_currentModResults = Mods;
-				UpdateModList();
-			}
-		});
-
-	}
-}
-
-void OpenXcom::OptionsModBrowserState::think()
-{
-	State::think();
-	
-}
-
-void OpenXcom::OptionsModBrowserState::onModSelected(Action* action)
-{
-	_currentSelectionIndex = _modList->getSelectedRow();
-	if (_currentModResults && _currentSelectionIndex >= 0)
-	{
-		updateModDetails((*_currentModResults)[_currentSelectionIndex]);
-	}
-}
-
-void OpenXcom::OptionsModBrowserState::onSearchClicked(Action* action)
-{
-	if (!_searchText->getText().empty())
-	{
-		Modio::ListAllModsAsync(Modio::FilterParams().NameContains(_searchText->getText()), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
-		{
+		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
 			if (!ec)
 			{
 				_currentModResults = Mods;
@@ -241,8 +204,39 @@ void OpenXcom::OptionsModBrowserState::onSearchClicked(Action* action)
 	}
 	else
 	{
-		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods)
-		{
+		UpdateModList();
+	}
+}
+
+void OpenXcom::OptionsModBrowserState::think()
+{
+	State::think();
+}
+
+void OpenXcom::OptionsModBrowserState::onModSelected(Action *action)
+{
+	_currentSelectionIndex = _modList->getSelectedRow();
+	if (_currentModResults && _currentSelectionIndex >= 0)
+	{
+		updateModDetails((*_currentModResults)[_currentSelectionIndex]);
+	}
+}
+
+void OpenXcom::OptionsModBrowserState::onSearchClicked(Action *action)
+{
+	if (!_searchText->getText().empty())
+	{
+		Modio::ListAllModsAsync(Modio::FilterParams().NameContains(_searchText->getText()), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+			if (!ec)
+			{
+				_currentModResults = Mods;
+				UpdateModList();
+			}
+		});
+	}
+	else
+	{
+		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
 			if (!ec)
 			{
 				_currentModResults = Mods;
@@ -257,7 +251,7 @@ void OpenXcom::OptionsModBrowserState::onQueueClicked(Action *action)
 	_game->pushState(new OptionsModBrowserQueueState());
 }
 
-void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
+void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action *action)
 {
 	if (_currentModResults && _currentSelectionIndex >= 0)
 	{
@@ -279,13 +273,12 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action* action)
 					UpdateModList();
 					updateModDetails((*_currentModResults)[_currentSelectionIndex]);
 				}
-
-			});	
+			});
 		}
 	}
 }
 
-void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action* action)
+void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action *action)
 {
 
 	if (_currentModResults && _currentSelectionIndex >= 0)
@@ -294,12 +287,12 @@ void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action* action)
 	}
 }
 
-void OpenXcom::OptionsModBrowserState::onOptionsClicked(Action* action)
+void OpenXcom::OptionsModBrowserState::onOptionsClicked(Action *action)
 {
 	_game->pushState(new OptionsModBrowserUserConfigState());
 }
 
-void OpenXcom::OptionsModBrowserState::onBackClicked(Action* action)
+void OpenXcom::OptionsModBrowserState::onBackClicked(Action *action)
 {
 	_game->popState();
 }

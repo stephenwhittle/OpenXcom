@@ -9,6 +9,7 @@
 #include "../Interface/Window.h"
 #include "modio/ModioSDK.h"
 #include <memory>
+#include <algorithm>
 
 OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 {
@@ -16,6 +17,7 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	_currentUserLabel = new Text(320, 16);
 	_currentUserIcon = new Surface(50, 50, 0, 0, 8);
 	_currentUserValue = new Text(320, 16);
+	_modListSeparator = new Surface(1, 1);
 	_currentUserMods = new TextList(320, 100);
 	_currentModsLabel = new Text(320, 16);
 	_unsubscribeButton = new TextButton(50, 16);
@@ -33,6 +35,7 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	add(_currentUserValue);
 	add(_currentUserMods, "optionLists", "controlsMenu");
 	add(_currentModsLabel, "text", "modsMenu");
+	add(_modListSeparator);
 	add(_unsubscribeButton, "button", "optionsMenu");
 	add(_logoutButton, "button", "optionsMenu");
 	add(_switchUserButton, "button", "optionsMenu");
@@ -41,29 +44,35 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	add(_backButton, "button", "optionsMenu");
 
 	_currentModsLabel->setText("Subscribed Mods:");
+	_currentModsLabel->setVerticalAlign(ALIGN_MIDDLE);
 	_unsubscribeButton->setText("Unsubscribe");
-	_modListGroup = LayoutGroup::Horizontal(320, 200,
-											LayoutParam(_currentUserMods).Proportional(3, 1).OtherAxisStretch(),
-											LayoutParam(_unsubscribeButton).Proportional(1, 1));
+	_unsubscribeButton->onMouseClick((ActionHandler)&OptionsModBrowserUserConfigState::onUnsubscribeClicked);
 
 	_currentUserLabel->setText("Current User: ");
+	_currentUserLabel->setVerticalAlign(ALIGN_MIDDLE);
 	_userProfileGroup = LayoutGroup::Horizontal(320, 200,
 												LayoutParam(_currentUserLabel).Proportional(2, 1),
 												LayoutParam(_currentUserIcon).Absolute(50, 50).KeepSize(),
 												LayoutParam(_currentUserValue).Proportional(3, 1));
 
+	_currentUserMods->setColumns(1, _currentUserMods->getWidth() - 10);
+	_currentUserMods->onMouseClick((ActionHandler)&OptionsModBrowserUserConfigState::onModSelected);
+	_currentUserMods->setSelectable(true);
+	_currentUserMods->setBackground(_window);
+
 	_userGroup = LayoutGroup::Vertical(320, 200,
 									   LayoutParam(_userProfileGroup).Absolute(1, 16).OtherAxisStretch(),
+									   LayoutParam(_modListSeparator).Absolute(1, 32).OtherAxisStretch(),
 									   LayoutParam(_currentModsLabel).Absolute(1, 16).OtherAxisStretch(),
-									   LayoutParam(_modListGroup).Proportional(1, 1).OtherAxisStretch());
+									   LayoutParam(_currentUserMods).Proportional(1, 1).OtherAxisStretch());
 
 	_logoutButton->setText("Log Out");
 	_logoutButton->setTooltip("Logs out the current Mod.io user and returns back to the options menu");
 	_logoutButton->onMouseClick((ActionHandler)&OptionsModBrowserUserConfigState::onLogoutClicked);
-	_switchUserButton->setText("Switch User");
+
 	_switchUserButton->setTooltip("Changes the actively logged in Mod.io user");
 	_switchUserButton->onMouseClick((ActionHandler)&OptionsModBrowserUserConfigState::onSwitchUserClicked);
-	_updateCheckButton->setText("Check Updates");
+
 	_updateCheckButton->setTooltip("Checks for external changes to your subscriptions");
 	_updateCheckButton->onMouseClick((ActionHandler)&OptionsModBrowserUserConfigState::onUpdateClicked);
 	_backButton->setText("Back");
@@ -73,6 +82,7 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 										 LayoutParam(_logoutButton).Absolute(1, 16).OtherAxisStretch(),
 										 LayoutParam(_switchUserButton).Absolute(1, 16).OtherAxisStretch(),
 										 LayoutParam(_updateCheckButton).Absolute(1, 16).OtherAxisStretch(),
+										 LayoutParam(_unsubscribeButton).Absolute(1, 16).OtherAxisStretch(),
 										 LayoutParam(_ButtonSeparator).Proportional(1, 1).OtherAxisStretch(),
 										 LayoutParam(_backButton).Absolute(1, 16).OtherAxisStretch());
 
@@ -81,6 +91,12 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 											   LayoutParam(_buttonGroup).Proportional(1, 1).OtherAxisStretch())
 									  .Padding(4);
 	topLevelLayout.ApplyLayout();
+
+	//Workaround - forces the selector Surface to be resized based on the new size driven by the LayoutDriver
+	_currentUserMods->setSmall();
+	
+	_switchUserButton->setText("Switch User");
+	_updateCheckButton->setText("Get Updates");
 
 	Modio::GetUserMediaAsync(Modio::AvatarSize::Thumb50, [this](Modio::ErrorCode ec, Modio::Optional<Modio::filesystem::path> AvatarPath) {
 		if (!ec)
@@ -96,6 +112,8 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	if (CurrentUser.has_value())
 	{
 		_currentUserValue->setText(CurrentUser->Username);
+		_userSubscriptions = Modio::QueryUserSubscriptions();
+		updateSubscriptionList();
 	}
 
 	centerAllSurfaces();
@@ -117,10 +135,65 @@ void OpenXcom::OptionsModBrowserUserConfigState::onSwitchUserClicked(Action *act
 
 void OpenXcom::OptionsModBrowserUserConfigState::onUpdateClicked(Action *action)
 {
-	Modio::FetchExternalUpdatesAsync([](Modio::ErrorCode ec) {});
+	Modio::FetchExternalUpdatesAsync([this](Modio::ErrorCode ec)
+	{
+		updateSubscriptionList();
+	});
+}
+
+void OpenXcom::OptionsModBrowserUserConfigState::onUnsubscribeClicked(Action *action)
+{
+	if (_currentModIndex >= 0)
+	{
+		//Workaround till the mod.io API returns an indexable collection of mods
+		auto it = std::next(_userSubscriptions.begin(), _currentModIndex);
+		Modio::UnsubscribeFromModAsync(it->second.GetModProfile().ModId, [this](Modio::ErrorCode ec)
+		{
+			updateSubscriptionList();
+		});
+	}
 }
 
 void OpenXcom::OptionsModBrowserUserConfigState::onBackClicked(Action *action)
 {
 	_game->popState();
+}
+
+void OpenXcom::OptionsModBrowserUserConfigState::updateSubscriptionList()
+{
+	_currentUserMods->clearList();
+
+	for (const std::pair<Modio::ModID, Modio::ModCollectionEntry>& ModEntry : _userSubscriptions)
+	{
+		_currentUserMods->addRow(1, ModEntry.second.GetModProfile().ProfileName.c_str());
+	}
+	_currentModIndex = -1;
+	updateModActionButton();
+}
+
+void OpenXcom::OptionsModBrowserUserConfigState::updateModActionButton()
+{
+	if (_currentModIndex >= 0)
+	{
+		//Workaround till the mod.io API returns an indexable collection of mods
+		auto it = std::next(_userSubscriptions.begin(), _currentModIndex);
+		if ((*it).second.GetModState() == Modio::ModState::Installed)
+		{
+			_unsubscribeButton->setText("Uninstall");
+		}
+		else
+		{
+			_unsubscribeButton->setText("Unsubscribe");
+		}
+	}
+	else
+	{
+		_unsubscribeButton->setText("Unsubscribe");
+	}
+}
+
+void OpenXcom::OptionsModBrowserUserConfigState::onModSelected(Action *action)
+{
+	_currentModIndex = _currentUserMods->getSelectedRow();
+	updateModActionButton();
 }

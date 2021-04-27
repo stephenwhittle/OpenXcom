@@ -51,7 +51,7 @@ class ModListState : public State
 	std::string _curMasterId;
 	std::vector<std::pair<std::string, bool> > _mods;
 	size_t _curMasterIdx;
-
+	bool _reloadModsRequired = false;
   public:
 	/// Creates the Mods state.
 	ModListState();
@@ -87,6 +87,8 @@ class ModListState : public State
 	void btnCancelClick(Action *action);
 	/// Handler for clicking the Open Mod Browser button.
 	void btnOpenModBrowserClick(Action *action);
+
+	void init() override;
 };
 
 }
