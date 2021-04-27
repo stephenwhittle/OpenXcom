@@ -116,7 +116,9 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	_searchBar = LayoutGroup::Horizontal(320, 16, LayoutParam(_searchText).Proportional(4, 1), LayoutParam(_searchButton).Proportional(1, 1));
 
 	_prevButton->setText("Prev");
+	_prevButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onPrevClicked);
 	_nextButton->setText("Next");
+	_nextButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onNextClicked);
 	_progress->setHidden(true);
 	_queueButton->setText("0 in queue");
 	_queueButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onQueueClicked);
@@ -237,26 +239,20 @@ void OpenXcom::OptionsModBrowserState::onModSelected(Action *action)
 
 void OpenXcom::OptionsModBrowserState::onSearchClicked(Action *action)
 {
+	Modio::FilterParams searchParams = Modio::FilterParams().IndexedResults(_data->resultStartIndex, _resultPageSize);
+
 	if (!_searchText->getText().empty())
 	{
-		Modio::ListAllModsAsync(Modio::FilterParams().NameContains(_searchText->getText()), [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
-			if (!ec)
-			{
-				_data->currentModResults = Mods;
-				_data->modResultsDirty.store(true);
-			}
-		});
+		searchParams = searchParams.NameContains(_searchText->getText());
 	}
-	else
-	{
-		Modio::ListAllModsAsync(Modio::FilterParams(), [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
-			if (!ec)
-			{
-				_data->currentModResults = Mods;
-				_data->modResultsDirty.store(true);
-			}
-		});
-	}
+
+	Modio::ListAllModsAsync(searchParams, [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+		if (!ec)
+		{
+			_data->currentModResults = Mods;
+			_data->modResultsDirty.store(true);
+		}
+	});
 }
 
 void OpenXcom::OptionsModBrowserState::onQueueClicked(Action *action)
@@ -308,4 +304,54 @@ void OpenXcom::OptionsModBrowserState::onOptionsClicked(Action *action)
 void OpenXcom::OptionsModBrowserState::onBackClicked(Action *action)
 {
 	_game->popState();
+}
+
+void OpenXcom::OptionsModBrowserState::onPrevClicked(Action *action)
+{
+	//Don't try to go back if we're at the start
+	if (_data->resultStartIndex > 0)
+	{
+		//go back _resultPageSize results but clamp so we dont go negative
+		std::size_t newStartIndex = (_data->resultStartIndex >= _resultPageSize) ? _data->resultStartIndex - _resultPageSize : 0;
+
+		Modio::FilterParams searchParams = Modio::FilterParams().IndexedResults(newStartIndex, _resultPageSize);
+
+		if (!_searchText->getText().empty())
+		{
+			searchParams = searchParams.NameContains(_searchText->getText());
+		}
+
+		Modio::ListAllModsAsync(searchParams, [_data = this->_data, _resultPageSize = this->_resultPageSize](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+			if (!ec)
+			{
+				_data->currentModResults = Mods;
+				_data->resultStartIndex = (_data->resultStartIndex >= _resultPageSize) ? _data->resultStartIndex - _resultPageSize : 0;
+				_data->modResultsDirty.store(true);
+			}
+		});
+	}
+}
+
+void OpenXcom::OptionsModBrowserState::onNextClicked(Action *action)
+{
+	// if we have < _resultPageSize rows in the list, we're already at the last page
+	if (_modList->getRows() >= _resultPageSize)
+	{
+		Modio::FilterParams searchParams = Modio::FilterParams().IndexedResults(_data->resultStartIndex + _resultPageSize, _resultPageSize);
+
+		if (!_searchText->getText().empty())
+		{
+			searchParams = searchParams.NameContains(_searchText->getText());
+		}
+
+		Modio::ListAllModsAsync(searchParams, [_data = this->_data, _resultPageSize = this->_resultPageSize](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+			if (!ec)
+			{
+				_data->currentModResults = Mods;
+				_data->resultStartIndex += _resultPageSize;
+				_data->modResultsDirty.store(true);
+			}
+		});
+	}
+
 }

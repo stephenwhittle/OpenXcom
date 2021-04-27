@@ -57,7 +57,7 @@ private:
 
 
 	int _currentSelectionIndex = -1;
-	
+	std::size_t _resultPageSize = 100;
 	enum class SubscribeButtonMode
 	{
 		Subscribe,
@@ -68,30 +68,35 @@ private:
 	struct StateData
 	{
 		Modio::Optional<Modio::ModInfoList> currentModResults;
-		std::atomic_bool modResultsDirty;
-		std::atomic_bool selectedModDirty;
+		std::atomic_bool modResultsDirty = false;
+		std::atomic_bool selectedModDirty = false;
+		std::size_t resultStartIndex = 0;
 	};
 	std::shared_ptr<StateData> _data;
 	void UpdateModList();
 	void updateModDetails(Modio::ModInfo modDetails);
-public:
+	/// Handler for showing mod details when one is clicked in the list
+	void onModSelected(Action *action);
+	/// Handler for clicking the search button
+	void onSearchClicked(Action *action);
+	void onQueueClicked(Action *action);
+	/// Handler for clicking the subscribe button for a mod
+	void onSubscribeClicked(Action *action);
+	/// Handler for clicking the details button for a mod
+	void onDetailsClicked(Action *action);
+	/// Handler for clicking the subscribe button for a mod
+	void onOptionsClicked(Action *action);
+	/// Handler for clicking the subscribe button for a mod
+	void onBackClicked(Action *action);
+	void onPrevClicked(Action *action);
+	void onNextClicked(Action *action);
+
+  public:
 	OptionsModBrowserState();
   virtual ~OptionsModBrowserState();
 	void init() override;
 
 	void think() override;
-	/// Handler for showing mod details when one is clicked in the list
-	void onModSelected(Action* action);
-	/// Handler for clicking the search button
-	void onSearchClicked(Action* action);
-	void onQueueClicked(Action *action);
-	/// Handler for clicking the subscribe button for a mod
-	void onSubscribeClicked(Action* action);
-	/// Handler for clicking the details button for a mod
-	void onDetailsClicked(Action* action);
-	/// Handler for clicking the subscribe button for a mod
-	void onOptionsClicked(Action* action);
-	/// Handler for clicking the subscribe button for a mod
-	void onBackClicked(Action* action);
+	
 };
 }
