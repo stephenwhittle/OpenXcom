@@ -494,6 +494,7 @@ static void loadModFromPath(std::string modPath)
 	if (("xcom1" == modInfo.getId() && !_ufoIsInstalled()) || ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
 	{
 		Log(LOG_VERBOSE) << "skipping " << modInfo.getId() << " since related game data isn't installed";
+		return;
 	}
 
 	_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
@@ -527,50 +528,6 @@ static void _scanMods(const std::string &modsDir, bool metadataOnly = false)
 			}
 
 			loadModFromPath(modPath);
-
-			Log(LOG_VERBOSE) << "- " << modPath;
-			ModInfo modInfo(modPath);
-
-			std::string metadataPath = modPath + metadataFile;
-			if (!CrossPlatform::fileExists(metadataPath))
-			{
-				Log(LOG_VERBOSE) << metadataPath << " not found;";
-				if (metadataOnly)
-				{
-					Log(LOG_VERBOSE) << "skipping invalid mod: " << *i;
-					continue;
-				}
-				else
-				{
-					Log(LOG_VERBOSE) << "using default values for mod: " << *i;
-				}
-			}
-			else
-			{
-				modInfo.load(metadataPath);
-			}
-
-			Log(LOG_VERBOSE) << "  id: " << modInfo.getId();
-			Log(LOG_VERBOSE) << "  name: " << modInfo.getName();
-			Log(LOG_VERBOSE) << "  version: " << modInfo.getVersion();
-			Log(LOG_VERBOSE) << "  description: " << modInfo.getDescription();
-			Log(LOG_VERBOSE) << "  author: " << modInfo.getAuthor();
-			Log(LOG_VERBOSE) << "  master: " << modInfo.getMaster();
-			Log(LOG_VERBOSE) << "  isMaster: " << modInfo.isMaster();
-			Log(LOG_VERBOSE) << "  loadResources:";
-			std::vector<std::string> externals = modInfo.getExternalResourceDirs();
-			for (std::vector<std::string>::iterator j = externals.begin(); j != externals.end(); ++j)
-			{
-				Log(LOG_VERBOSE) << "    " << *j;
-			}
-
-			if (("xcom1" == modInfo.getId() && !_ufoIsInstalled()) || ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
-			{
-				Log(LOG_VERBOSE) << "skipping " << modInfo.getId() << " since related game data isn't installed";
-				continue;
-			}
-
-			_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
 		}
 	}
 }
