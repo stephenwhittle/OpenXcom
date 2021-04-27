@@ -13,6 +13,7 @@ namespace OpenXcom
 	class LayoutGroup;
 	class TextButton;
 
+	/// @brief State showing a detailed view of a specific mod
 	class OptionsModBrowserDetailsState : public State
 	{
 		Window* _window;

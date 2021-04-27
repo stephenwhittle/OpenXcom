@@ -12,6 +12,7 @@ class TextEdit;
 class LayoutGroup;
 class Surface;
 
+/// @brief State prompting the user for the email authentication flow 
 class OptionsModBrowserAuthState : public State
 {
 private:

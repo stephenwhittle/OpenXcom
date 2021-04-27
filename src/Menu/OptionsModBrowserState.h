@@ -5,7 +5,7 @@
 #include "modio/detail/ModioDefines.h"
 #include "modio/core/entities/ModioModInfoList.h"
 #include "modio/core/ModioStdTypes.h" //For Modio::Optional
-
+#include <memory>
 
 namespace OpenXcom
 {
@@ -18,6 +18,8 @@ class ComboBox;
 class LayoutGroup;
 class Bar;
 
+
+/// @brief State displaying a searchable list of all mods available for the game
 class OptionsModBrowserState : public State
 {
 private:
@@ -55,13 +57,21 @@ private:
 
 
 	int _currentSelectionIndex = -1;
-	Modio::Optional<Modio::ModInfoList> _currentModResults;
+	
 	enum class SubscribeButtonMode
 	{
 		Subscribe,
 		Unsubscribe
 	};
 	SubscribeButtonMode _subscribeButtonAction = SubscribeButtonMode::Subscribe;
+
+	struct StateData
+	{
+		Modio::Optional<Modio::ModInfoList> currentModResults;
+		std::atomic_bool modResultsDirty;
+		std::atomic_bool selectedModDirty;
+	};
+	std::shared_ptr<StateData> _data;
 	void UpdateModList();
 	void updateModDetails(Modio::ModInfo modDetails);
 public:

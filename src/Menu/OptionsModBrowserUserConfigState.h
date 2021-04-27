@@ -1,8 +1,9 @@
 #pragma once
 #include "../Engine/State.h"
-#include <map>
-
 #include "modio/detail/ModioDefines.h"
+#include <map>
+#include <memory>
+#include <atomic>
 
 namespace Modio
 {
@@ -19,6 +20,7 @@ class TextButton;
 class TextList;
 class LayoutGroup;
 
+/// @brief State showing the currently logged in user and a list of their mods so they can unsubscribe/uninstall from them
 class OptionsModBrowserUserConfigState : public State
 {
   private:
@@ -52,8 +54,20 @@ class OptionsModBrowserUserConfigState : public State
 	void updateModActionButton();
 	void onModSelected(Action *action);
 	int _currentModIndex = -1;
+	struct StateData
+	{
+		std::atomic_bool subscriptionListDirty = false;
+		std::string userProfileImagePath;
+	};
+	/// @brief Backing data/notification flags for the state.
+	/// stored in a shared pointer so if the window is closed while a
+	/// mod.io SDK call is in-flight, the callback won't have a
+	/// dangling reference to the state itself
+	std::shared_ptr<StateData> _data;
 
   public:
 	OptionsModBrowserUserConfigState();
+
+	void think() override;
 };
 }

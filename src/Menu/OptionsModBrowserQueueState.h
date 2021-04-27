@@ -17,6 +17,7 @@ class TextButton;
 class Surface;
 class LayoutGroup;
 
+/// @brief State with detailed information about the current download and a list of the pending updates
 class OptionsModBrowserQueueState : public State
 {
 	Window *_window;

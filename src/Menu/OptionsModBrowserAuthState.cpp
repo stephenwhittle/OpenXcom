@@ -16,7 +16,7 @@
 
 void OpenXcom::OptionsModBrowserAuthState::submitEmailClick(Action* action)
 {
-	Modio::RequestEmailAuthCodeAsync(Modio::EmailAddress(_emailAddrInput->getText()), [this](Modio::ErrorCode ec) {
+	Modio::RequestEmailAuthCodeAsync(Modio::EmailAddress(_emailAddrInput->getText()), [_palette = this->_palette, _game = this->_game](Modio::ErrorCode ec) {
 		if (ec)
 		{
 			_game->pushState(new ErrorMessageState((std::string("mod.io SDK auth failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
@@ -26,7 +26,7 @@ void OpenXcom::OptionsModBrowserAuthState::submitEmailClick(Action* action)
 
 void OpenXcom::OptionsModBrowserAuthState::submitAuthCodeClick(Action* action)
 {
-	Modio::AuthenticateUserEmailAsync(Modio::EmailAuthCode(_authCodeInput->getText()), [this](Modio::ErrorCode ec) {
+	Modio::AuthenticateUserEmailAsync(Modio::EmailAuthCode(_authCodeInput->getText()), [_palette = this->_palette, _game = this->_game](Modio::ErrorCode ec) {
 		if (ec)
 		{
 			_game->pushState(new ErrorMessageState((std::string("mod.io SDK auth failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));

@@ -13,6 +13,8 @@
 
 OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 {
+	_data = std::make_shared<StateData>();
+
 	_window = new Window(this, 320, 200);
 	_currentUserLabel = new Text(320, 16);
 	_currentUserIcon = new Surface(50, 50, 0, 0, 8);
@@ -98,13 +100,10 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	_switchUserButton->setText("Switch User");
 	_updateCheckButton->setText("Get Updates");
 
-	Modio::GetUserMediaAsync(Modio::AvatarSize::Thumb50, [this](Modio::ErrorCode ec, Modio::Optional<Modio::filesystem::path> AvatarPath) {
+	Modio::GetUserMediaAsync(Modio::AvatarSize::Thumb50, [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::filesystem::path> AvatarPath) {
 		if (!ec)
 		{
-			Surface *tmpSurface = new Surface(1, 1, 0, 0, 24);
-			tmpSurface->loadImage(AvatarPath->string());
-			tmpSurface->blit(_currentUserIcon);
-			//_currentUserIcon->loadImage(AvatarPath->string());
+			_data->userProfileImagePath = AvatarPath->string();
 		}
 	});
 
@@ -117,6 +116,24 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	}
 
 	centerAllSurfaces();
+}
+
+void OpenXcom::OptionsModBrowserUserConfigState::think()
+{
+	State::think();
+	if (_data->subscriptionListDirty.exchange(false))
+	{
+		updateSubscriptionList();
+	}
+	if (!_data->userProfileImagePath.empty())
+	{
+		//load the image here
+		Surface *tmpSurface = new Surface(1, 1, 0, 0, 24);
+		tmpSurface->loadImage(_data->userProfileImagePath);
+		tmpSurface->blit(_currentUserIcon);
+		//_currentUserIcon->loadImage(AvatarPath->string());
+		_data->userProfileImagePath = "";
+	}
 }
 
 void OpenXcom::OptionsModBrowserUserConfigState::onLogoutClicked(Action *action)
@@ -135,9 +152,9 @@ void OpenXcom::OptionsModBrowserUserConfigState::onSwitchUserClicked(Action *act
 
 void OpenXcom::OptionsModBrowserUserConfigState::onUpdateClicked(Action *action)
 {
-	Modio::FetchExternalUpdatesAsync([this](Modio::ErrorCode ec)
+	Modio::FetchExternalUpdatesAsync([_data = this->_data](Modio::ErrorCode ec)
 	{
-		updateSubscriptionList();
+		_data->subscriptionListDirty.store(true);
 	});
 }
 
@@ -147,9 +164,10 @@ void OpenXcom::OptionsModBrowserUserConfigState::onUnsubscribeClicked(Action *ac
 	{
 		//Workaround till the mod.io API returns an indexable collection of mods
 		auto it = std::next(_userSubscriptions.begin(), _currentModIndex);
-		Modio::UnsubscribeFromModAsync(it->second.GetModProfile().ModId, [this](Modio::ErrorCode ec)
+		Modio::UnsubscribeFromModAsync(it->second.GetModProfile().ModId, [_data = this->_data](Modio::ErrorCode ec)
 		{
-			updateSubscriptionList();
+			_data->subscriptionListDirty.store(true);
+			
 		});
 	}
 }

@@ -20,7 +20,7 @@
 #include "modio/ModioSDK.h"
 void OpenXcom::OptionsModBrowserState::UpdateModList()
 {
-	if (_currentModResults)
+	if (_data->currentModResults)
 	{
 		std::map<Modio::ModID, Modio::ModCollectionEntry> SubscribedMods = Modio::QueryUserSubscriptions();
 		_modList->clearList();
@@ -31,7 +31,7 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 		//todo:@modio make these autosize if we can
 		_modList->setColumns(1, 320 - (12 + 11));
 
-		for (const Modio::ModInfo &Info : *_currentModResults)
+		for (const Modio::ModInfo &Info : *_data->currentModResults)
 		{
 			_modList->addRow(1, Info.ProfileName.c_str());
 			std::size_t CurrentRowIndex = _modList->getRows() - 1;
@@ -60,6 +60,8 @@ void OpenXcom::OptionsModBrowserState::updateModDetails(Modio::ModInfo modDetail
 
 OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 {
+	_data = std::make_shared<StateData>();
+
 	_window = new Window(this, 320, 200);
 	_searchText = new TextEdit(this, 240, 16);
 	_searchButton = new TextButton(50, 16);
@@ -188,20 +190,23 @@ void OpenXcom::OptionsModBrowserState::init()
 {
 	State::init();
 
+	//If QueryUserProfile returns a falsey Optional then we aren't authenticated and need to do that first
 	if (!Modio::QueryUserProfile())
 	{
 		_game->pushState(new OptionsModBrowserAuthState());
 	}
-	else if (!_currentModResults)
+	//If we're authenticated now, but don't have a set of default search results, get those
+	else if (!_data->currentModResults)
 	{
-		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+		Modio::ListAllModsAsync(Modio::FilterParams(), [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
 			if (!ec)
 			{
-				_currentModResults = Mods;
-				UpdateModList();
+				_data->currentModResults = Mods;
+				_data->modResultsDirty.store(true);
 			}
 		});
 	}
+	//If we're both authenticated and have a set of mod results, refresh the UI to display them with the new color highlighting for installed mods
 	else
 	{
 		UpdateModList();
@@ -211,36 +216,44 @@ void OpenXcom::OptionsModBrowserState::init()
 void OpenXcom::OptionsModBrowserState::think()
 {
 	State::think();
+	if (_data->modResultsDirty.exchange(false))
+	{
+		UpdateModList();
+	}
+	if (_data->selectedModDirty.exchange(false))
+	{
+		if (_data->currentModResults && _currentSelectionIndex >= 0)
+		{
+			updateModDetails((*_data->currentModResults)[_currentSelectionIndex]);
+		}
+	}
 }
 
 void OpenXcom::OptionsModBrowserState::onModSelected(Action *action)
 {
 	_currentSelectionIndex = _modList->getSelectedRow();
-	if (_currentModResults && _currentSelectionIndex >= 0)
-	{
-		updateModDetails((*_currentModResults)[_currentSelectionIndex]);
-	}
+	_data->selectedModDirty.store(true);
 }
 
 void OpenXcom::OptionsModBrowserState::onSearchClicked(Action *action)
 {
 	if (!_searchText->getText().empty())
 	{
-		Modio::ListAllModsAsync(Modio::FilterParams().NameContains(_searchText->getText()), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+		Modio::ListAllModsAsync(Modio::FilterParams().NameContains(_searchText->getText()), [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
 			if (!ec)
 			{
-				_currentModResults = Mods;
-				UpdateModList();
+				_data->currentModResults = Mods;
+				_data->modResultsDirty.store(true);
 			}
 		});
 	}
 	else
 	{
-		Modio::ListAllModsAsync(Modio::FilterParams(), [this](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
+		Modio::ListAllModsAsync(Modio::FilterParams(), [_data = this->_data](Modio::ErrorCode ec, Modio::Optional<Modio::ModInfoList> Mods) {
 			if (!ec)
 			{
-				_currentModResults = Mods;
-				UpdateModList();
+				_data->currentModResults = Mods;
+				_data->modResultsDirty.store(true);
 			}
 		});
 	}
@@ -253,25 +266,25 @@ void OpenXcom::OptionsModBrowserState::onQueueClicked(Action *action)
 
 void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action *action)
 {
-	if (_currentModResults && _currentSelectionIndex >= 0)
+	if (_data->currentModResults && _currentSelectionIndex >= 0)
 	{
 		if (_subscribeButtonAction == SubscribeButtonMode::Subscribe)
 		{
-			Modio::SubscribeToModAsync((*_currentModResults)[_currentSelectionIndex].ModId, [this](Modio::ErrorCode ec) {
+			Modio::SubscribeToModAsync((*_data->currentModResults)[_currentSelectionIndex].ModId, [_data = this->_data](Modio::ErrorCode ec) {
 				if (!ec)
 				{
-					UpdateModList();
-					updateModDetails((*_currentModResults)[_currentSelectionIndex]);
+					_data->modResultsDirty.store(true);
+					_data->selectedModDirty.store(true);
 				}
 			});
 		}
 		else
 		{
-			Modio::UnsubscribeFromModAsync((*_currentModResults)[_currentSelectionIndex].ModId, [this](Modio::ErrorCode ec) {
+			Modio::UnsubscribeFromModAsync((*_data->currentModResults)[_currentSelectionIndex].ModId, [_data = this->_data](Modio::ErrorCode ec) {
 				if (!ec)
 				{
-					UpdateModList();
-					updateModDetails((*_currentModResults)[_currentSelectionIndex]);
+					_data->modResultsDirty.store(true);
+					_data->selectedModDirty.store(true);
 				}
 			});
 		}
@@ -281,9 +294,9 @@ void OpenXcom::OptionsModBrowserState::onSubscribeClicked(Action *action)
 void OpenXcom::OptionsModBrowserState::onDetailsClicked(Action *action)
 {
 
-	if (_currentModResults && _currentSelectionIndex >= 0)
+	if (_data->currentModResults && _currentSelectionIndex >= 0)
 	{
-		_game->pushState(new OptionsModBrowserDetailsState((*_currentModResults)[_currentSelectionIndex]));
+		_game->pushState(new OptionsModBrowserDetailsState((*_data->currentModResults)[_currentSelectionIndex]));
 	}
 }
 
