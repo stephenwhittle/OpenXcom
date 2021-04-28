@@ -68,12 +68,18 @@ namespace Modio
 						// Does this need to be a separate operation or could we provide a parameter to specify
 						// we only want to update if it's already installed or something?
 						yield Modio::Detail::async_InstallOrUpdateMod(EntryToProcess->GetID(), std::move(Self));
+						Modio::Detail::SDKSessionData::GetModManagementEventLog().AddEntry(
+								Modio::ModManagementEvent {EntryToProcess->GetID(), 
+								EntryToProcess->GetModState() == Modio::ModState::InstallationPending ? Modio::ModManagementEvent::EventType::Installed : Modio::ModManagementEvent::EventType::Updated,
+								ec
+								});
 						if (ec)
 						{
 							if (ec.category() != Modio::HttpErrorCategory() && ec != Modio::ModManagementError::InstallOrUpdateCancelled)
 							{
 								EntryToProcess->MarkModNoRetry();
 							}
+							
 							Self.complete(ec);
 							return;
 						}
@@ -88,6 +94,10 @@ namespace Modio
 					else if (EntryToProcess->GetModState() == Modio::ModState::UninstallPending)
 					{
 						yield Modio::Detail::async_UninstallMod(EntryToProcess->GetID(), std::move(Self));
+						Modio::Detail::SDKSessionData::GetModManagementEventLog().AddEntry(Modio::ModManagementEvent {
+							EntryToProcess->GetID(),
+							Modio::ModManagementEvent::EventType::Uninstalled,
+							ec});
 						if (ec)
 						{
 							Self.complete(ec);

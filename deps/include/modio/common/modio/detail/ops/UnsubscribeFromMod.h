@@ -33,9 +33,7 @@ namespace Modio
 								Modio::Detail::SDKSessionData::GetAuthenticatedUser());
 						}
 					}
-					Modio::Detail::SDKSessionData::GetModManagementEventLog().AddEntry(
-						Modio::ModManagementEvent {ModId, ModManagementEvent::EventType::Uninstalled});
-
+					
 					yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
 						ResponseBodyBuffer, Modio::Detail::UnsubscribeFromModRequest.SetGameID(GameID).SetModID(ModId),
 						Modio::Detail::CachedResponse::Allow, std::move(Self));
