@@ -131,11 +131,8 @@ void OpenXcom::OptionsModBrowserUserConfigState::think()
 	}
 	if (!_data->userProfileImagePath.empty())
 	{
-		//load the image here
-		Surface *tmpSurface = new Surface(1, 1, 0, 0, 24);
-		tmpSurface->loadImage(_data->userProfileImagePath);
-		tmpSurface->blit(_currentUserIcon);
-		//_currentUserIcon->loadImage(AvatarPath->string());
+		_currentUserIcon->invalidate(false);
+		_currentUserIcon->loadImage(_data->userProfileImagePath);
 		_data->userProfileImagePath = "";
 	}
 }
@@ -149,9 +146,7 @@ void OpenXcom::OptionsModBrowserUserConfigState::onLogoutClicked(Action *action)
 
 void OpenXcom::OptionsModBrowserUserConfigState::onSwitchUserClicked(Action *action)
 {
-	Modio::ClearUserDataAsync([](Modio::ErrorCode ec) {});
-	_game->popState();
-	_game->popState();
+	//unimplemented yet
 }
 
 void OpenXcom::OptionsModBrowserUserConfigState::onUpdateClicked(Action *action)
