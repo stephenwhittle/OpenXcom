@@ -8,8 +8,8 @@
 #include "../Interface/TextList.h"
 #include "../Interface/Window.h"
 #include "modio/ModioSDK.h"
-#include <memory>
 #include <algorithm>
+#include <memory>
 
 OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 {
@@ -96,7 +96,7 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 
 	//Workaround - forces the selector Surface to be resized based on the new size driven by the LayoutDriver
 	_currentUserMods->setSmall();
-	
+
 	_switchUserButton->setText("Switch User");
 	_updateCheckButton->setText("Get Updates");
 
@@ -152,8 +152,7 @@ void OpenXcom::OptionsModBrowserUserConfigState::onSwitchUserClicked(Action *act
 
 void OpenXcom::OptionsModBrowserUserConfigState::onUpdateClicked(Action *action)
 {
-	Modio::FetchExternalUpdatesAsync([_data = this->_data](Modio::ErrorCode ec)
-	{
+	Modio::FetchExternalUpdatesAsync([_data = this->_data](Modio::ErrorCode ec) {
 		_data->subscriptionListDirty.store(true);
 	});
 }
@@ -164,10 +163,8 @@ void OpenXcom::OptionsModBrowserUserConfigState::onUnsubscribeClicked(Action *ac
 	{
 		//Workaround till the mod.io API returns an indexable collection of mods
 		auto it = std::next(_userSubscriptions.begin(), _currentModIndex);
-		Modio::UnsubscribeFromModAsync(it->second.GetModProfile().ModId, [_data = this->_data](Modio::ErrorCode ec)
-		{
+		Modio::UnsubscribeFromModAsync(it->second.GetModProfile().ModId, [_data = this->_data](Modio::ErrorCode ec) {
 			_data->subscriptionListDirty.store(true);
-			
 		});
 	}
 }
@@ -181,7 +178,7 @@ void OpenXcom::OptionsModBrowserUserConfigState::updateSubscriptionList()
 {
 	_currentUserMods->clearList();
 
-	for (const std::pair<Modio::ModID, Modio::ModCollectionEntry>& ModEntry : _userSubscriptions)
+	for (const std::pair<Modio::ModID, Modio::ModCollectionEntry> &ModEntry : _userSubscriptions)
 	{
 		_currentUserMods->addRow(1, ModEntry.second.GetModProfile().ProfileName.c_str());
 	}

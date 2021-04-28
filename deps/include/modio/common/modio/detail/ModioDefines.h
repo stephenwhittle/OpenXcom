@@ -113,6 +113,22 @@
 	#define MODIO_DEFINED_WIN32_LEAN_AND_MEAN
 #endif
 
+#ifndef NOMINMAX
+	#define MODIO_DEFINED_NOMINMAX
+	#define NOMINMAX
+#endif
+
+#ifndef D_UNICODE
+	#define MODIO_DEFINED_D_UNICODE
+	#define D_UNICODE
+#endif
+
+#ifndef UNICODE
+	#define MODIO_DEFINED_UNICODE
+	#define UNICODE
+#endif
+
+
 #ifdef _WIN32
 	#define NOCRYPT
 	// Set the proper SDK version before including asio
@@ -135,17 +151,3 @@
 	#define BOOST_BEAST_DECL inline
 #endif
 
-#ifndef NOMINMAX
-	#define MODIO_DEFINED_NOMINMAX
-	#define NOMINMAX
-#endif
-
-#ifndef D_UNICODE
-	#define MODIO_DEFINED_D_UNICODE
-	#define D_UNICODE
-#endif
-
-#ifndef UNICODE
-	#define MODIO_DEFINED_UNICODE
-	#define UNICODE
-#endif

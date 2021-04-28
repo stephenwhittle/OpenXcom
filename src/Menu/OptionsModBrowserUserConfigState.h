@@ -1,9 +1,8 @@
 #pragma once
 #include "../Engine/State.h"
-#include "modio/detail/ModioDefines.h"
+#include <atomic>
 #include <map>
 #include <memory>
-#include <atomic>
 
 namespace Modio
 {

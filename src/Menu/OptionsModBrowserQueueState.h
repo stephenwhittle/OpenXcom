@@ -2,9 +2,6 @@
 #pragma once
 
 #include "../Engine/State.h"
-
-#include "modio/detail/ModioDefines.h"
-
 #include "modio/core/ModioStdTypes.h"
 
 namespace OpenXcom

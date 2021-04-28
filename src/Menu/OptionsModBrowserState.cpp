@@ -14,10 +14,10 @@
 #include "OptionsModBrowserDetailsState.h"
 #include "OptionsModBrowserQueueState.h"
 #include "OptionsModBrowserUserConfigState.h"
+#include "modio/ModioSDK.h"
 #include "modio/core/entities/ModioModInfo.h"
 #include <map>
 
-#include "modio/ModioSDK.h"
 void OpenXcom::OptionsModBrowserState::UpdateModList()
 {
 	if (_data->currentModResults)
@@ -353,5 +353,4 @@ void OpenXcom::OptionsModBrowserState::onNextClicked(Action *action)
 			}
 		});
 	}
-
 }

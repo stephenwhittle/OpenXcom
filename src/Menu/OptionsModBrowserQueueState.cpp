@@ -8,7 +8,6 @@
 #include "../Interface/TextButton.h"
 #include "../Interface/TextList.h"
 #include "../Interface/Window.h"
-
 #include "modio/ModioSDK.h"
 
 OpenXcom::OptionsModBrowserQueueState::OptionsModBrowserQueueState()
@@ -72,7 +71,7 @@ void OpenXcom::OptionsModBrowserQueueState::think()
 	{
 		Modio::ModCollectionEntry &currentMod = CurrentMods[CurrentProgress->ID];
 		_currentDownloadName->setText(currentMod.GetModProfile().ProfileName);
-		switch(currentMod.GetModState())
+		switch (currentMod.GetModState())
 		{
 		case Modio::ModState::Downloading:
 			_currentDownloadProgress->setValue(CurrentProgress->CurrentlyDownloadedBytes / (float)CurrentProgress->TotalDownloadSize);
@@ -82,7 +81,6 @@ void OpenXcom::OptionsModBrowserQueueState::think()
 			_currentDownloadProgress->setValue(CurrentProgress->CurrentlyExtractedBytes / (float)CurrentProgress->TotalExtractedSizeOnDisk);
 			_currentDownloadStatus->setText("Extracting");
 			break;
-
 		}
 
 		//Still more mods to download, current one has changed
@@ -92,7 +90,6 @@ void OpenXcom::OptionsModBrowserQueueState::think()
 		}
 
 		_currentModID = CurrentProgress->ID;
-
 	}
 	else
 	{
@@ -102,7 +99,6 @@ void OpenXcom::OptionsModBrowserQueueState::think()
 			_currentModID = Modio::ModID(-1);
 			bUpdateQueuedMods = true;
 		}
-		
 	}
 
 	if (bUpdateQueuedMods)
@@ -118,7 +114,6 @@ void OpenXcom::OptionsModBrowserQueueState::think()
 			}
 		}
 	}
-	
 }
 
 void OpenXcom::OptionsModBrowserQueueState::onBackClicked(Action *action)

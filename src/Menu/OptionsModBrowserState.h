@@ -1,10 +1,8 @@
 #pragma once
 
 #include "../Engine/State.h"
-//TODO@modio-sdk : hacky, need to remove when we work out why asio's defines aren't being set correctly
-#include "modio/detail/ModioDefines.h"
-#include "modio/core/entities/ModioModInfoList.h"
 #include "modio/core/ModioStdTypes.h" //For Modio::Optional
+#include "modio/core/entities/ModioModInfoList.h"
 #include <memory>
 
 namespace OpenXcom
@@ -18,43 +16,41 @@ class ComboBox;
 class LayoutGroup;
 class Bar;
 
-
 /// @brief State displaying a searchable list of all mods available for the game
 class OptionsModBrowserState : public State
 {
-private:
+  private:
 	Window *_window;
-	TextEdit* _searchText;
-	TextButton* _searchButton;
-	Surface* _searchBarPadding;
-	LayoutGroup* _searchBar;
+	TextEdit *_searchText;
+	TextButton *_searchButton;
+	Surface *_searchBarPadding;
+	LayoutGroup *_searchBar;
 
-	TextList* _modList;
-	Surface* _modListScrollPlaceholder;
-	LayoutGroup* _modListGroup;
-	TextButton* _prevButton;
-	TextButton* _nextButton;
-	LayoutGroup* _browseNavButtonGroup;
+	TextList *_modList;
+	Surface *_modListScrollPlaceholder;
+	LayoutGroup *_modListGroup;
+	TextButton *_prevButton;
+	TextButton *_nextButton;
+	LayoutGroup *_browseNavButtonGroup;
 	//May end up being text instead for the label for the bar
-	Surface* _queueSeparator;
-	Bar* _progress;
-	TextButton* _queueButton;
-	LayoutGroup* _browseButtonGroup;
+	Surface *_queueSeparator;
+	Bar *_progress;
+	TextButton *_queueButton;
+	LayoutGroup *_browseButtonGroup;
 
-	Surface* _browseGroupPadding;
-	LayoutGroup* _browseGroup;
+	Surface *_browseGroupPadding;
+	LayoutGroup *_browseGroup;
 
-	Text* _modDesc;
+	Text *_modDesc;
 
-	TextButton* _subscribeButton;
-	TextButton* _detailsButton;
-	Surface* _actionButtonSeparator;
-	TextButton* _optionsButton;
-	TextButton* _backButton;
-	LayoutGroup* _actionButtonGroup;
+	TextButton *_subscribeButton;
+	TextButton *_detailsButton;
+	Surface *_actionButtonSeparator;
+	TextButton *_optionsButton;
+	TextButton *_backButton;
+	LayoutGroup *_actionButtonGroup;
 
-	LayoutGroup* _detailsGroup;
-
+	LayoutGroup *_detailsGroup;
 
 	int _currentSelectionIndex = -1;
 	std::size_t _resultPageSize = 100;
@@ -93,10 +89,9 @@ private:
 
   public:
 	OptionsModBrowserState();
-  virtual ~OptionsModBrowserState();
+	virtual ~OptionsModBrowserState();
 	void init() override;
 
 	void think() override;
-	
 };
 }

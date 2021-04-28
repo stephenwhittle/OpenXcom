@@ -1,4 +1,5 @@
 #pragma once
+#include "modio/detail/ModioDefines.h"
 #include "modio/core/ModioFilesystem.h"
 #include "tl/optional.hpp"
 #include <memory>

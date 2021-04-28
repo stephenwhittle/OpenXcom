@@ -1,5 +1,5 @@
 #pragma once
-
+#include "modio/detail/ModioDefines.h"
 #include "ModioGeneratedVariables.h"
 #include "modio/core/ModioStdTypes.h"
 #include <asio/buffer.hpp>
