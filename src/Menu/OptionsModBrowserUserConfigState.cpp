@@ -7,6 +7,7 @@
 #include "../Interface/TextButton.h"
 #include "../Interface/TextList.h"
 #include "../Interface/Window.h"
+#include "../Mod/Mod.h"
 #include "modio/ModioSDK.h"
 #include <algorithm>
 #include <memory>
@@ -44,6 +45,8 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	add(_updateCheckButton, "button", "optionsMenu");
 	add(_ButtonSeparator);
 	add(_backButton, "button", "optionsMenu");
+
+	_window->setBackground(_game->getMod()->getSurface("BACK01.SCR"));
 
 	_currentModsLabel->setText("Subscribed Mods:");
 	_currentModsLabel->setVerticalAlign(ALIGN_MIDDLE);

@@ -1,5 +1,6 @@
 #include "OptionsModBrowserQueueState.h"
 #include "../Engine/Game.h"
+#include "../Mod/Mod.h"
 #include "../Engine/Surface.h"
 #include "../Interface/Bar.h"
 #include "../Interface/LayoutDriver.h"
@@ -31,6 +32,8 @@ OpenXcom::OptionsModBrowserQueueState::OptionsModBrowserQueueState()
 	add(_pendingDownloadList, "optionLists", "controlsMenu");
 	add(_buttonSpacer);
 	add(_backButton, "button", "optionsMenu");
+
+	_window->setBackground(_game->getMod()->getSurface("BACK01.SCR"));
 
 	_currentDownloadLabel->setText("Current Download");
 	_backButton->setText("Back");

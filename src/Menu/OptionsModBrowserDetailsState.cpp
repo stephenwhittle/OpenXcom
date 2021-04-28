@@ -6,6 +6,7 @@
 #include "../Interface/LayoutDriver.h"
 #include "../Engine/Game.h"
 #include "../Engine/CrossPlatform.h"
+#include "../Mod/Mod.h"
 
 OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState(Modio::ModInfo ModToDisplay)
 	: _modToDisplay(ModToDisplay)
@@ -39,7 +40,7 @@ OpenXcom::OptionsModBrowserDetailsState::OptionsModBrowserDetailsState(Modio::Mo
 	add(_buttonSeparator);
 	add(_backButton, "button", "optionsMenu");
 
-
+	_window->setBackground(_game->getMod()->getSurface("BACK01.SCR"));
 
 	_modName->setText("Mod Name: " + _modToDisplay.ProfileName);
 	_modUpdated->setText("Last Updated: " + CrossPlatform::timeToString(_modToDisplay.ProfileDateUpdated).first);

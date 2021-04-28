@@ -38,6 +38,7 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 			if (SubscribedMods.count(Info.ModId))
 			{
 				_modList->setCellColor(CurrentRowIndex, 0, 6);
+				_modList->setCellText(CurrentRowIndex, 0, Info.ProfileName);
 			}
 		}
 	}
@@ -109,6 +110,8 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 	add(_optionsButton, "button", "optionsMenu");
 	add(_backButton, "button", "optionsMenu");
 
+	_window->setBackground(_game->getMod()->getSurface("BACK01.SCR"));
+
 	_searchButton->setText("Search");
 	_searchButton->autoWidth(100);
 	_searchButton->onMouseClick((ActionHandler)&OptionsModBrowserState::onSearchClicked);
@@ -125,6 +128,7 @@ OpenXcom::OptionsModBrowserState::OptionsModBrowserState()
 
 	_modList->setBackground(_window);
 	_modList->setSelectable(true);
+	_modList->setSecondaryColor(137);
 	_modList->onMouseClick((ActionHandler)&OptionsModBrowserState::onModSelected);
 
 	_modListGroup = LayoutGroup::Horizontal(320, 100,

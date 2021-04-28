@@ -71,6 +71,8 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 	add(_modioLogo);
 	add(_backButton, "button", "optionsMenu");
 
+	_window->setBackground(_game->getMod()->getSurface("BACK01.SCR"));
+
 	_authRequiredText->setText("Please enter the email address for your mod.io account to authenticate and manage your OpenXcom mod subscriptions");
 	_authRequiredText->setColor(138);
 	_authRequiredText->setWordWrap(true);
