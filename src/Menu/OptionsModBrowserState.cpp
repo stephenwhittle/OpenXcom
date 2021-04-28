@@ -37,7 +37,7 @@ void OpenXcom::OptionsModBrowserState::UpdateModList()
 			std::size_t CurrentRowIndex = _modList->getRows() - 1;
 			if (SubscribedMods.count(Info.ModId))
 			{
-				_modList->setCellColor(CurrentRowIndex, 0, 6);
+				_modList->setCellColor(CurrentRowIndex, 0, 135);
 				_modList->setCellText(CurrentRowIndex, 0, Info.ProfileName);
 			}
 		}

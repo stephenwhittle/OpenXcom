@@ -35,7 +35,7 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 	add(_window, "window", "optionsMenu");
 	add(_currentUserLabel, "text", "modsMenu");
 	add(_currentUserIcon);
-	add(_currentUserValue);
+	add(_currentUserValue, "text", "modsMenu");
 	add(_currentUserMods, "optionLists", "controlsMenu");
 	add(_currentModsLabel, "text", "modsMenu");
 	add(_modListSeparator);
@@ -55,6 +55,7 @@ OpenXcom::OptionsModBrowserUserConfigState::OptionsModBrowserUserConfigState()
 
 	_currentUserLabel->setText("Current User: ");
 	_currentUserLabel->setVerticalAlign(ALIGN_MIDDLE);
+	_currentUserValue->setVerticalAlign(ALIGN_MIDDLE);
 	_userProfileGroup = LayoutGroup::Horizontal(320, 200,
 												LayoutParam(_currentUserLabel).Proportional(2, 1),
 												LayoutParam(_currentUserIcon).Absolute(50, 50).KeepSize(),
