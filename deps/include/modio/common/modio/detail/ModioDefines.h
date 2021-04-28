@@ -113,6 +113,16 @@
 	#define MODIO_DEFINED_WIN32_LEAN_AND_MEAN
 #endif
 
+#ifndef FMT_HEADER_ONLY
+	#define MODIO_DEFINED_FMT_HEADER_ONLY
+	#define FMT_HEADER_ONLY
+#endif
+
+#ifndef BOOST_BEAST_DECL
+	#define MODIO_DEFINED_BOOST_BEAST_DECL
+	#define BOOST_BEAST_DECL inline
+#endif
+
 #ifndef NOMINMAX
 	#define MODIO_DEFINED_NOMINMAX
 	#define NOMINMAX
@@ -128,9 +138,7 @@
 	#define UNICODE
 #endif
 
-
 #ifdef _WIN32
-	#define NOCRYPT
 	// Set the proper SDK version before including asio
 	#include <SDKDDKVer.h>
 	// Note asio includes Windows.h.
@@ -141,13 +149,4 @@
 	#include <asio.hpp>
 #endif //_WIN32
 
-#ifndef FMT_HEADER_ONLY
-	#define MODIO_DEFINED_FMT_HEADER_ONLY
-	#define FMT_HEADER_ONLY
-#endif
-
-#ifndef BOOST_BEAST_DECL
-	#define MODIO_DEFINED_BOOST_BEAST_DECL
-	#define BOOST_BEAST_DECL inline
-#endif
 

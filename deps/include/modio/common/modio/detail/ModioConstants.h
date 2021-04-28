@@ -30,7 +30,7 @@ namespace Modio
 				constexpr const char* ModEntrySubCount = "SubscriptionCount";
 				constexpr const char* ModEntryState = "State";
 				constexpr const char* ModSizeOnDisk = "SizeOnDisk";
-				constexpr const char *ModPathOnDisk = "PathOnDisk";
+				constexpr const char* ModPathOnDisk = "PathOnDisk";
 			}
 		}
 	}

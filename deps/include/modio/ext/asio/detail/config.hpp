@@ -1338,7 +1338,6 @@
 #  if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0400)
 #   if !defined(UNDER_CE) && !defined(ASIO_WINDOWS_APP)
 #    if !defined(ASIO_DISABLE_IOCP)
-#error you shouldnt let asio use iocp
 #     define ASIO_HAS_IOCP 1
 #    endif // !defined(ASIO_DISABLE_IOCP)
 #   endif // !defined(UNDER_CE) && !defined(ASIO_WINDOWS_APP)

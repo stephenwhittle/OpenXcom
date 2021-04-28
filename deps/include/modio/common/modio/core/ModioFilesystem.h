@@ -13,11 +13,11 @@ namespace Modio
 #ifndef MODIO_USE_STD_FS
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#include "ghc/filesystem.hpp"
-#undef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+	#include "ghc/filesystem.hpp"
+	#undef WIN32_LEAN_AND_MEAN
 #else
-#include "ghc/filesystem.hpp"
+	#include "ghc/filesystem.hpp"
 #endif
 
 namespace Modio

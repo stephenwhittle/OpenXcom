@@ -32,13 +32,6 @@ namespace Modio
 
 	void RunPendingHandlers()
 	{
-		// If SDK isn't initialized, do nothing as that causes issues
-		// @TODO Stephen, do you know why calling poll_one without SDK being initialized causes next initialize to never
-		// complete
-		/*if (!Modio::Detail::SDKSessionData::IsInitialized())
-		{
-			return;
-		}*/
 		// Run any pending handlers on the global io_context
 		if (Modio::Detail::Services::GetGlobalContext().stopped())
 		{

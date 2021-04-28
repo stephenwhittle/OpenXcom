@@ -5,7 +5,7 @@
 #include <fmt/format.h>
 #include <winhttp.h>
 
-static void __stdcall ModioWinhttpStatusCallback(HINTERNET InternetHandle, DWORD_PTR Context, DWORD InternetStatus,
+ static void __stdcall ModioWinhttpStatusCallback(HINTERNET InternetHandle, DWORD_PTR Context, DWORD InternetStatus,
 												 LPVOID StatusInformation, DWORD StatusInformationLength)
 {
 	DWORD_PTR AlternativeContext = 0;
