@@ -33,7 +33,7 @@ namespace Modio
 								Modio::Detail::SDKSessionData::GetAuthenticatedUser());
 						}
 					}
-					
+
 					yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
 						ResponseBodyBuffer, Modio::Detail::UnsubscribeFromModRequest.SetGameID(GameID).SetModID(ModId),
 						Modio::Detail::CachedResponse::Allow, std::move(Self));

@@ -873,7 +873,7 @@ table.stripes-odd tr:nth-of-type(odd) {
 <div class="title">2.0.0-alpha</div>
 </td>
 <td class="content">
-Source archive, header configuration.
+Source archive, header configuration. Preliminary static/dynamic library support
 </td>
 </tr>
 </table>
@@ -890,7 +890,7 @@ Source archive, header configuration.
 <p>ext</p>
 </li>
 <li>
-<p>platform</p>
+<p>&lt;platform directories&gt;</p>
 </li>
 </ul>
 </div>
@@ -929,7 +929,7 @@ CMake library, consumed with add_subdirectory
 <div class="title">TBA</div>
 </td>
 <td class="content">
-CMake exported target, dynamic library configuration support?
+CMake exported target
 </td>
 </tr>
 </table>
@@ -1251,29 +1251,14 @@ Of course you could use two bools, or a bool and a <a href="#ErrorCode">[ErrorCo
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="cpp"><span class="c1">//State variable, stored in some valid scope</span>
-<span class="kt">bool</span> <span class="n">SDKShutdownComplete</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-
-<span class="n">Modio</span><span class="o">::</span><span class="n">ShutdownAsync</span><span class="p">([](</span><span class="n">Modio</span><span class="o">::</span><span class="n">ErrorCode</span> <span class="n">ec</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">SDKShutdownComplete</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
-<span class="p">});</span>
-
-<span class="k">while</span><span class="p">(</span><span class="o">!</span><span class="n">SDKShutdownComplete</span><span class="p">)</span>
-<span class="p">{</span>
-    <span class="n">Modio</span><span class="o">::</span><span class="n">RunPendingHandlers</span><span class="p">();</span>
-<span class="p">}</span></code></pre>
+<pre class="rouge highlight"><code data-lang="cpp"><span class="n">Modio</span><span class="o">::</span><span class="n">Shutdown</span><span class="p">();</span></code></pre>
 </div>
 </div>
 <div class="ulist">
 <div class="title">Notes</div>
 <ul>
 <li>
-<p>The current implementation of the SDK shutdown method is asynchronous and requires you to continue calling RunPendingHandlers in the same way as during SDK operation.
-Once the callback passed into ShutdownAsync has been invoked, you can safely stop calling RunPendingHandlers.</p>
-</li>
-<li>
-<p>Whilst all the internal SDK state will be reset during the async shutdown, any objects the SDK have returned to you have been passed-by-value, so you may keep them and continue to read their state without reinitializing the SDK.</p>
+<p>The current implementation of Shutdown is blocking.</p>
 </li>
 </ul>
 </div>
@@ -1284,7 +1269,7 @@ Once the callback passed into ShutdownAsync has been invoked, you can safely sto
 <div class="title">TBA</div>
 </td>
 <td class="content">
-A blocking implementation of the Shutdown method will be made available at a later date.
+A non-blocking implementation of the Shutdown method will be made available at a later date. You will need to continue to call <a href="#_runpendinghandlers">RunPendingHandlers</a> while the async shutdown is in progress.
 </td>
 </tr>
 </table>
@@ -2506,14 +2491,14 @@ returned by this function are informative only - it will always succeed.</p></td
 <div class="sectionbody">
 <hr>
 <div class="sect2">
-<h3 id="_filterparams"><a id="_2078063627536"></a> FilterParams</h3>
+<h3 id="_filterparams"><a id="_2076129484640"></a> FilterParams</h3>
 <div class="paragraph">
 <p>Class storing a set of filter parameters for use in <a href="#Modio::ListAllModsAsync">[Modio::ListAllModsAsync]</a></p>
 </div>
 <div class="sect3">
 <h4 id="_enums">Enums</h4>
 <div class="sect4">
-<h5 id="_sortfieldtype"><a id="_2078063628080"></a> SortFieldType</h5>
+<h5 id="_sortfieldtype"><a id="_2076129485184"></a> SortFieldType</h5>
 <div class="paragraph">
 <p>Enum indicating which field should be used to sort the results</p>
 </div>
@@ -2554,7 +2539,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect4">
-<h5 id="_sortdirection"><a id="_2078063629136"></a> SortDirection</h5>
+<h5 id="_sortdirection"><a id="_2076129486240"></a> SortDirection</h5>
 <div class="paragraph">
 <p>Enum indicating which direction sorting should be applied</p>
 </div>
@@ -2965,52 +2950,52 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078063628080">enum Modio::FilterParams::SortFieldType</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076129485184">enum Modio::FilterParams::SortFieldType</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">SortField</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078063629136">enum Modio::FilterParams::SortDirection</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076129486240">enum Modio::FilterParams::SortDirection</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Direction</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078052906112">std::vector&lt;std::string&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076118883936">std::vector&lt;std::string&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">SearchKeywords</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078063639696">Modio::Optional&lt;std::chrono::system_clock::time_point&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076129496800">Modio::Optional&lt;std::chrono::system_clock::time_point&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">DateRangeBegin</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078063639696">Modio::Optional&lt;std::chrono::system_clock::time_point&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076129496800">Modio::Optional&lt;std::chrono::system_clock::time_point&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">DateRangeEnd</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078052906112">std::vector&lt;std::string&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076118883936">std::vector&lt;std::string&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Tags</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078052906112">std::vector&lt;std::string&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076118883936">std::vector&lt;std::string&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ExcludedTags</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395312">_Bool</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926224">_Bool</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">IsPaged</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395664">std::size_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926576">std::size_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Index</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395664">std::size_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926576">std::size_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Count</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
@@ -3020,7 +3005,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modcollectionentry"><a id="_2078109211840"></a> ModCollectionEntry</h3>
+<h3 id="_modcollectionentry"><a id="_2076175613120"></a> ModCollectionEntry</h3>
 <div class="paragraph">
 <p>Class representing a mod which is installed locally</p>
 </div>
@@ -3119,47 +3104,47 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062804640">Modio::ModID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128931040">Modio::ModID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ID</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078109215056">std::atomic&lt;Modio::ModState&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076175616336">std::atomic&lt;Modio::ModState&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">CurrentState</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078109346352">Modio::Optional&lt;Modio::ModState&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076175747632">Modio::Optional&lt;Modio::ModState&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RollbackState</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078074268352">struct Modio::ModInfo</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076140775808">struct Modio::ModInfo</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ModProfile</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077940706448">std::atomic&lt;uint8_t&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076007674816">std::atomic&lt;uint8_t&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">LocalUserSubscriptionCount</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078110016144">std::set&lt;Modio::UserID&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076176065488">std::set&lt;Modio::UserID&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">LocalUserSubscriptions</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078038869520">Modio::filesystem::path</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076105397776">Modio::filesystem::path</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">PathOnDisk</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062825680">Modio::FileSize</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128952080">Modio::FileSize</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">SizeOnDisk</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077940704928">std::atomic&lt;_Bool&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076007673296">std::atomic&lt;_Bool&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ShouldNotRetry</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">flag if this mod should not be processed because it encountered an unrecoverable error during installation/update should not be saved to disk as we will more than likely want to retry next session</p></td>
 </tr>
@@ -3169,7 +3154,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modprogressinfo"><a id="_2078113076864"></a> ModProgressInfo</h3>
+<h3 id="_modprogressinfo"><a id="_2076179281344"></a> ModProgressInfo</h3>
 <div class="paragraph">
 <p>Class representing the progress of a mod installation or update</p>
 </div>
@@ -3187,27 +3172,27 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062825680">Modio::FileSize</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128952080">Modio::FileSize</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">TotalDownloadSize</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Total size of the downloaded file</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062825680">Modio::FileSize</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128952080">Modio::FileSize</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">CurrentlyDownloadedBytes</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Current amount downloaded in bytes</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062825680">Modio::FileSize</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128952080">Modio::FileSize</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">TotalExtractedSizeOnDisk</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Total size on disk when fully extracted</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062825680">Modio::FileSize</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128952080">Modio::FileSize</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">CurrentlyExtractedBytes</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Amount of data currently extracted</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062804640">Modio::ModID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128931040">Modio::ModID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ID</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The mod ID of the mod being processed</p></td>
 </tr>
@@ -3217,14 +3202,14 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_moddetails"><a id="_2078119758144"></a> ModDetails</h3>
+<h3 id="_moddetails"><a id="_2076186527760"></a> ModDetails</h3>
 <div class="paragraph">
 <p>Collection of FileMetadata objects representing mod file updates</p>
 </div>
 <hr>
 </div>
 <div class="sect2">
-<h3 id="_modtagoptions"><a id="_2078119940960"></a> ModTagOptions</h3>
+<h3 id="_modtagoptions"><a id="_2076186710576"></a> ModTagOptions</h3>
 <div class="paragraph">
 <p>Container for a collection of ModTagInfo objects</p>
 </div>
@@ -3236,7 +3221,7 @@ returned by this function are informative only - it will always succeed.</p></td
 <div class="sectionbody">
 <hr>
 <div class="sect2">
-<h3 id="_stronginteger"><a id="_2078062766832"></a> StrongInteger</h3>
+<h3 id="_stronginteger"><a id="_2076128893232"></a> StrongInteger</h3>
 <div class="paragraph">
 <p>Strong integer type to prevent accidental function parameter reordering and prevent unwanted implicit conversions</p>
 </div>
@@ -3279,7 +3264,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077926347440">UnderlyingIntegerType</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075989870160">UnderlyingIntegerType</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Value</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
@@ -3289,7 +3274,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_emailauthcode"><a id="_2078062778048"></a> EmailAuthCode</h3>
+<h3 id="_emailauthcode"><a id="_2076128904448"></a> EmailAuthCode</h3>
 <div class="paragraph">
 <p>Strong type representing an email authentication code sent to a user email address</p>
 </div>
@@ -3307,7 +3292,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">InternalCode</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
@@ -3317,7 +3302,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_emailaddress"><a id="_2078062783152"></a> EmailAddress</h3>
+<h3 id="_emailaddress"><a id="_2076128909552"></a> EmailAddress</h3>
 <div class="paragraph">
 <p>Strong type representing an email address</p>
 </div>
@@ -3335,7 +3320,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">InternalAddress</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
@@ -3345,7 +3330,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_apikey"><a id="_2078062788160"></a> ApiKey</h3>
+<h3 id="_apikey"><a id="_2076128914560"></a> ApiKey</h3>
 <div class="paragraph">
 <p>Strong type representing an api key</p>
 </div>
@@ -3363,7 +3348,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">InternalApiKey</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
@@ -3373,35 +3358,35 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modid"><a id="_2078062804640"></a> ModID</h3>
+<h3 id="_modid"><a id="_2076128931040"></a> ModID</h3>
 <div class="paragraph">
 <p>Strong type for Mod IDs</p>
 </div>
 <hr>
 </div>
 <div class="sect2">
-<h3 id="_filemetadataid"><a id="_2078062807088"></a> FileMetadataID</h3>
+<h3 id="_filemetadataid"><a id="_2076128933488"></a> FileMetadataID</h3>
 <div class="paragraph">
 <p>Strong type for File Metadata IDs</p>
 </div>
 <hr>
 </div>
 <div class="sect2">
-<h3 id="_commentid"><a id="_2078062809536"></a> CommentID</h3>
+<h3 id="_commentid"><a id="_2076128935936"></a> CommentID</h3>
 <div class="paragraph">
 <p>Strong type for Comment ID</p>
 </div>
 <hr>
 </div>
 <div class="sect2">
-<h3 id="_gameid"><a id="_2078062828128"></a> GameID</h3>
+<h3 id="_gameid"><a id="_2076128954528"></a> GameID</h3>
 <div class="paragraph">
 <p>Strong type for a game ID: Rename to GameID</p>
 </div>
 <hr>
 </div>
 <div class="sect2">
-<h3 id="_filemetadata"><a id="_2078066843696"></a> FileMetadata</h3>
+<h3 id="_filemetadata"><a id="_2076132890144"></a> FileMetadata</h3>
 <div class="paragraph">
 <p>Metadata for a release archive for a mod</p>
 </div>
@@ -3419,52 +3404,52 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062807088">Modio::FileMetadataID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128933488">Modio::FileMetadataID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">MetadataId</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unique modfile id.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062804640">Modio::ModID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128931040">Modio::ModID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ModId</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unique mod id.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">DateAdded</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unix timestamp of date file was added.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078066844272">enum Modio::FileMetadata::VirusScanStatus</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076132890720">enum Modio::FileMetadata::VirusScanStatus</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">CurrentVirusScanStatus</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Current virus scan status of the file. For newly added files that have yet to be scanned this field will change frequently until a scan is complete</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078066845648">enum Modio::FileMetadata::VirusStatus</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076132892096">enum Modio::FileMetadata::VirusStatus</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">CurrentVirusStatus</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Was a virus detected?</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Filesize</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Size of the file in bytes.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Filename</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Filename including extension.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Version</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Release version this file represents.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Changelog</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Changelog for the file.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">MetadataBlob</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Metadata stored by the game developer for this file.</p></td>
 </tr>
@@ -3474,7 +3459,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modstats"><a id="_2078071541424"></a> ModStats</h3>
+<h3 id="_modstats"><a id="_2076137761968"></a> ModStats</h3>
 <div class="paragraph">
 <p>Contains download stats and ratings for a mod</p>
 </div>
@@ -3488,52 +3473,52 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">PopularityRankPosition</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Current rank of the mod.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">PopularityRankTotalMods</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of ranking spots the current rank is measured against.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">DownloadsTotal</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of total mod downloads.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">SubscribersTotal</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of total users who have subscribed to the mod.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RatingTotal</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of times this mod has been rated.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RatingPositive</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of positive ratings.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RatingNegative</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of negative ratings.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RatingPercentagePositive</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of positive ratings, divided by the total ratings to determine it’s percentage score.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395728">double</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926640">double</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RatingWeightedAggregate</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Overall rating of this item calculated using the [Wilson score confidence interval](<a href="https://www.evanmiller.org/how-not-to-sort-by-average-Ratinghtml" class="bare">https://www.evanmiller.org/how-not-to-sort-by-average-Ratinghtml</a>). This column is good to sort on, as it will order items based on number of ratings and will place items with many positive ratings above those with a higher score but fewer ratings.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">RatingDisplayText</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Textual representation of the rating in format: Overwhelmingly Positive &#8594; Very Positive &#8594; Positive &#8594; Mostly Positive &#8594; Mixed &#8594; Negative &#8594; Mostly Negative &#8594; Very Negative &#8594; Overwhelmingly Negative &#8594; Unrated</p></td>
 </tr>
@@ -3543,7 +3528,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user"><a id="_2078073496848"></a> User</h3>
+<h3 id="_user"><a id="_2076139464160"></a> User</h3>
 <div class="paragraph">
 <p>Object representing a mod.io user profile</p>
 </div>
@@ -3557,22 +3542,22 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062793424">Modio::UserID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128919824">Modio::UserID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">UserId</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unique id for the user</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Username</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Username of the user</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">DateOnline</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unix timestamp the user was last online</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileUrl</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL of the user&#8217;s mod.io profile</p></td>
 </tr>
@@ -3582,7 +3567,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modinfo"><a id="_2078074268352"></a> ModInfo</h3>
+<h3 id="_modinfo"><a id="_2076140775808"></a> ModInfo</h3>
 <div class="paragraph">
 <p>Full mod profile including current release information, media links, and stats</p>
 </div>
@@ -3596,97 +3581,97 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062804640">Modio::ModID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128931040">Modio::ModID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ModId</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unique Mod ID</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileName</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Name of the mod</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileSummary</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Summary of the mod</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileDescription</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Detailed description in HTML format</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileDescriptionPlaintext</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Detailed description in plaintext</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileURL</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">URL to the mod profile</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078073496848">Modio::User</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076139464160">Modio::User</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileSubmittedBy</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Information on the user who submitted the mod</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileDateAdded</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unix timestamp of the date the mod was registered</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileDateUpdated</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unix timestamp of the date the mod was updated</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395504">std::int64_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926416">std::int64_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileDateLive</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Unix timestamp of the date the mod was marked live</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395536">std::uint8_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926448">std::uint8_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ProfileMaturityOption</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Flags for maturity options	* Maturity options flagged by the mod developer, this is only relevant if the parent game allows mods to	* be labeled as mature.	*	* 0 = None set (default)	* 1 = Alcohol	* 2 = Drugs	* 4 = Violence	* 8 = Explicit</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">MetadataBlob</span></p></td>
 <td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078066843696">Modio::FileMetadata</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076132890144">Modio::FileMetadata</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">FileInfo</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Information about the mod&#8217;s most recent public release</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078074272352">std::vector&lt;Modio::Metadata&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076140779808">std::vector&lt;Modio::Metadata&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">MetadataKvp</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Arbitrary key-value metadata set for this mod</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078074400640">std::vector&lt;Modio::ModTag&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076140908096">std::vector&lt;Modio::ModTag&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Tags</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Tags this mod has set</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395664">std::size_t</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926576">std::size_t</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">NumGalleryImages</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of images in the mod&#8217;s media gallery</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078073447776">Modio::YoutubeURLList</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076139415088">Modio::YoutubeURLList</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">YoutubeURLs</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of youtube links provided by the creator of the mod</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078073486320">Modio::SketchfabURLList</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076139453632">Modio::SketchfabURLList</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">SketchfabURLs</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">List of sketchfab links provided by the creator of the mod</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078071541424">Modio::ModStats</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076137761968">Modio::ModStats</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Stats</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Stats and rating information for the mod</p></td>
 </tr>
@@ -3696,7 +3681,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modmanagementevent"><a id="_2078118200368"></a> ModManagementEvent</h3>
+<h3 id="_modmanagementevent"><a id="_2076184699840"></a> ModManagementEvent</h3>
 <div class="paragraph">
 <p>Simple struct representing the outcome of a mod management operation</p>
 </div>
@@ -3714,17 +3699,17 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078062804640">Modio::ModID</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076128931040">Modio::ModID</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">ID</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ID for the mod that the event occurred on</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078118200864">enum Modio::ModManagementEvent::EventType</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076184700336">enum Modio::ModManagementEvent::EventType</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Event</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">What type of event occurred</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077979661984">Modio::ErrorCode</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076045778096">Modio::ErrorCode</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">Status</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Empty if operation completed successfully, truthy/contains error code if operation failed</p></td>
 </tr>
@@ -3734,7 +3719,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modtaginfo"><a id="_2078119766336"></a> ModTagInfo</h3>
+<h3 id="_modtaginfo"><a id="_2076186535952"></a> ModTagInfo</h3>
 <div class="paragraph">
 <p>Metadata about a group of tags that can be used for filtering mods</p>
 </div>
@@ -3748,17 +3733,17 @@ returned by this function are informative only - it will always succeed.</p></td
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077947849920">std::string</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076013985984">std::string</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">TagGroupName</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The display name for the tag</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2078052906112">std::vector&lt;std::string&gt;</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2076118883936">std::vector&lt;std::string&gt;</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">TagGroupValues</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The valid tags the group can have</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2077923395312">_Bool</a></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variabletype"><a href="#_2075987926224">_Bool</a></span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="variablename">bAllowMultipleSelection</span></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">True if multiple tags from the group can be used simultaneously</p></td>
 </tr>
@@ -3772,7 +3757,7 @@ returned by this function are informative only - it will always succeed.</p></td
 <h2 id="_enums_4">Enums</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_environment"><a id="_2078062758896"></a> Environment</h3>
+<h3 id="_environment"><a id="_2076128885296"></a> Environment</h3>
 <div class="paragraph">
 <p>Enum representing what environment your game is deployed in</p>
 </div>
@@ -3797,7 +3782,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_logosize"><a id="_2078062759440"></a> LogoSize</h3>
+<h3 id="_logosize"><a id="_2076128885840"></a> LogoSize</h3>
 <div class="paragraph">
 <p>Enum representing mod logo sizes</p>
 </div>
@@ -3830,7 +3815,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_avatarsize"><a id="_2078062760256"></a> AvatarSize</h3>
+<h3 id="_avatarsize"><a id="_2076128886656"></a> AvatarSize</h3>
 <div class="paragraph">
 <p>Enum representing avatar image sizes</p>
 </div>
@@ -3859,7 +3844,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_gallerysize"><a id="_2078062760896"></a> GallerySize</h3>
+<h3 id="_gallerysize"><a id="_2076128887296"></a> GallerySize</h3>
 <div class="sect3">
 <h4 id="_values_6">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -3881,7 +3866,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_authenticationprovider"><a id="_2078063626576"></a> AuthenticationProvider</h3>
+<h3 id="_authenticationprovider"><a id="_2076129483680"></a> AuthenticationProvider</h3>
 <div class="sect3">
 <h4 id="_values_7">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -3923,7 +3908,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_loglevel"><a id="_2078064139696"></a> LogLevel</h3>
+<h3 id="_loglevel"><a id="_2076130602288"></a> LogLevel</h3>
 <div class="paragraph">
 <p>Degree of severity for the log output</p>
 </div>
@@ -3956,7 +3941,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_logcategory"><a id="_2078064142464"></a> LogCategory</h3>
+<h3 id="_logcategory"><a id="_2076130605056"></a> LogCategory</h3>
 <div class="paragraph">
 <p>The category of the log message (usually the internal service the message is originating from)</p>
 </div>
@@ -3997,7 +3982,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_maturityoption"><a id="_2078074036672"></a> MaturityOption</h3>
+<h3 id="_maturityoption"><a id="_2076140544128"></a> MaturityOption</h3>
 <div class="sect3">
 <h4 id="_values_10">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4031,7 +4016,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_httperror"><a id="_2078105709872"></a> HttpError</h3>
+<h3 id="_httperror"><a id="_2076171513136"></a> HttpError</h3>
 <div class="sect3">
 <h4 id="_values_11">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4097,7 +4082,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_filesystemerror"><a id="_2078105738048"></a> FilesystemError</h3>
+<h3 id="_filesystemerror"><a id="_2076171541312"></a> FilesystemError</h3>
 <div class="sect3">
 <h4 id="_values_12">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4139,7 +4124,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_userautherror"><a id="_2078105925712"></a> UserAuthError</h3>
+<h3 id="_userautherror"><a id="_2076172023616"></a> UserAuthError</h3>
 <div class="sect3">
 <h4 id="_values_13">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4173,7 +4158,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_userdataerror"><a id="_2078105949008"></a> UserDataError</h3>
+<h3 id="_userdataerror"><a id="_2076172046912"></a> UserDataError</h3>
 <div class="sect3">
 <h4 id="_values_14">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4195,7 +4180,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_archiveerror"><a id="_2078105971248"></a> ArchiveError</h3>
+<h3 id="_archiveerror"><a id="_2076172069152"></a> ArchiveError</h3>
 <div class="sect3">
 <h4 id="_values_15">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4213,7 +4198,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_genericerror"><a id="_2078105993680"></a> GenericError</h3>
+<h3 id="_genericerror"><a id="_2076172091584"></a> GenericError</h3>
 <div class="sect3">
 <h4 id="_values_16">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4259,7 +4244,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_zliberror"><a id="_2078106020608"></a> ZlibError</h3>
+<h3 id="_zliberror"><a id="_2076172118512"></a> ZlibError</h3>
 <div class="sect3">
 <h4 id="_values_17">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4329,7 +4314,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modmanagementerror"><a id="_2078106051200"></a> ModManagementError</h3>
+<h3 id="_modmanagementerror"><a id="_2076172149104"></a> ModManagementError</h3>
 <div class="sect3">
 <h4 id="_values_18">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4359,7 +4344,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_apierror"><a id="_2078106077504"></a> ApiError</h3>
+<h3 id="_apierror"><a id="_2076172175408"></a> ApiError</h3>
 <div class="sect3">
 <h4 id="_values_19">Values</h4>
 <table class="tableblock frame-none grid-all stripes-odd stretch stretch">
@@ -4485,7 +4470,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 </div>
 <div class="sect2">
-<h3 id="_modstate"><a id="_2078109211088"></a> ModState</h3>
+<h3 id="_modstate"><a id="_2076175612368"></a> ModState</h3>
 <div class="paragraph">
 <p>Enum representing the current state of a mod</p>
 </div>
@@ -4530,7 +4515,7 @@ returned by this function are informative only - it will always succeed.</p></td
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-28 11:53:42 +1000
+Last updated 2021-04-28 14:07:01 +1000
 </div>
 </div>
 </body>
