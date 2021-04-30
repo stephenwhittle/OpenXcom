@@ -1,6 +1,5 @@
 #pragma once
 #include "modio/core/ModioBuffer.h"
-#include "modio/core/ModioFilesystem.h"
 #include "modio/core/ModioServices.h"
 #include "modio/file/ModioFileService.h"
 #include <asio.hpp>

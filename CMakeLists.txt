@@ -70,7 +70,7 @@ if ( IS_DIRECTORY ${DEPS_DIR}/include )
    set ( YAMLCPP_LIBRARY_DEBUG yaml-cppd )
    add_definitions( -DYAML_CPP_DLL )
    #hacky but removes the tons of noise caused by yaml-cpp
-   add_compile_options( /wd4251)
+   add_compile_options( /wd4251 /wd4275)
 else ( )
   find_package ( SDL2 COMPONENTS mixer gfx image)
   find_package ( Yaml_cpp 0.5.3)

@@ -16,7 +16,7 @@ namespace Modio
 			MODIO_IMPL void ResetUserData();
 
 			MODIO_IMPL void InitializeForAuthenticatedUser(Modio::Detail::AuthenticatedUser AuthenticatedUser,
-												Modio::Detail::OAuthToken AuthToken);
+														   Modio::Detail::OAuthToken AuthToken);
 
 			// @todo: Making copy of user object
 			MODIO_IMPL const Modio::Optional<Modio::User> GetAuthenticatedUser() const;
@@ -68,5 +68,5 @@ namespace Modio
 } // namespace Modio
 
 #ifndef MODIO_SEPARATE_COMPILATION
-#include "ModioUserDataContainer.ipp"
+	#include "ModioUserDataContainer.ipp"
 #endif

@@ -6,9 +6,8 @@
 #include <fmt/format.h>
 #include <memory>
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
+
 class SendHttpRequest
 {
 	asio::coroutine CoroutineState;

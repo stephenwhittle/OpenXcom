@@ -5,9 +5,7 @@
 #include "modio/core/ModioErrorCode.h"
 #include "modio/core/ModioLogger.h"
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
 
 class ReadSomeFromFile
 {
@@ -144,3 +142,5 @@ public:
 		}
 	}
 };
+
+#include <asio/unyield.hpp>

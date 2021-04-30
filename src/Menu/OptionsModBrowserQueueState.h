@@ -2,7 +2,7 @@
 #pragma once
 
 #include "../Engine/State.h"
-#include "modio/core/ModioStdTypes.h"
+#include "modio/core/ModioCoreTypes.h"
 
 namespace OpenXcom
 {

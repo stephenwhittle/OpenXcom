@@ -1,7 +1,6 @@
 #pragma once
 
 #include "modio/core/ModioErrorCode.h"
-#include "modio/core/ModioFilesystem.h"
 #include "modio/core/ModioLogger.h"
 #include "common/detail/ops/file/DeleteFile.h"
 #include <asio.hpp>

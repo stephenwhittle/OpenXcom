@@ -6,10 +6,7 @@
 #include "modio/core/ModioLogger.h"
 #include "modio/detail/ModioObjectTrack.h"
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
-
 class StreamWrite : public Modio::Detail::BaseOperation<StreamWrite>
 {
 	/// <summary>
@@ -150,3 +147,5 @@ public:
 		}
 	}
 };
+
+#include <asio/unyield.hpp>

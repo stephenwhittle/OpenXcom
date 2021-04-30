@@ -1,7 +1,3 @@
-#pragma once
-
-#include "modio/core/ModioStdTypes.h"
-
 #ifdef MODIO_SEPARATE_COMPILATION
 	#include "modio/cache/ModioCacheService.h"
 #endif
@@ -10,43 +6,66 @@ namespace Modio
 	namespace Detail
 	{
 		CacheService::CacheService(asio::io_context& IOService)
-			: asio::detail::service_base<CacheService>(IOService)
+			: asio::detail::service_base<CacheService>(IOService),
+			  CacheExpiryTimer(get_io_context())
 		{
-			auto NewImplementation = std::make_shared<CacheServiceImplementation>(*this);
-			PlatformImplementation.swap(NewImplementation);
+			CacheInstance = std::make_shared<Cache>();
 		}
 
 		void CacheService::Shutdown()
 		{
-			PlatformImplementation->Shutdown();
+			CacheExpiryTimer.cancel();
 			ClearCache();
 		}
 
-		void CacheService::construct(implementation_type& Implementation)
-		{
-			PlatformImplementation->InitializeIOObjectImplementation(Implementation);
-		}
+		void CacheService::construct(implementation_type& Implementation) {}
 
 		void CacheService::destroy(implementation_type& Implementation) {}
 
 		void CacheService::SetCacheExpireTime(std::chrono::steady_clock::duration ExpireTime)
 		{
-			PlatformImplementation->SetCacheExpireTime(ExpireTime);
+			CacheExpiryTime = ExpireTime;
 		}
 
 		void CacheService::AddToCache(std::string ResourceURL, Modio::Detail::DynamicBuffer ResponseData)
 		{
-			PlatformImplementation->AddToCache(ResourceURL, ResponseData);
+			auto Hasher = std::hash<std::string>();
+			std::uint32_t URLHash = Hasher(ResourceURL);
+
+			CacheInstance->CacheEntries.insert_or_assign(URLHash, ResponseData);
+
+			CacheExpiryTimer.expires_after(CacheExpiryTime);
+
+			auto DeleteCacheEntry = [WeakCacheReference = std::weak_ptr(CacheInstance), URLHash](std::error_code) {
+				std::shared_ptr<Cache> CacheReference = WeakCacheReference.lock();
+				if (CacheReference)
+				{
+					CacheReference->CacheEntries.erase(URLHash);
+				}
+			};
+
+			CacheExpiryTimer.async_wait(DeleteCacheEntry);
 		}
 
 		Modio::Optional<Modio::Detail::DynamicBuffer> CacheService::FetchFromCache(std::string ResourceURL)
 		{
-			return PlatformImplementation->FetchFromCache(ResourceURL);
+			auto Hasher = std::hash<std::string>();
+			std::uint32_t URLHash = Hasher(ResourceURL);
+
+			auto CacheEntryIterator = CacheInstance->CacheEntries.find(URLHash);
+			if (CacheEntryIterator != CacheInstance->CacheEntries.end())
+			{
+				return (CacheEntryIterator)->second;
+			}
+			else
+			{
+				return {};
+			}
 		}
 
 		void CacheService::ClearCache()
 		{
-			PlatformImplementation->ClearCache();
+			CacheInstance.reset(new Cache());
 		}
 	} // namespace Detail
 } // namespace Modio

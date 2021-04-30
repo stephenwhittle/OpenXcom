@@ -4,9 +4,7 @@
 #include "modio/detail/compression/zip/ArchiveFileImplementation.h"
 #include "modio/file/ModioFile.h"
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
 namespace Modio
 {
 	namespace Detail
@@ -187,6 +185,4 @@ namespace Modio
 
 	} // namespace Detail
 } // namespace Modio
-// clang-format off
 #include <asio/unyield.hpp>
-// clang-format on

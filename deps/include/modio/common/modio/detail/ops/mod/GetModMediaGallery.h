@@ -1,8 +1,7 @@
 #pragma once
 
 #include "modio/core/ModioBuffer.h"
-#include "modio/core/ModioStdTypes.h"
-#include "modio/detail/ModioAuthenticatedUser.h"
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/ops/ModioDownloadGalleryImage.h"
 #include <asio/yield.hpp>
 

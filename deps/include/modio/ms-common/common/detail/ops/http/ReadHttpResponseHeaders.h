@@ -6,9 +6,9 @@
 #include <asio.hpp>
 #include <memory>
 #include "common/GDKHttpSharedState.h"
-// clang-format off
+
 #include <asio/yield.hpp>
-// clang-format on
+
 class ReadHttpResponseHeaders
 {
 	std::weak_ptr<HttpSharedStateBase> SharedState;
@@ -82,6 +82,5 @@ public:
 		}
 	}
 };
-// clang-format off
+
 #include <asio/unyield.hpp>
-// clang-format on

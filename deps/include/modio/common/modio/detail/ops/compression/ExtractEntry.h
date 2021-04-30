@@ -3,7 +3,6 @@
 #include "modio/compression/zlib/inflate_stream.hpp"
 #include "modio/compression/zlib/zlib.hpp"
 #include "modio/core/ModioBuffer.h"
-#include "modio/core/ModioFilesystem.h"
 #include "modio/core/ModioStdTypes.h"
 #include "modio/detail/ModioObjectTrack.h"
 #include "modio/detail/compression/zip/ArchiveFileImplementation.h"

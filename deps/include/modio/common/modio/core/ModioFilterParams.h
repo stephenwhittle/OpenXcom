@@ -1,7 +1,12 @@
 #pragma once
+
 #include "ModioGeneratedVariables.h"
-#include "fmt/format.h"
+#include "modio/detail/ModioDefines.h"
+
+#include "ModioGeneratedVariables.h"
 #include "modio/core/ModioStdTypes.h"
+
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -23,7 +28,7 @@ namespace Modio
 			DateMarkedLive, /** use date mod was marked live */
 			DateUpdated /** use date mod was last updated */
 		};
-		
+
 		/// @docpublic
 		/// @brief Enum indicating which direction sorting should be applied
 		enum class SortDirection
@@ -44,15 +49,16 @@ namespace Modio
 		/// @param SearchString Search string
 		/// @return *this
 		MODIO_IMPL FilterParams& NameContains(std::string SearchString);
-		
+
 		/// @docpublic
-		/// @brief Only include mods where the name contains at least one of the provided strings (string1 OR string2 OR stringN...)
+		/// @brief Only include mods where the name contains at least one of the provided strings (string1 OR string2 OR
+		/// stringN...)
 		/// @tparam ...Args std::string
 		/// @param SearchString First search string
 		/// @param ...args Additional search strings
 		/// @return *this
 		MODIO_IMPL FilterParams& NameContains(const std::vector<std::string>& SearchString);
-		
+
 		/// @docpublic
 		/// @brief Only include mods that were marked live (i.e released) after the specified date
 		/// @param LiveAfter Minimum date
@@ -100,17 +106,18 @@ namespace Modio
 		/// @brief Returns a sub-range of query results based on a specified page size and index
 		/// @param PageNumber Zero-based index of page to return
 		/// @param PageSize Number of results in a page
-		/// @return 
+		/// @return
 		MODIO_IMPL FilterParams& PagedResults(std::size_t PageNumber, std::size_t PageSize);
 
 		/// @docpublic
-		/// @brief Default FilterParams constructor. Sorts by mod ID in ascending order and returns 100 results (the maximum allowed by the REST API).
+		/// @brief Default FilterParams constructor. Sorts by mod ID in ascending order and returns 100 results (the
+		/// maximum allowed by the REST API).
 		MODIO_IMPL FilterParams();
 
 		/// @docinternal
 		/// @brief Converts the filter params to a string suitable for use in the REST API
 		/// @return std::string containing the filter parameters
-		MODIO_IMPL std::string ToString();
+		MODIO_IMPL std::string ToString() const;
 
 	private:
 		MODIO_IMPL FilterParams& AppendValue(std::vector<std::string>& Vector, std::string Tag);
@@ -140,8 +147,7 @@ namespace Modio
 } // namespace Modio
 
 #ifndef MODIO_SEPARATE_COMPILATION
-#include "ModioFilterParams.ipp"
+	#include "ModioFilterParams.ipp"
 #endif
-
 
 #include "modio/detail/ModioUndefs.h"

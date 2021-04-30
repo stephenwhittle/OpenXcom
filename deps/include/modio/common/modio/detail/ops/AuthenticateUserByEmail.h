@@ -2,14 +2,15 @@
 
 #include "modio/cache/ModioCacheService.h"
 #include "modio/core/ModioBuffer.h"
-#include "modio/core/ModioErrorCode.h"
-#include "modio/core/ModioStdTypes.h"
-#include "modio/core/entities/ModioUser.h"
+#include "modio/core/ModioCoreTypes.h"
+#include "modio/detail/CoreOps.h"
+#include "modio/detail/ModioAuthenticatedUser.h"
+#include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/schema/AccessTokenObject.h"
 #include "modio/detail/CoreOps.h"
 #include "modio/http/ModioHttpParams.h"
 #include "modio/userdata/ModioUserDataService.h"
-#include "modio/detail/ModioAuthenticatedUser.h"
+
 #include <asio.hpp>
 
 #include <asio/yield.hpp>
@@ -20,10 +21,7 @@ namespace Modio
 		class AuthenticateUserByEmail
 		{
 		public:
-			AuthenticateUserByEmail(Modio::EmailAuthCode EmailCode) : EmailCode(EmailCode)
-			{
-
-			}
+			AuthenticateUserByEmail(Modio::EmailAuthCode EmailCode) : EmailCode(EmailCode) {}
 
 			template<typename OperationState>
 			void operator()(OperationState& Self, Modio::ErrorCode ec = {})
@@ -36,10 +34,10 @@ namespace Modio
 				reenter(CoroutineState)
 				{
 					yield Detail::ComposedOps::async_PerformRequestAndGetResponse(
-						Local.ResponseBodyBuffer, 
-						ExchangeEmailSecurityCodeRequest.AppendPayloadValue(Modio::Detail::Constants::APIStrings::SecurityCode, EmailCode.InternalCode ),
-						Detail::CachedResponse::Disallow,
-						std::move(Self));
+						Local.ResponseBodyBuffer,
+						ExchangeEmailSecurityCodeRequest.AppendPayloadValue(
+							Modio::Detail::Constants::APIStrings::SecurityCode, EmailCode.InternalCode),
+						Detail::CachedResponse::Disallow, std::move(Self));
 
 					if (ec)
 					{
@@ -62,7 +60,8 @@ namespace Modio
 						return;
 					}
 
-					Local.NewlyAuthenticatedUser = Detail::MarshalResponse<Modio::Detail::AuthenticatedUser>(Local.ResponseBodyBuffer);
+					Local.NewlyAuthenticatedUser =
+						Detail::MarshalResponse<Modio::Detail::AuthenticatedUser>(Local.ResponseBodyBuffer);
 					Local.ResponseBodyBuffer.Clear();
 
 					Modio::Detail::SDKSessionData::InitializeForAuthenticatedUser(

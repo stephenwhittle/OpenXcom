@@ -1,11 +1,12 @@
 #pragma once
 #include "modio/cache/ModioCacheService.h"
 #include "modio/core/ModioServices.h"
-#include "modio/core/ModioStdTypes.h"
+#include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/ops/LoadModCollectionFromStorage.h"
 #include "modio/file/ModioFileService.h"
 #include "modio/http/ModioHttpService.h"
 #include "modio/userdata/ModioUserDataService.h"
+
 #include <asio.hpp>
 #include <asio/yield.hpp>
 
@@ -34,14 +35,15 @@ public:
 			if (!Modio::Detail::SDKSessionData::Initialize(GameID, APIKey, Environment))
 			{
 				Modio::Detail::Logger().Log(Modio::LogLevel::Error, Modio::LogCategory::Core,
-									"mod.io SDK was already initialized!");
+											"mod.io SDK was already initialized!");
 				self.complete(Modio::make_error_code(Modio::GenericError::SDKAlreadyInitialized));
 				return;
 			}
 
-			Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::Core, "Initializing mod.io services");
-			yield Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().async_Initialize(User, GameID,
-																								   std::move(self));
+			Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::Core,
+										"Initializing mod.io services");
+			yield Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().async_Initialize(
+				User, GameID, std::move(self));
 			if (ec)
 			{
 				self.complete(ec);
@@ -49,7 +51,8 @@ public:
 			}
 
 			Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::File, "Initialized File Service");
-			yield Modio::Detail::Services::GetGlobalService<Modio::Detail::HttpService>().async_Initialize(std::move(self));
+			yield Modio::Detail::Services::GetGlobalService<Modio::Detail::HttpService>().async_Initialize(
+				std::move(self));
 			if (ec)
 			{
 				self.complete(ec);
@@ -68,12 +71,13 @@ public:
 				self.complete(ec);
 				return;
 			}
-			Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::User, "Initialized User Data service");
+			Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::User,
+										"Initialized User Data service");
 
 			// other service init
 
 			Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::Core,
-								"mod.io service initialization complete");
+										"mod.io service initialization complete");
 
 			self.complete({});
 		}

@@ -2,6 +2,8 @@
 	#include "ModioBuffer.h"
 #endif
 
+#include <limits>
+
 namespace Modio
 {
 	namespace Detail

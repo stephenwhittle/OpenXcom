@@ -231,7 +231,7 @@ namespace Modio
 				return std::string("");
 			}
 
-			return std::string("api_key=") + SDKSessionData::CurrentAPIKey().InternalApiKey;
+			return std::string("api_key=") + *SDKSessionData::CurrentAPIKey();
 		}
 
 		const Modio::Optional<std::string> HttpRequestParams::GetAuthToken() const

@@ -1,6 +1,10 @@
 #pragma once
-#include "modio/core/ModioStdTypes.h"
 #include <asio.hpp>
+
+#include <chrono>
+#include <memory>
+
+#include "modio/core/ModioStdTypes.h"
 
 #include <asio/yield.hpp>
 namespace Modio
@@ -12,7 +16,7 @@ namespace Modio
 		class AsyncShutdownRunOne
 		{
 		public:
-			AsyncShutdownRunOne(std::shared_ptr<asio::io_context> InTargetContext) : TargetContext(InTargetContext){};
+			AsyncShutdownRunOne(std::shared_ptr<asio::io_context> InTargetContext) : TargetContext(InTargetContext) {};
 
 			template<typename CoroType>
 			void operator()(CoroType& Self, Modio::ErrorCode ec = {})
@@ -20,15 +24,17 @@ namespace Modio
 				TargetContext->run_one_for(std::chrono::milliseconds(1));
 				Self.complete(Modio::ErrorCode {});
 			}
-			private:
-				std::shared_ptr<asio::io_context> TargetContext;
+
+		private:
+			std::shared_ptr<asio::io_context> TargetContext;
 		};
 		template<typename CompletionHandlerType>
 		void ShutdownRunOneAsync(std::shared_ptr<asio::io_context> OldContext,
 								 CompletionHandlerType&& OnOneHandlerCalled)
 		{
-			return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(AsyncShutdownRunOne(OldContext),
-				OnOneHandlerCalled, Modio::Detail::Services::GetGlobalContext().get_executor());
+			return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(
+				AsyncShutdownRunOne(OldContext), OnOneHandlerCalled,
+				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 
 		class AsyncShutdown
@@ -48,7 +54,7 @@ namespace Modio
 					{
 						ContextToFlush->run_one_for(std::chrono::milliseconds(1));
 						// If we use the op, then we get stack overflow if the shutdown takes a long time
-						//yield ShutdownRunOneAsync(ContextToFlush, std::move(Self));
+						// yield ShutdownRunOneAsync(ContextToFlush, std::move(Self));
 					}
 					Self.complete(Modio::ErrorCode {});
 				}

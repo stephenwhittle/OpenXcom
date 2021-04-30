@@ -1,5 +1,6 @@
 #pragma once
 
+#include "modio/core/ModioLogger.h"
 #include "modio/core/ModioServices.h"
 #include "modio/detail/ModioSDKSessionData.h"
 
@@ -73,7 +74,6 @@ namespace Modio
 			}
 		}
 
-
 		template<typename... OtherArgs>
 		bool RequireNotRateLimited(std::function<void(Modio::ErrorCode, OtherArgs...)>& Handler)
 		{
@@ -123,6 +123,40 @@ namespace Modio
 						   [CompletionHandler =
 								std::forward<std::function<void(Modio::ErrorCode, OtherArgs...)>>(Handler)]() mutable {
 							   CompletionHandler(Modio::make_error_code(Modio::ModManagementError::AlreadySubscribed),
+												 (OtherArgs {})...);
+						   });
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+		template<typename... OtherArgs>
+		bool RequireValidInitParams(const Modio::InitializeOptions& Options,
+									std::function<void(Modio::ErrorCode, OtherArgs...)>& Handler)
+		{
+			bool bInvalidParameter = false;
+			if (!Options.GameID.IsValid())
+			{
+				Modio::Detail::Logger().Log(LogLevel::Error, LogCategory::Core, "GameID {} is Invalid",
+											*Options.GameID);
+				bInvalidParameter = true;
+			}
+			else if (!Options.APIKey.IsValid())
+			{
+				Modio::Detail::Logger().Log(LogLevel::Error, LogCategory::Core, "APIKey {} is Invalid",
+											*Options.APIKey);
+				bInvalidParameter = true;
+			}
+
+			if (bInvalidParameter)
+			{
+				asio::post(Modio::Detail::Services::GetGlobalContext().get_executor(),
+						   [CompletionHandler =
+								std::forward<std::function<void(Modio::ErrorCode, OtherArgs...)>>(Handler)]() mutable {
+							   CompletionHandler(Modio::make_error_code(Modio::GenericError::BadParameter),
 												 (OtherArgs {})...);
 						   });
 				return false;

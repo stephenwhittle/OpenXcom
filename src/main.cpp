@@ -26,6 +26,7 @@
 
 #pragma push_macro("Log")
 #undef Log
+//NB if this is moved below the include of windows.h, you *must* define NOMINMAX/WIN32_LEAN_AND_MEAN before you include windows.h
 #include "modio/ModioSDK.h"
 #pragma pop_macro("Log")
 
@@ -122,7 +123,8 @@ int main(int argc, char *argv[])
 
 	if (Options::enableModioSDK)
 	{
-		Modio::InitializeAsync(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio", [](Modio::ErrorCode ec) {
+		Modio::InitializeOptions Opts = Modio::InitializeOptions(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio");
+		Modio::InitializeAsync(Opts, [](Modio::ErrorCode ec) {
 			if (ec)
 			{
 				//Log failure here, potentially set a flag someplace so we can display a toast notification in the UI

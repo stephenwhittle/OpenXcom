@@ -1,7 +1,6 @@
 #pragma once
 
 #include "modio/core/ModioStdTypes.h"
-#include <cctype>
 #include <string>
 
 namespace Modio

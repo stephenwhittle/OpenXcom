@@ -1,6 +1,6 @@
 #pragma once
 
-#include "modio/core/ModioStdTypes.h"
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/ModioJsonHelpers.h"
 #include <string>
 

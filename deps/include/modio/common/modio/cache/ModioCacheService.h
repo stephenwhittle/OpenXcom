@@ -1,9 +1,8 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
-#include "cache/CacheServiceImplementation.h"
 #include <asio.hpp>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace Modio
 {
@@ -11,14 +10,12 @@ namespace Modio
 	{
 		class CacheService : public asio::detail::service_base<CacheService>
 		{
-			std::shared_ptr<CacheServiceImplementation> PlatformImplementation;
-
 		public:
 			MODIO_IMPL explicit CacheService(asio::io_context& IOService);
 
 			MODIO_IMPL void Shutdown();
 
-			using implementation_type = CacheServiceImplementation::IOObjectImplementationType;
+			using implementation_type = std::uint32_t;
 
 			MODIO_IMPL void construct(implementation_type& Implementation);
 
@@ -31,10 +28,19 @@ namespace Modio
 			MODIO_IMPL Modio::Optional<Modio::Detail::DynamicBuffer> FetchFromCache(std::string ResourceURL);
 
 			MODIO_IMPL void ClearCache();
+		private:
+			struct Cache
+			{
+				std::unordered_map<std::uint32_t, Modio::Detail::DynamicBuffer> CacheEntries;
+			};
+
+			std::shared_ptr<Cache> CacheInstance;
+			asio::steady_timer CacheExpiryTimer;
+			std::chrono::steady_clock::duration CacheExpiryTime = std::chrono::seconds(15);
 		};
 	} // namespace Detail
 } // namespace Modio
 
 #ifndef MODIO_SEPARATE_COMPILATION
-#include "ModioCacheService.ipp"
+	#include "ModioCacheService.ipp"
 #endif

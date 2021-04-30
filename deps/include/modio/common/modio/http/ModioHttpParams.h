@@ -1,7 +1,7 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
 #include "fmt/format.h"
-#include "modio/core/ModioStdTypes.h"
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/ModioStringHelpers.h"
 #include "modio/detail/http/ModioRequestBodyKVPContainer.h"
 #include "modio/core/ModioLogger.h"

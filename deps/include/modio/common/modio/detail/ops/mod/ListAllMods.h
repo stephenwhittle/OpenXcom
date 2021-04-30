@@ -1,6 +1,6 @@
 #pragma once
 
-#include "modio/core/ModioStdTypes.h"
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/CoreOps.h"
 #include "modio/core/entities/ModioModInfoList.h"
 #include "modio/core/ModioBuffer.h"

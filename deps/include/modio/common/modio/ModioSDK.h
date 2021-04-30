@@ -1,6 +1,10 @@
 #pragma once
 
+#include "ModioGeneratedVariables.h"
+
 #include "modio/detail/ModioDefines.h"
+
+#include "modio/core/ModioInitializeOptions.h"
 #include "modio/core/ModioFilterParams.h"
 #include "modio/core/ModioModCollectionEntry.h"
 #include "modio/core/ModioStdTypes.h"
@@ -15,12 +19,10 @@ namespace Modio
 	/// @docpublic
 	/// @brief Initializes the SDK for the given user. Loads the state of mods installed on the system as well as the
 	/// set of mods the specified user has installed on this device
-	/// @param GameID The Mod.io-provided ID for the game
-	/// @param APIKey the Mod.io-provided API key for your application or game
-	/// @param User The user handle for the platform you are targeting:
-	/// @param OnInitComplete Callback which will be invoked with the result of initialization
-	MODIO_API void InitializeAsync(Modio::GameID GameID, Modio::ApiKey APIKey, Modio::Environment GameEnvironment,
-								   Modio::UserHandleType User, std::function<void(Modio::ErrorCode)> OnInitComplete);
+	/// @param InitOptions Parameters to the function packed as a struct where all members needs to be initialized for
+	/// the call to succeed
+	MODIO_API void InitializeAsync(Modio::InitializeOptions InitOptions,
+								   std::function<void(Modio::ErrorCode)> OnInitComplete);
 
 	/// @docpublic
 	/// @brief Sets the global logging level - messages with a log level below the specified value will not be displayed
@@ -38,8 +40,8 @@ namespace Modio
 	/// @docpublic
 	/// @brief Runs any pending SDK work on the calling thread, including invoking any callbacks passed to asynchronous
 	/// operations.
-	/// NOTE: This should be called while xref:Modio::InitializeAsync[] and xref:Modio::Shutdown[] are running,
-	/// as they both utilise the internal event loop for functionality.
+	/// NOTE: This should be called while xref:InitializeAsync[] and xref:Modio::Shutdown[] are running,
+	/// as they both utilize the internal event loop for functionality.
 	/// @return
 	MODIO_API void RunPendingHandlers();
 
@@ -141,7 +143,7 @@ namespace Modio
 	/// @brief Forcibly uninstalls a mod from the system. This is intended for use when a host application requires more
 	/// room for a mod that the user wants to install, and as such will return an error if the current user is
 	/// subscribed to the mod. To remove a mod the current user is subscribed to, use
-	/// xref:Modio::UnsubscribeFromModAsync[].
+	/// xref:UnsubscribeFromModAsync[].
 	/// @param Callback Callback invoked when the uninstallation is successful, or if it failed because the current user
 	/// remains subscribed.
 	MODIO_API void ForceUninstallModAsync(Modio::ModID ModToRemove, std::function<void(Modio::ErrorCode)> Callback);
@@ -286,10 +288,12 @@ namespace Modio
 
 // Implementation headers
 
-#include "modio/detail/ModioUndefs.h"
+
 #ifndef MODIO_SEPARATE_COMPILATION
 	#include "modio/impl/SDKCore.ipp"
 	#include "modio/impl/SDKModManagement.ipp"
 	#include "modio/impl/SDKModMetadata.ipp"
 	#include "modio/impl/SDKUserData.ipp"
 #endif
+
+#include "modio/detail/ModioUndefs.h"

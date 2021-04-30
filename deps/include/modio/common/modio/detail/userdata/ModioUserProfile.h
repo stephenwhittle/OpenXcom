@@ -6,7 +6,6 @@
 #include "modio/detail/schema/AccessTokenObject.h"
 
 #include <memory>
-#include <time.h>
 
 namespace Modio::Detail
 {

@@ -1,6 +1,5 @@
 #pragma once
 #include "modio/core/ModioBuffer.h"
-#include "modio/core/ModioStdTypes.h"
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/core/ModioModCollectionEntry.h"
 #include "modio/userdata/ModioUserDataService.h"

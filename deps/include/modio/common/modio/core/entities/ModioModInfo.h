@@ -1,4 +1,6 @@
 #pragma once
+#include "ModioGeneratedVariables.h"
+#include "modio/detail/ModioDefines.h"
 
 #include "modio/core/entities/ModioFileMetadata.h"
 #include "modio/core/entities/ModioModStats.h"

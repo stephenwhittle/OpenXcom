@@ -4,6 +4,7 @@
 #include "modio/core/ModioErrorCode.h"
 #include <asio.hpp>
 #include <memory>
+#include <atomic>
 
 namespace Modio
 {

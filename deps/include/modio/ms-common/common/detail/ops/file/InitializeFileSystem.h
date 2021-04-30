@@ -1,7 +1,8 @@
 #pragma once
-#include <asio.hpp>
+#include "modio/core/ModioCoreTypes.h"
+#include "modio/core/ModioStdTypes.h"
 #include <ShlObj.h>
-//#include "modio/detail/ModioSDKSessionData.h"
+#include <asio.hpp>
 
 #include <asio/yield.hpp>
 namespace Modio
@@ -13,15 +14,14 @@ namespace Modio
 		class InitializeFileSystem
 		{
 		public:
-			InitializeFileSystem(std::string NewUserID, Modio::GameID GameID, Modio::filesystem::path& CommonDataPath, Modio::filesystem::path& UserDataPath, Modio::filesystem::path& TempPath)
-				:NewUserID(NewUserID),
-				GameID(GameID),
-				CommonDataPath(CommonDataPath),
-				UserDataPath(UserDataPath),
-				TempPath(TempPath)
-			{
-
-			}
+			InitializeFileSystem(std::string NewUserID, Modio::GameID GameID, Modio::filesystem::path& CommonDataPath,
+								 Modio::filesystem::path& UserDataPath, Modio::filesystem::path& TempPath)
+				: NewUserID(NewUserID),
+				  GameID(GameID),
+				  CommonDataPath(CommonDataPath),
+				  UserDataPath(UserDataPath),
+				  TempPath(TempPath)
+			{}
 
 			template<typename CoroType>
 			void operator()(CoroType& Self, Modio::ErrorCode ec = {})

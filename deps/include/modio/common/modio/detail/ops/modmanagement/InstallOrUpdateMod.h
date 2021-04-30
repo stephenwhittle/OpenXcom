@@ -8,9 +8,7 @@
 #include <asio.hpp>
 #include <nlohmann/json.hpp>
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
 namespace Modio
 {
 	namespace Detail

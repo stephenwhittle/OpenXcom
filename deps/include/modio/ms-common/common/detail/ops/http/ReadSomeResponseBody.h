@@ -5,9 +5,9 @@
 #include <asio.hpp>
 #include <fmt/format.h>
 #include <memory>
-// clang-format off
+
 #include <asio/yield.hpp>
-// clang-format on
+
 class ReadSomeResponseBody
 {
 	std::shared_ptr<HttpRequestImplementation> Request;

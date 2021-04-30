@@ -1,8 +1,9 @@
 #pragma once
+#include "ModioGeneratedVariables.h"
+#include "modio/detail/ModioDefines.h"
 
 #include "ModioModInfo.h"
 #include "ModioPagedResult.h"
-#include "modio/detail/ModioDefines.h"
 #include "modio/detail/ModioJsonHelpers.h"
 #include <vector>
 

@@ -4,7 +4,6 @@
 	#include "modio/ModioSDK.h"
 #endif
 
-#include "modio/core/ModioFilesystem.h"
 #include "modio/core/ModioStdTypes.h"
 #include "modio/core/entities/ModioModDetails.h"
 #include "modio/core/entities/ModioModInfo.h"

@@ -6,9 +6,7 @@
 #include "modio/core/ModioLogger.h"
 #include "modio/detail/ModioObjectTrack.h"
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
 
 class WriteSomeToFile : public Modio::Detail::BaseOperation<WriteSomeToFile>
 {
@@ -138,3 +136,5 @@ public:
 		}
 	}
 };
+
+#include <asio/unyield.hpp>

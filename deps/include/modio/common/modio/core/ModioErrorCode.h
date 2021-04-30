@@ -308,14 +308,15 @@ namespace Modio
 
 	enum class GenericError
 	{
-		CouldNotCreateHandle = 1,
-		EndOfFile = 2,
-		IndexOutOfRange = 3,
-		NoDataAvailable = 4,
-		OperationCanceled = 5,
-		QueueClosed = 6,
-		SDKAlreadyInitialized = 7,
-		SDKNotInitialized = 8
+		BadParameter = 1,
+		CouldNotCreateHandle = 2,
+		EndOfFile = 3,
+		IndexOutOfRange = 4,
+		NoDataAvailable = 5,
+		OperationCanceled = 6,
+		QueueClosed = 7,
+		SDKAlreadyInitialized = 8,
+		SDKNotInitialized = 9
 	};
 
 	struct GenericErrorCategoryImpl : std::error_category
@@ -325,6 +326,9 @@ namespace Modio
 		{
 			switch (static_cast<Modio::GenericError>(ErrorValue))
 			{
+				case GenericError::BadParameter:
+						return "Bad parameter supplied";
+					break;
 				case GenericError::CouldNotCreateHandle:
 						return "Operating system could not create the requested handle";
 					break;

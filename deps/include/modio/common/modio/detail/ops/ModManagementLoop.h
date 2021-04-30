@@ -1,5 +1,4 @@
 #pragma once
-#include "modio/core/ModioStdTypes.h"
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/ops/modmanagement/ProcessNextModInUserCollection.h"
 #include "modio/detail/ops/FetchExternalUpdates.h"

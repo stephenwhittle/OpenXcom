@@ -5,13 +5,12 @@
 	#include "modio/ModioSDK.h"
 #endif
 
-#include "modio/core/ModioStdTypes.h"
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/ops/AuthenticateUserByEmail.h"
 #include "modio/detail/ops/RequestEmailAuthCode.h"
 #include "modio/detail/ops/user/GetUserMedia.h"
 #include "modio/detail/ops/auth/AuthenticateUserByDiscord.h"
 #include "modio/detail/ops/auth/AuthenticateUserBySteam.h"
-#include "modio/detail/ops/auth/AuthenticateUserByEpic.h"
 #include "modio/detail/ops/auth/AuthenticateUserBySwitchID.h"
 #include "modio/detail/ops/auth/AuthenticateUserByGog.h"
 #include "modio/detail/ops/auth/AuthenticateUserByXBoxLive.h"

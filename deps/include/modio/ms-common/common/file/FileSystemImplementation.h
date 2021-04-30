@@ -9,6 +9,7 @@
 #include "common/file/FileObjectImplementation.h"
 #include "fmt/format.h"
 #include "modio/detail/entities/ModioAvatar.h"
+#include "modio/detail/entities/ModioImage.h"
 #include "modio/detail/entities/ModioLogo.h"
 #include "modio/detail/entities/ModioImage.h"
 #include "modio/detail/file/IFileObjectImplementation.h"

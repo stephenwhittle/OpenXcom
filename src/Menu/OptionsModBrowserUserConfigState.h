@@ -6,7 +6,7 @@
 
 namespace Modio
 {
-class ModID;
+struct ModID;
 class ModCollectionEntry;
 }
 

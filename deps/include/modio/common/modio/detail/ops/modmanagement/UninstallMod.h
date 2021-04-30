@@ -1,8 +1,7 @@
 #pragma once
 #include "modio/core/ModioServices.h"
 #include "modio/file/ModioFileService.h"
-#include "modio/core/ModioStdTypes.h"
-#include "modio/core/ModioFilesystem.h"
+#include "modio/core/ModioCoreTypes.h"
 
 #include <asio.hpp>
 

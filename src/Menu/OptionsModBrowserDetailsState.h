@@ -1,7 +1,11 @@
 #pragma once
 
 #include "../Engine/State.h"
-#include "modio/core/entities/ModioModInfo.h"
+
+#pragma push_macro("small")
+#undef small
+#include "modio/ModioSDK.h"
+#pragma pop_macro("small")
 
 namespace OpenXcom
 {

@@ -68,8 +68,7 @@ namespace Modio
 						{
 							ServerSubscriptionModIDs.AddMod(Profile);
 							ServerSubsModProfiles.insert_or_assign(Profile.ModId, Profile);
-							Modio::Detail::SDKSessionData::GetSystemModCollection().AddOrUpdateMod(
-								Profile);
+							Modio::Detail::SDKSessionData::GetSystemModCollection().AddOrUpdateMod(Profile);
 						}
 
 						std::map<Modio::ModID, Modio::UserSubscriptionList::ChangeType> ModListDiff =
@@ -92,8 +91,8 @@ namespace Modio
 								}
 
 								Modio::Detail::Logger().Log(LogLevel::Info, LogCategory::ModManagement,
-													"External update adding {} to local user subscriptions",
-													ModChange.first);
+															"External update adding {} to local user subscriptions",
+															ModChange.first);
 							}
 							else if (ModChange.second == Modio::UserSubscriptionList::ChangeType::Removed)
 							{
@@ -107,8 +106,8 @@ namespace Modio
 										Modio::Detail::SDKSessionData::GetAuthenticatedUser());
 								}
 								Modio::Detail::Logger().Log(LogLevel::Info, LogCategory::ModManagement,
-													"External update removing {} from local user subscriptions",
-													ModChange.first);
+															"External update removing {} from local user subscriptions",
+															ModChange.first);
 							}
 						}
 					}
@@ -117,7 +116,7 @@ namespace Modio
 					{
 						// Only save to storage if we actually have any changes to flush
 						yield UserService.SaveUserDataToStorageAsync(std::move(Self));
-						
+
 						bDirtyState = false;
 					}
 

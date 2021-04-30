@@ -1,6 +1,5 @@
 // MIRRORED TO gdk/file/FileObjectImplementation.h, UPDATE THAT FILE IF THIS IS UPDATED
 #pragma once
-#include "modio/core/ModioFilesystem.h"
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioStdTypes.h"
 #include "modio/detail/file/IFileObjectImplementation.h"

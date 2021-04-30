@@ -1,6 +1,5 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
-#include "modio/core/ModioFilesystem.h"
 #include "modio/core/ModioStdTypes.h"
 #include <cstdint>
 #include <vector>

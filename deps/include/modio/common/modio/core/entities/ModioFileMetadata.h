@@ -1,4 +1,6 @@
 #pragma once
+
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/ModioJsonHelpers.h"
 #include "nlohmann/json.hpp"
 

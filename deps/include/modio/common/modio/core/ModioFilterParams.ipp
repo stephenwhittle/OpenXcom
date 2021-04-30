@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-#include "ModioFilterParams.h"
+	#include "ModioFilterParams.h"
 #endif
 
 #include "fmt/chrono.h"
@@ -25,7 +25,7 @@ namespace Modio
 		return *this;
 	}
 
-Modio::FilterParams& FilterParams::NameContains(std::string SearchString)
+	Modio::FilterParams& FilterParams::NameContains(std::string SearchString)
 	{
 		if (SearchString.size())
 		{
@@ -54,7 +54,7 @@ Modio::FilterParams& FilterParams::NameContains(std::string SearchString)
 		return *this;
 	}
 
-Modio::FilterParams& FilterParams::WithTags(std::string Tag)
+	Modio::FilterParams& FilterParams::WithTags(std::string Tag)
 	{
 		Tags.clear();
 		Tags.push_back(Tag);
@@ -68,7 +68,7 @@ Modio::FilterParams& FilterParams::WithTags(std::string Tag)
 		return *this;
 	}
 
-Modio::FilterParams& FilterParams::WithoutTags(std::string Tag)
+	Modio::FilterParams& FilterParams::WithoutTags(std::string Tag)
 	{
 		ExcludedTags.clear();
 		ExcludedTags.push_back(Tag);
@@ -99,10 +99,15 @@ Modio::FilterParams& FilterParams::WithoutTags(std::string Tag)
 		  Count(100)
 	{}
 
-	std::string FilterParams::ToString()
+	std::string FilterParams::ToString() const
 	{
 		std::vector<std::string> FilterFields;
 		std::string SortStr;
+
+		// The sorts listed at https://docs.mod.io/#get-mods is inverted for some reason compared to the explanation at
+		// https://docs.mod.io/#sorting
+		bool bInvertedSort = false;
+
 		switch (SortField)
 		{
 			case SortFieldType::DateMarkedLive:
@@ -113,12 +118,15 @@ Modio::FilterParams& FilterParams::WithoutTags(std::string Tag)
 				break;
 			case SortFieldType::DownloadsToday:
 				SortStr = "popular";
+				bInvertedSort = true;
 				break;
 			case SortFieldType::Rating:
 				SortStr = "rating";
+				bInvertedSort = true;
 				break;
 			case SortFieldType::SubscriberCount:
-				SortStr = "subscriber_count";
+				SortStr = "subscribers";
+				bInvertedSort = true;
 				break;
 			case SortFieldType::ID:
 				SortStr = "id";
@@ -127,7 +135,12 @@ Modio::FilterParams& FilterParams::WithoutTags(std::string Tag)
 				break;
 		}
 
-		SortStr = fmt::format("_sort={}{}", Direction == SortDirection::Descending ? "-" : "", SortStr);
+		SortStr = fmt::format("_sort={}{}",
+							  ((Direction == SortDirection::Descending && !bInvertedSort) ||
+							   (Direction == SortDirection::Ascending && bInvertedSort))
+								  ? "-"
+								  : "",
+							  SortStr);
 		FilterFields.push_back(SortStr);
 
 		if (SearchKeywords.size())
@@ -200,5 +213,4 @@ Modio::FilterParams& FilterParams::WithoutTags(std::string Tag)
 		return *this;
 	}
 
-}
-
+} // namespace Modio

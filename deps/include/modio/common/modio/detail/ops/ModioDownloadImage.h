@@ -5,9 +5,7 @@
 #include "modio/detail/CoreOps.h"
 #include "modio/detail/ModioObjectTrack.h"
 
-// clang-format off
 #include <asio/yield.hpp>
-// clang-format on
 namespace Modio
 {
 	namespace Detail
@@ -86,9 +84,9 @@ namespace Modio
 					}
 
 					// Download the file
-					yield Modio::Detail::ComposedOps::async_DownloadFile(
+					yield Modio::Detail::ComposedOps::async_DownloadImage(
 						OpState.DownloadRequestParams.value(),
-						OpState.DestinationTempPath, {}, std::move(Self));
+						OpState.DestinationTempPath, std::move(Self));
 
 					if (ec)
 					{

@@ -4,9 +4,9 @@
 	#include "modio/ModioSDK.h"
 #endif
 
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/core/ModioModCollectionEntry.h"
 #include "modio/core/ModioServices.h"
-#include "modio/core/ModioStdTypes.h"
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/ops/ModManagementLoop.h"
 #include "modio/detail/ops/SubscribeToMod.h"
@@ -15,6 +15,7 @@
 #include "modio/impl/SDKPreconditionChecks.ipp"
 #include "modio/userdata/ModioUserDataService.h"
 #include <asio.hpp>
+
 namespace Modio
 {
 	void EnableModManagement(std::function<void(Modio::ModManagementEvent)> Callback)
@@ -153,14 +154,15 @@ namespace Modio
 		return InstalledMods;
 	}
 
-	void ForceUninstallModAsync(Modio::ModID ModToRemove, std::function<void(Modio::ErrorCode)> Callback) {
-		if (Modio::Detail::RequireSDKIsInitialized(Callback) &&
-			Modio::Detail::RequireUserIsAuthenticated(Callback) &&
+	void ForceUninstallModAsync(Modio::ModID ModToRemove, std::function<void(Modio::ErrorCode)> Callback)
+	{
+		if (Modio::Detail::RequireSDKIsInitialized(Callback) && Modio::Detail::RequireUserIsAuthenticated(Callback) &&
 			Modio::Detail::RequireModManagementEnabled(Callback) &&
-			Modio::Detail::RequireUserNotSubscribed(ModToRemove,Callback))
+			Modio::Detail::RequireUserNotSubscribed(ModToRemove, Callback))
 		{
 			asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-				Modio::Detail::ForceUninstallMod(ModToRemove), Callback, Modio::Detail::Services::GetGlobalContext().get_executor());
+				Modio::Detail::ForceUninstallMod(ModToRemove), Callback,
+				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}
 

@@ -11,18 +11,22 @@
 #include "modio/file/ModioFileService.h"
 #include "modio/http/ModioHttpService.h"
 #include "modio/impl/SDKPostAsync.ipp"
+#include "modio/impl/SDKPreconditionChecks.ipp"
 #include "modio/userdata/ModioUserDataService.h"
 // Implementation header - do not include directly
 
 namespace Modio
 {
-	void InitializeAsync(Modio::GameID GameID, Modio::ApiKey APIKey, Modio::Environment Environment,
-						 Modio::UserHandleType User, std::function<void(Modio::ErrorCode)> OnInitComplete)
+	void InitializeAsync(Modio::InitializeOptions InitOptions, std::function<void(Modio::ErrorCode)> OnInitComplete)
 	{
-		auto WrappedCallback = Modio::Detail::ApplyPostAsyncChecks(OnInitComplete);
-		return asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-			ServiceInitialization(GameID, std::move(APIKey), Environment, User), WrappedCallback,
-			Modio::Detail::Services::GetGlobalContext().get_executor());
+		if (Modio::Detail::RequireValidInitParams(InitOptions, OnInitComplete))
+		{
+			auto WrappedCallback = Modio::Detail::ApplyPostAsyncChecks(OnInitComplete);
+			return asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
+				ServiceInitialization(InitOptions.GameID, std::move(InitOptions.APIKey), InitOptions.GameEnvironment,
+									  InitOptions.User),
+				WrappedCallback, Modio::Detail::Services::GetGlobalContext().get_executor());
+		}
 	}
 
 	void ClearCache()
@@ -55,7 +59,7 @@ namespace Modio
 		{
 			return;
 		}
-		
+
 		Modio::DisableModManagement();
 		Modio::Detail::Services::GetGlobalService<Modio::Detail::CacheService>().Shutdown();
 		Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>().Shutdown();
@@ -79,28 +83,25 @@ namespace Modio
 	// This might need a timeout parameter
 	void ShutdownAsync(std::function<void(Modio::ErrorCode)> OnShutdownComplete)
 	{
-		// We need to be initialized to shutdown
-		if (!Modio::Detail::SDKSessionData::IsInitialized())
+		if (Modio::Detail::RequireSDKIsInitialized(OnShutdownComplete))
 		{
-			return;
+			// Halt the mod management loop
+			Modio::DisableModManagement();
+			// Signal the internal services their operations should shut down ASAP
+			Modio::Detail::Services::GetGlobalService<Modio::Detail::CacheService>().Shutdown();
+			Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>().Shutdown();
+			Modio::Detail::Services::GetGlobalService<Modio::Detail::HttpService>().Shutdown();
+			Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().Shutdown();
+			Modio::Detail::Services::GetGlobalService<Modio::Detail::LogService>().Shutdown();
+			Modio::Detail::SDKSessionData::Deinitialize();
+			// Steal the old io context (and associated services)
+			auto OldContext = Modio::Detail::Services::ResetGlobalContext();
+			// Post to the new io_context an operation that will exhaust the old context and call the user callback when
+			// it's completed
+			asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
+				Modio::Detail::AsyncShutdown(std::move(OldContext)), OnShutdownComplete,
+				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
-		
-		// Halt the mod management loop
-		Modio::DisableModManagement();
-		// Signal the internal services their operations should shut down ASAP
-		Modio::Detail::Services::GetGlobalService<Modio::Detail::CacheService>().Shutdown();
-		Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>().Shutdown();
-		Modio::Detail::Services::GetGlobalService<Modio::Detail::HttpService>().Shutdown();
-		Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().Shutdown();
-		Modio::Detail::Services::GetGlobalService<Modio::Detail::LogService>().Shutdown();
-		Modio::Detail::SDKSessionData::Deinitialize();
-		// Steal the old io context (and associated services)
-		auto OldContext = Modio::Detail::Services::ResetGlobalContext();
-		// Post to the new io_context an operation that will exhaust the old context and call the user callback when
-		// it's completed
-		asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-			Modio::Detail::AsyncShutdown(std::move(OldContext)), OnShutdownComplete,
-			Modio::Detail::Services::GetGlobalContext().get_executor());
 	}
 
 	void SetLogLevel(Modio::LogLevel Level)

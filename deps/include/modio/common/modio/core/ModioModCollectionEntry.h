@@ -1,10 +1,17 @@
 #pragma once
+#include "ModioGeneratedVariables.h"
+#include "modio/detail/ModioDefines.h"
+
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioStdTypes.h"
 #include "modio/core/entities/ModioModInfo.h"
 #include "modio/detail/ModioConstants.h"
 #include "modio/detail/ModioTransactional.h"
 #include "modio/file/ModioFileService.h"
+
+#include <nlohmann/json.hpp>
+
 #include <algorithm>
 #include <atomic>
 #include <memory>
@@ -16,12 +23,12 @@ namespace Modio
 	/// @brief Enum representing the current state of a mod
 	enum class ModState
 	{
-		InstallationPending, // dont save
+		InstallationPending,
 		Installed,
-		UpdatePending, // saved as installed
-		Downloading, // installing - dont save
-		Extracting, // installing- don't save
-		UninstallPending, // saved as installed
+		UpdatePending,
+		Downloading, // installing - don't save to disk, previous state will be saved instead
+		Extracting, // installing- don't save to disk, previous state will be saved instead
+		UninstallPending,
 	};
 
 	/// @docpublic
@@ -216,11 +223,20 @@ namespace Modio
 
 		friend void to_json(nlohmann::json& j, const ModCollectionEntry& Entry)
 		{
+			Modio::ModState EntryState = Entry.CurrentState.load();
+			// If the current state is in progress, then we store the previous state. As when loading, the user might
+			// not want to start the download/installation during SDK initialization. Instead the progress will be
+			// resumed when the mod management loop is enabled
+			if (Entry.CurrentState == Modio::ModState::Downloading || Entry.CurrentState == Modio::ModState::Extracting)
+			{
+				EntryState = *Entry.RollbackState;
+			}
+
 			j = nlohmann::json::object(
 				{{Modio::Detail::Constants::JSONKeys::ModEntryID, Entry.ID},
 				 {Modio::Detail::Constants::JSONKeys::ModEntryProfile, Entry.ModProfile},
 				 {Modio::Detail::Constants::JSONKeys::ModEntrySubCount, Entry.LocalUserSubscriptions},
-				 {Modio::Detail::Constants::JSONKeys::ModEntryState, Entry.CurrentState.load()},
+				 {Modio::Detail::Constants::JSONKeys::ModEntryState, EntryState},
 				 {Modio::Detail::Constants::JSONKeys::ModSizeOnDisk, Entry.SizeOnDisk},
 				 {Modio::Detail::Constants::JSONKeys::ModPathOnDisk, Entry.PathOnDisk}});
 		}
@@ -270,8 +286,6 @@ namespace Modio
 				Entry.CurrentState.store(Entry.RollbackState.take().value());
 			}
 		}
-
-	private:
 	};
 
 	// TODO: @modio-core refactor ModProgressInfo to expose Total, Current, and State (hiding internal members)

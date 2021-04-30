@@ -7,8 +7,6 @@
 #include "modio/file/ModioFileService.h"
 #include <asio.hpp>
 #include <memory>
-#include <nlohmann/json.hpp>
-#include <string>
 
 namespace Modio
 {
@@ -22,12 +20,12 @@ namespace Modio
 			{
 				LocalState = std::make_shared<Impl>();
 
-				LocalState->UserDataBuffer =
-					std::make_unique<Modio::Detail::Buffer>(std::move(Modio::Detail::SDKSessionData::SerializeUserData()));
+				LocalState->UserDataBuffer = std::make_unique<Modio::Detail::Buffer>(
+					std::move(Modio::Detail::SDKSessionData::SerializeUserData()));
 				LocalState->UserDataFile = std::make_unique<Modio::Detail::File>(
-					Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().UserDataFolder() / "user.json",
+					Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().UserDataFolder() /
+						"user.json",
 					true);
-				
 			}
 			template<typename CoroType>
 			void operator()(CoroType& Self, Modio::ErrorCode ec = {})

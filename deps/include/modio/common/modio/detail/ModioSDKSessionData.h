@@ -1,8 +1,14 @@
 #pragma once
+
 #include "ModioGeneratedVariables.h"
+
+#include "modio/core/ModioCoreTypes.h"
 #include "modio/core/ModioModCollectionEntry.h"
-#include "modio/core/ModioStdTypes.h"
+#include "modio/detail/ModioAuthenticatedUser.h"
 #include "modio/detail/userdata/ModioUserDataContainer.h"
+#include "modio/detail/userdata/ModioUserProfile.h"
+
+#include <chrono>
 
 namespace Modio
 {
@@ -39,7 +45,7 @@ namespace Modio
 
 			MODIO_IMPL static ModCollection FilterSystemModCollectionByUserSubscriptions();
 			MODIO_IMPL static void InitializeForAuthenticatedUser(Modio::Detail::AuthenticatedUser AuthenticatedUser,
-													   Modio::Detail::OAuthToken AuthToken);
+																  Modio::Detail::OAuthToken AuthToken);
 			MODIO_IMPL static const Modio::Optional<Modio::Detail::OAuthToken> GetAuthenticationToken();
 
 			MODIO_IMPL static Modio::UserSubscriptionList& GetUserSubscriptions();
@@ -123,5 +129,5 @@ namespace Modio
 } // namespace Modio
 
 #ifndef MODIO_SEPARATE_COMPILATION
-#include "ModioSDKSessionData.ipp"
+	#include "ModioSDKSessionData.ipp"
 #endif
