@@ -64,10 +64,11 @@ namespace Modio
 
 			template<typename CompletionTokenType>
 			auto async_ExtractAllFiles(Modio::filesystem::path ArchiveFile, Modio::filesystem::path DestinationPath,
+									   Modio::Optional<std::weak_ptr<Modio::ModProgressInfo>> ProgressInfo,
 									   CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(Modio::ErrorCode, Modio::FileSize)>(
-					ExtractAllToFolder(ArchiveFile, DestinationPath), Token,
+					ExtractAllToFolder(ArchiveFile, DestinationPath, ProgressInfo), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 		} // namespace ComposedOps

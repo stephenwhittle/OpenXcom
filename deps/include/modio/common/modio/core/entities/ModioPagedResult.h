@@ -11,7 +11,7 @@ namespace Modio
 	/// </summary>
 	class PagedResult
 	{
-		friend static void from_json(const nlohmann::json& Json, Modio::PagedResult& PagedResult);
+		
 
 		std::int32_t PageIndex;
 		std::int32_t PageSize;
@@ -42,18 +42,20 @@ namespace Modio
 		{
 			return ResultCount;
 		}
+
+		friend void from_json(const nlohmann::json& Json, Modio::PagedResult& PagedResult)
+		{
+			Detail::ParseSafe(Json, PagedResult.ResultCount, "result_count");
+			Detail::ParseSafe(Json, PagedResult.PageSize, "result_limit");
+			Detail::ParseSafe(Json, PagedResult.TotalResultCount, "result_total");
+
+			// Convert offset to pages
+			int ResultOffset = 0;
+			Detail::ParseSafe(Json, ResultOffset, "result_offset");
+			PagedResult.PageIndex = std::floor(ResultOffset / (float) PagedResult.PageSize);
+			PagedResult.PageCount = std::ceil(PagedResult.TotalResultCount / (float) PagedResult.PageSize);
+		};
 	};
 
-	void from_json(const nlohmann::json& Json, Modio::PagedResult& PagedResult)
-	{
-		Detail::ParseSafe(Json, PagedResult.ResultCount, "result_count");
-		Detail::ParseSafe(Json, PagedResult.PageSize, "result_limit");
-		Detail::ParseSafe(Json, PagedResult.TotalResultCount, "result_total");
-
-		// Convert offset to pages
-		int ResultOffset = 0;
-		Detail::ParseSafe(Json, ResultOffset, "result_offset");
-		PagedResult.PageIndex = std::floor(ResultOffset / (float) PagedResult.PageSize);
-		PagedResult.PageCount = std::ceil(PagedResult.TotalResultCount / (float) PagedResult.PageSize);
-	}
+	
 } // namespace Modio

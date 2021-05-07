@@ -135,7 +135,7 @@ namespace Modio
 		template<typename DestinationType>
 		DestinationType TypedBufferRead(Modio::Detail::DynamicBuffer& BufferToRead, std::uintmax_t Offset)
 		{
-			Modio::Detail::DynamicBuffer::DynamicBufferSequence DesiredDataRange =
+			auto DesiredDataRange =
 				BufferToRead.data(Offset, sizeof(DestinationType));
 			DestinationType Destination;
 			Modio::MutableBufferView MBV(&Destination, sizeof(Destination));

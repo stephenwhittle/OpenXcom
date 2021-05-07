@@ -171,7 +171,7 @@ namespace Modio
 
 			std::error_code CreateFile(filesystem::path FilePath)
 			{
-				OpenFile(FilePath, true);
+				return OpenFile(FilePath, true);
 			}
 
 			std::error_code OpenFile(filesystem::path FilePath, bool bOverwrite = false)

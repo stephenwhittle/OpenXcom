@@ -1,9 +1,14 @@
 #pragma once
+
 #include "modio/compression/ModioCompressionService.h"
-#include "modio/core/ModioBuffer.h"
-#include "modio/detail/ops/compression/ParseArchiveContents.h"
+#include "modio/core/ModioCoreTypes.h"
+#include "modio/core/ModioStdTypes.h"
 #include "modio/detail/ops/compression/ExtractEntry.h"
+#include "modio/detail/ops/compression/ParseArchiveContents.h"
+
 #include <asio.hpp>
+#include <memory>
+#include <vector>
 
 namespace Modio
 {
@@ -64,10 +69,12 @@ namespace Modio
 
 			template<typename CompletionHandlerType>
 			auto async_ExtractEntry(ArchiveFileImplementation::ArchiveEntry Entry,
-									Modio::filesystem::path RootPathToExtractTo, CompletionHandlerType&& Handler)
+									Modio::filesystem::path RootPathToExtractTo,
+									Modio::Optional<std::weak_ptr<Modio::ModProgressInfo>> ProgressInfo,
+									CompletionHandlerType&& Handler)
 			{
 				return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(
-					ExtractEntry(get_implementation(), Entry, RootPathToExtractTo), Handler,
+					ExtractEntry(get_implementation(), Entry, RootPathToExtractTo, ProgressInfo), Handler,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 			Modio::FileSize GetTotalExtractedSize()
@@ -75,5 +82,5 @@ namespace Modio
 				return get_implementation()->TotalExtractedSize;
 			}
 		};
-	}
+	} // namespace Detail
 } // namespace Modio

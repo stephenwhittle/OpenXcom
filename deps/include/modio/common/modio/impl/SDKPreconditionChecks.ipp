@@ -1,5 +1,7 @@
 #pragma once
 
+#include "modio/core/ModioErrorCode.h"
+#include "modio/core/ModioInitializeOptions.h"
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioServices.h"
 #include "modio/detail/ModioSDKSessionData.h"

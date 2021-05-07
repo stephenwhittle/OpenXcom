@@ -2,6 +2,8 @@
 
 #include <system_error>
 
+#include "modio/core/ModioStdTypes.h" //For ErrorCode type alias
+
 namespace Modio
 {
 	enum class HttpError

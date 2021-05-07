@@ -7,7 +7,7 @@ namespace Modio
 	/// </summary>
 	/// <typeparam name="ContainerType"></typeparam>
 	/// <typeparam name="ValueType"></typeparam>
-	template<template<typename> typename ContainerType, typename ValueType>
+	template<template<typename...> typename ContainerType, typename ValueType>
 	class List
 	{
 	protected:

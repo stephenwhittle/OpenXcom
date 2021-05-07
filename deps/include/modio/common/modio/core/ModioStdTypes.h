@@ -1,13 +1,15 @@
 #pragma once
-//These are necessary because we're pulling in windows.h via ghc fileystem
+// These are necessary because we're pulling in windows.h via ghc fileystem
 #include "ModioGeneratedVariables.h"
 #include "modio/detail/ModioDefines.h"
 
+#include "ghc/filesystem.hpp"
 #include "tl/optional.hpp"
-#include <memory>
-#include <system_error>
+
 #include <chrono>
 #include <cstdint>
+#include <memory>
+#include <system_error>
 
 namespace asio
 {
@@ -29,6 +31,9 @@ namespace Modio
 	template<typename T>
 	using Optional = tl::optional<T>;
 
+	// Backport of std::filesystem to support C++14/C++11
+	namespace filesystem = ghc::filesystem;
+
 	using MutableBufferView = asio::mutable_buffer;
 	using ConstBufferView = asio::const_buffer;
 
@@ -44,22 +49,3 @@ namespace Modio
 	using Timestamp = std::uint64_t;
 	using GalleryIndex = int;
 } // namespace Modio
-
-#if defined(__cplusplus) && __cplusplus >= 201703L && defined(__has_include)
-	#if __has_include(<filesystem>)
-		#define MODIO_USE_STD_FS
-		#include <filesystem>
-namespace Modio
-{
-	namespace filesystem = std::filesystem;
-}
-	#endif
-#endif
-
-#ifndef MODIO_USE_STD_FS
-	#include "ghc/filesystem.hpp"
-namespace Modio
-{
-	namespace filesystem = ghc::filesystem;
-}
-#endif

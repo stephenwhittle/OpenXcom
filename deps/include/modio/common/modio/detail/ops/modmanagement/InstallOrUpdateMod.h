@@ -125,7 +125,8 @@ namespace Modio
 						return;
 					}
 
-					yield Modio::Detail::ComposedOps::async_ExtractAllFiles(DownloadPath, InstallPath, std::move(Self));
+					yield Modio::Detail::ComposedOps::async_ExtractAllFiles(DownloadPath, InstallPath, ModProgress,
+																			std::move(Self));
 
 					if (ec)
 					{

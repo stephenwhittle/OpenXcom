@@ -6,6 +6,8 @@
 #include "modio/detail/entities/ModioAvatar.h"
 #include "modio/detail/entities/ModioImage.h"
 #include "modio/detail/entities/ModioLogo.h"
+#include "modio/core/ModioLogger.h"
+#include "modio/core/ModioLogEnum.h"
 #include <asio.hpp>
 #include <iostream>
 #include <memory>

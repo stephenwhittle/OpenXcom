@@ -5,7 +5,7 @@
 #include "modio/core/ModioLogger.h"
 #include "modio/file/ModioFileService.h"
 #include "modio/file/ModioFile.h"
-#include <Shlobj.h>
+#include "modio/core/ModioErrorCode.h"
 #include <asio/yield.hpp>
 #include <memory>
 namespace Modio

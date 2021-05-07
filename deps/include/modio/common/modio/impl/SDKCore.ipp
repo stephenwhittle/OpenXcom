@@ -15,6 +15,8 @@
 #include "modio/userdata/ModioUserDataService.h"
 // Implementation header - do not include directly
 
+#include <functional>
+
 namespace Modio
 {
 	void InitializeAsync(Modio::InitializeOptions InitOptions, std::function<void(Modio::ErrorCode)> OnInitComplete)
@@ -49,8 +51,11 @@ namespace Modio
 		Modio::Detail::Services::GetGlobalService<Modio::Detail::LogService>().FlushLogBuffer();
 	}
 
-	//Forward declaration
+#ifndef MODIO_SEPARATE_COMPILATION
+	// Forward declaration
 	void DisableModManagement();
+#endif
+	
 
 	void Shutdown()
 	{

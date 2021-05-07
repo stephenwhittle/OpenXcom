@@ -31,8 +31,9 @@ namespace Modio
 				Modio::filesystem::path RootDirectoryToExtractTo;
 				Modio::Detail::DynamicBuffer FileData;
 				std::uintmax_t BytesProcessed;
-
 				Modio::Detail::File DestinationFile;
+				Modio::Optional<std::weak_ptr<Modio::ModProgressInfo>> ProgressInfo;
+
 				boost::beast::zlib::inflate_stream ZStream;
 				boost::beast::zlib::z_params ZState;
 				Modio::ErrorCode DeflateStatus;
@@ -45,12 +46,13 @@ namespace Modio
 		public:
 			ExtractEntry(std::shared_ptr<ArchiveFileImplementation> ArchiveFileImpl,
 						 ArchiveFileImplementation::ArchiveEntry EntryToExtract,
-						 Modio::filesystem::path RootDirectoryToExtractTo)
+						 Modio::filesystem::path RootDirectoryToExtractTo,
+						 Modio::Optional<std::weak_ptr<Modio::ModProgressInfo>> ProgressInfo)
 			{
 				Impl = Modio::MakeShared<ExtractEntryImpl>(
 					Modio::Detail::File(ArchiveFileImpl->FilePath, false), ArchiveFileImpl, EntryToExtract,
 					RootDirectoryToExtractTo, Modio::Detail::DynamicBuffer {}, 0u,
-					Modio::Detail::File(RootDirectoryToExtractTo / EntryToExtract.FilePath, true));
+					Modio::Detail::File(RootDirectoryToExtractTo / EntryToExtract.FilePath, true), ProgressInfo);
 			};
 
 			ExtractEntry(ExtractEntry&& Other)
@@ -114,6 +116,22 @@ namespace Modio
 								// Copy the required range out of the pre-allocated buffer
 								yield Impl->DestinationFile.async_Write(
 									Impl->DecompressedData->CopyRange(0, Impl->ZState.total_out), std::move(Self));
+
+								// Update progress on how much data we have written to disc
+								if (Impl->ProgressInfo.has_value())
+								{
+									if (!Impl->ProgressInfo->expired())
+									{
+										Impl->ProgressInfo->lock()->CurrentlyExtractedBytes +=
+											Modio::FileSize(Impl->ZState.total_out);
+									}
+									else
+									{
+										Self.complete(Modio::make_error_code(
+											Modio::ModManagementError::InstallOrUpdateCancelled));
+										return;
+									}
+								}
 							}
 						}
 						// take the first chunk out of the dynamic buffer so that we effectively consume those bytes

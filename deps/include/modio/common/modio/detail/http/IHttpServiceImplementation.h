@@ -7,6 +7,11 @@ namespace Modio
 		class IHttpServiceImplementation
 		{
 		public:
+			virtual ~IHttpServiceImplementation() {};
+
+			
+			virtual void Shutdown() = 0;
+
 		};
 	}
 }

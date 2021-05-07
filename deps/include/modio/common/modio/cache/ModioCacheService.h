@@ -1,8 +1,11 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
+#include "modio/core/ModioBuffer.h"
 #include <asio.hpp>
+#include <chrono>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 namespace Modio
 {
@@ -25,17 +28,23 @@ namespace Modio
 
 			MODIO_IMPL void AddToCache(std::string ResourceURL, class Modio::Detail::DynamicBuffer ResponseData);
 
-			MODIO_IMPL Modio::Optional<Modio::Detail::DynamicBuffer> FetchFromCache(std::string ResourceURL);
+			MODIO_IMPL Modio::Optional<Modio::Detail::DynamicBuffer> FetchFromCache(std::string ResourceURL) const;
 
 			MODIO_IMPL void ClearCache();
+
 		private:
+			struct CacheEntry
+			{
+				std::unique_ptr<asio::steady_timer> Timer;
+				Modio::Detail::DynamicBuffer Data;
+			};
+
 			struct Cache
 			{
-				std::unordered_map<std::uint32_t, Modio::Detail::DynamicBuffer> CacheEntries;
+				std::unordered_map<std::uint32_t, CacheEntry> CacheEntries;
 			};
 
 			std::shared_ptr<Cache> CacheInstance;
-			asio::steady_timer CacheExpiryTimer;
 			std::chrono::steady_clock::duration CacheExpiryTime = std::chrono::seconds(15);
 		};
 	} // namespace Detail

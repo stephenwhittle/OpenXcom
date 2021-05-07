@@ -1,9 +1,10 @@
 #pragma once
+#include "modio/core/ModioStdTypes.h"
+
+#include<asio.hpp>
 
 namespace Modio
 {
-	class filesystem::path;
-
 	namespace Detail
 	{
 		enum class SeekDirection
@@ -16,10 +17,20 @@ namespace Modio
 		class IFileObjectImplementation
 		{
 		public:
+			virtual ~IFileObjectImplementation() {};
+
+			virtual void SetFileStrand(asio::strand<asio::io_context::executor_type>& FileStrand) = 0;
+
+			virtual asio::strand<asio::io_context::executor_type>& GetFileStrand() = 0;
+
+			virtual std::error_code CreateFile(filesystem::path FilePath) = 0;
+
+			virtual std::error_code OpenFile(filesystem::path FilePath, bool bOverwrite = false) = 0;
+
 			/// @brief OS-specific file size calculation
 			/// @return Size of the underlying file
 			/// @todo {core} Should this return std::uintmax_t instead?
-			virtual std::size_t GetSize() = 0; 
+			virtual std::size_t GetSize() = 0;
 			/// @brief Retrieves file path
 			/// @return Path to the underlying file
 			virtual Modio::filesystem::path GetPath() = 0;
@@ -35,6 +46,7 @@ namespace Modio
 			/// @param Offset The position to read or write from
 			virtual void Seek(Modio::FileOffset Offset, Modio::Detail::SeekDirection Direction) = 0;
 
+			virtual void Destroy() = 0;
 		};
-	}
-}
+	} // namespace Detail
+} // namespace Modio
