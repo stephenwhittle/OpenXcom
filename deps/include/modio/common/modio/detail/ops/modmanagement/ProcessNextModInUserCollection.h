@@ -2,12 +2,12 @@
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioModCollectionEntry.h"
 #include "modio/core/ModioServices.h"
+#include "modio/detail/AsioWrapper.h"
 #include "modio/detail/ModioSDKSessionData.h"
+#include "modio/detail/ops/SaveModCollectionToStorage.h"
 #include "modio/detail/ops/modmanagement/InstallOrUpdateMod.h"
 #include "modio/detail/ops/modmanagement/UninstallMod.h"
-#include "modio/detail/ops/SaveModCollectionToStorage.h"
 #include "modio/userdata/ModioUserDataService.h"
-#include <asio.hpp>
 #include <asio/yield.hpp>
 namespace Modio
 {
@@ -25,7 +25,6 @@ namespace Modio
 			{
 				reenter(CoroutineState)
 				{
-
 					{
 						Modio::Detail::UserDataService& UserService =
 							Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>();
@@ -35,21 +34,25 @@ namespace Modio
 						{
 							if (ModEntry.second->GetModState() == Modio::ModState::UninstallPending)
 							{
-								EntryToProcess = ModEntry.second;
+								if (ModEntry.second->ShouldRetry())
+								{
+									EntryToProcess = ModEntry.second;
+								}
 							}
 						}
 
 						// If no pending uninstallations, check for this users installs or updates
 						if (!EntryToProcess)
 						{
-							Modio::ModCollection UserModCollection = Modio::Detail::SDKSessionData::FilterSystemModCollectionByUserSubscriptions();
+							Modio::ModCollection UserModCollection =
+								Modio::Detail::SDKSessionData::FilterSystemModCollectionByUserSubscriptions();
 							for (auto ModEntry : UserModCollection.Entries())
 							{
 								Modio::ModState CurrentState = ModEntry.second->GetModState();
 								if (CurrentState == Modio::ModState::InstallationPending ||
 									CurrentState == Modio::ModState::UpdatePending)
 								{
-									if (ModEntry.second->ShouldRetryInstallation())
+									if (ModEntry.second->ShouldRetry())
 									{
 										EntryToProcess = ModEntry.second;
 									}
@@ -67,19 +70,24 @@ namespace Modio
 					{
 						// Does this need to be a separate operation or could we provide a parameter to specify
 						// we only want to update if it's already installed or something?
-						yield Modio::Detail::async_InstallOrUpdateMod(EntryToProcess->GetID(), std::move(Self));
-						Modio::Detail::SDKSessionData::GetModManagementEventLog().AddEntry(
-								Modio::ModManagementEvent {EntryToProcess->GetID(), 
-								EntryToProcess->GetModState() == Modio::ModState::InstallationPending ? Modio::ModManagementEvent::EventType::Installed : Modio::ModManagementEvent::EventType::Updated,
-								ec
-								});
+						yield Modio::Detail::InstallOrUpdateModAsync(EntryToProcess->GetID(), std::move(Self));
+						Modio::Detail::SDKSessionData::GetModManagementEventLog().AddEntry(Modio::ModManagementEvent {
+							EntryToProcess->GetID(),
+							EntryToProcess->GetModState() == Modio::ModState::InstallationPending
+								? Modio::ModManagementEvent::EventType::Installed
+								: Modio::ModManagementEvent::EventType::Updated,
+							ec});
 						if (ec)
 						{
-							if (ec.category() != Modio::HttpErrorCategory() && ec != Modio::ModManagementError::InstallOrUpdateCancelled)
+							if (Modio::ErrorCodeMatches(ec, Modio::ErrorConditionTypes::NetworkError) &&
+								ec != Modio::ModManagementError::InstallOrUpdateCancelled)
 							{
 								EntryToProcess->MarkModNoRetry();
 							}
-							
+							if (Modio::ErrorCodeMatches(ec, Modio::ApiError::ExpiredOrRevokedAccessToken))
+							{
+								EntryToProcess->MarkModNoRetry();
+							}
 							Self.complete(ec);
 							return;
 						}
@@ -93,13 +101,15 @@ namespace Modio
 					}
 					else if (EntryToProcess->GetModState() == Modio::ModState::UninstallPending)
 					{
-						yield Modio::Detail::async_UninstallMod(EntryToProcess->GetID(), std::move(Self));
+						yield Modio::Detail::UninstallModAsync(EntryToProcess->GetID(), std::move(Self));
 						Modio::Detail::SDKSessionData::GetModManagementEventLog().AddEntry(Modio::ModManagementEvent {
-							EntryToProcess->GetID(),
-							Modio::ModManagementEvent::EventType::Uninstalled,
-							ec});
+							EntryToProcess->GetID(), Modio::ModManagementEvent::EventType::Uninstalled, ec});
 						if (ec)
 						{
+							if (Modio::ErrorCodeMatches(Modio::ErrorCode(0x91, std::system_category()),
+														Modio::ErrorConditionTypes::ModDeleteDeferredError))
+							{}
+							EntryToProcess->MarkModNoRetry();
 							Self.complete(ec);
 							return;
 						}
@@ -120,7 +130,7 @@ namespace Modio
 		};
 
 		template<typename ProcessNextCallback>
-		auto async_ProcessNextModInUserCollection(ProcessNextCallback&& OnProcessComplete)
+		auto ProcessNextModInUserCollectionAsync(ProcessNextCallback&& OnProcessComplete)
 		{
 			return asio::async_compose<ProcessNextCallback, void(Modio::ErrorCode)>(
 				ProcessNextModInUserCollection(), OnProcessComplete,

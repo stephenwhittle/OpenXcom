@@ -2,7 +2,7 @@
 #include "modio/core/ModioBuffer.h"
 #include "modio/core/ModioServices.h"
 #include "modio/file/ModioFileService.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {
@@ -73,39 +73,39 @@ namespace Modio
 			}
 
 			template<typename CompletionTokenType>
-			auto async_WriteSomeAt(std::uintmax_t Offset, Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
+			auto WriteSomeAtAsync(std::uintmax_t Offset, Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
 			{
-				return get_service().async_write_some_at(get_implementation(), Offset, std::move(Buffer),
+				return get_service().WriteSomeAtAsync(get_implementation(), Offset, std::move(Buffer),
 														 std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_ReadSomeAt(std::uintmax_t Offset, std::uintmax_t Length, CompletionTokenType&& Token)
+			auto ReadSomeAtAsync(std::uintmax_t Offset, std::uintmax_t Length, CompletionTokenType&& Token)
 			{
-				return get_service().async_read_some_at(get_implementation(), Offset, Length,
+				return get_service().ReadSomeAtAsync(get_implementation(), Offset, Length,
 														std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_ReadSomeAt(std::uintmax_t Offset, std::uintmax_t MaxBytesToRead,
+			auto ReadSomeAtAsync(std::uintmax_t Offset, std::uintmax_t MaxBytesToRead,
 								  Modio::Detail::DynamicBuffer Destination, CompletionTokenType&& Token)
 			{
-				return get_service().async_read_some_at(get_implementation(), Offset, MaxBytesToRead, Destination,
+				return get_service().ReadSomeAtAsync(get_implementation(), Offset, MaxBytesToRead, Destination,
 														std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_Read(std::uintmax_t MaxBytesToRead, Modio::Detail::DynamicBuffer Destination,
+			auto ReadAsync(std::uintmax_t MaxBytesToRead, Modio::Detail::DynamicBuffer Destination,
 							CompletionTokenType&& Token)
 			{
-				return get_service().async_read(get_implementation(), MaxBytesToRead, Destination,
+				return get_service().ReadAsync(get_implementation(), MaxBytesToRead, Destination,
 												std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_Write(Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
+			auto WriteAsync(Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
 			{
-				return get_service().async_write(get_implementation(), std::move(Buffer),
+				return get_service().WriteAsync(get_implementation(), std::move(Buffer),
 												 std::forward<CompletionTokenType>(std::move(Token)));
 			}
 		};

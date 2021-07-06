@@ -7,28 +7,37 @@
 #include "modio/core/ModioCoreTypes.h"
 #include "modio/core/ModioModCollectionEntry.h"
 #include "modio/core/ModioServices.h"
+#include "modio/detail/AsioWrapper.h"
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/ops/ModManagementLoop.h"
-#include "modio/detail/ops/SubscribeToMod.h"
+#include "modio/detail/ops/SubscribeToModOp.h"
 #include "modio/detail/ops/UnsubscribeFromMod.h"
-#include "modio/detail/ops/modmanagement/ForceUninstallMod.h"
-#include "modio/impl/SDKPreconditionChecks.ipp"
+#include "modio/detail/ops/modmanagement/ForceUninstallModOp.h"
+#include "modio/impl/SDKPreconditionChecks.h"
 #include "modio/userdata/ModioUserDataService.h"
-#include <asio.hpp>
 
 namespace Modio
 {
-	void EnableModManagement(std::function<void(Modio::ModManagementEvent)> Callback)
+	Modio::ErrorCode EnableModManagement(std::function<void(Modio::ModManagementEvent)> Callback)
 	{
+		if (!Modio::Detail::SDKSessionData::IsInitialized())
+		{
+			return Modio::make_error_code(Modio::GenericError::SDKNotInitialized);
+		}
+		if (Modio::Detail::SDKSessionData::IsModManagementEnabled())
+		{
+			return Modio::make_error_code(Modio::ModManagementError::ModManagementAlreadyEnabled);
+		}
 		Modio::Detail::SDKSessionData::SetUserModManagementCallback(Callback);
 		Modio::Detail::SDKSessionData::AllowModManagement();
-		Modio::Detail::async_BeginModManagementLoop([](Modio::ErrorCode ec) mutable {
+		Modio::Detail::BeginModManagementLoopAsync([](Modio::ErrorCode ec) mutable {
 			if (ec)
 			{
 				Modio::Detail::Logger().Log(LogLevel::Info, Modio::LogCategory::Core,
 											"Mod Management Loop halted: status message {}", ec.message());
 			}
 		});
+		return {};
 	}
 	void DisableModManagement()
 	{
@@ -55,8 +64,8 @@ namespace Modio
 
 		{
 			return asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-				Modio::Detail::SubscribeToMod(Modio::Detail::SDKSessionData::CurrentGameID(),
-											  Modio::Detail::SDKSessionData::CurrentAPIKey(), ModToSubscribeTo),
+				Modio::Detail::SubscribeToModOp(Modio::Detail::SDKSessionData::CurrentGameID(),
+												Modio::Detail::SDKSessionData::CurrentAPIKey(), ModToSubscribeTo),
 				OnSubscribeComplete, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}
@@ -161,7 +170,7 @@ namespace Modio
 			Modio::Detail::RequireUserNotSubscribed(ModToRemove, Callback))
 		{
 			asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-				Modio::Detail::ForceUninstallMod(ModToRemove), Callback,
+				Modio::Detail::ForceUninstallModOp(ModToRemove), Callback,
 				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}

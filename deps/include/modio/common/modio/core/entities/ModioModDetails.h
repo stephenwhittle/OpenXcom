@@ -1,10 +1,8 @@
 #pragma once
 
-#include "modio/core/entities/ModioPagedResult.h"
-#include "modio/core/entities/ModioList.h"
 #include "modio/core/entities/ModioFileMetadata.h"
-#include "modio/detail/ModioJsonHelpers.h"
-
+#include "modio/core/entities/ModioList.h"
+#include "modio/core/entities/ModioPagedResult.h"
 #include <vector>
 
 namespace Modio
@@ -16,10 +14,8 @@ namespace Modio
 		friend inline void from_json(const nlohmann::json& Json, Modio::ModDetails& ModDetails);
 	};
 
-	void from_json(const nlohmann::json& Json, Modio::ModDetails& ModDetails)
-	{
-		from_json(Json, static_cast<Modio::PagedResult&>(ModDetails));
+} // namespace Modio
 
-		Modio::Detail::ParseSafe(Json, ModDetails.InternalList, "data");
-	}
-}
+#ifndef MODIO_SEPARATE_COMPILATION
+	#include "ModioModDetails.ipp"
+#endif

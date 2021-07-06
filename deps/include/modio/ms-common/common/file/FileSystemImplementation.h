@@ -1,19 +1,20 @@
 // MIRRORED TO gdk/file/FileSystemImplementation.h, UPDATE THAT FILE IF THIS IS UPDATED
 #pragma once
-#include "common/detail/ops/file/DeleteFolder.h"
-#include "common/detail/ops/file/ReadSomeFromFile.h"
-#include "common/detail/ops/file/ReadSomeFromFileBuffered.h"
-#include "common/detail/ops/file/StreamRead.h"
-#include "common/detail/ops/file/StreamWrite.h"
-#include "common/detail/ops/file/WriteSomeToFile.h"
+#include "common/detail/ops/file/DeleteFolderOp.h"
+#include "common/detail/ops/file/ReadSomeFromFileBufferedOp.h"
+#include "common/detail/ops/file/ReadSomeFromFileOp.h"
+#include "common/detail/ops/file/StreamReadOp.h"
+#include "common/detail/ops/file/StreamWriteOp.h"
+#include "common/detail/ops/file/WriteSomeToFileOp.h"
 #include "common/file/FileObjectImplementation.h"
-#include "fmt/format.h"
+#include "modio/detail/FmtWrapper.h"
+#include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/entities/ModioAvatar.h"
 #include "modio/detail/entities/ModioImage.h"
 #include "modio/detail/entities/ModioLogo.h"
-#include "modio/detail/entities/ModioImage.h"
 #include "modio/detail/file/IFileObjectImplementation.h"
 #include "modio/detail/file/IFileServiceImplementation.h"
+#include "modio/file/ModioFileService.h"
 #include <memory>
 
 namespace Modio
@@ -85,8 +86,8 @@ namespace Modio
 			}
 
 			template<typename CompletionTokenType>
-			auto async_Initialize(PlatformUserHandleType NewUserHandle, Modio::GameID GameID,
-								  CompletionTokenType&& Token)
+			auto InitializeAsync(PlatformUserHandleType NewUserHandle, Modio::GameID GameID,
+								 CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(std::error_code)>(
 					static_cast<Subplatform*>(this)->MakeInitializeStorageOp(
@@ -95,56 +96,56 @@ namespace Modio
 			}
 
 			template<typename CompletionTokenType>
-			auto async_write_some_at(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t Offset,
-									 Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
+			auto WriteSomeAtAsync(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t Offset,
+								  Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(std::error_code)>(
-					WriteSomeToFile(PlatformIOObjectInstance, Offset, std::move(Buffer)), Token,
+					WriteSomeToFileOp(PlatformIOObjectInstance, Offset, std::move(Buffer)), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionTokenType>
-			auto async_read_some_at(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t Offset,
-									std::uintmax_t Length, CompletionTokenType&& Token)
+			auto ReadSomeAtAsync(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t Offset,
+								 std::uintmax_t Length, CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType,
 										   void(std::error_code, Modio::Optional<Modio::Detail::Buffer>)>(
-					ReadSomeFromFile(PlatformIOObjectInstance, Offset, Length), Token,
+					ReadSomeFromFileOp(PlatformIOObjectInstance, Offset, Length), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionTokenType>
-			auto async_read_some_at(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t Offset,
-									std::uintmax_t MaxBytesToRead, Modio::Detail::DynamicBuffer Destination,
-									CompletionTokenType&& Token)
+			auto ReadSomeAtAsync(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t Offset,
+								 std::uintmax_t MaxBytesToRead, Modio::Detail::DynamicBuffer Destination,
+								 CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(std::error_code)>(
-					ReadSomeFromFileBuffered(PlatformIOObjectInstance, Modio::FileOffset(Offset), MaxBytesToRead,
-											 Destination),
+					ReadSomeFromFileBufferedOp(PlatformIOObjectInstance, Modio::FileOffset(Offset), MaxBytesToRead,
+											   Destination),
 					Token, Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionTokenType>
-			auto async_read(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t MaxBytesToRead,
-							Modio::Detail::DynamicBuffer Destination, CompletionTokenType&& Token)
+			auto ReadAsync(IOObjectImplementationType PlatformIOObjectInstance, std::uintmax_t MaxBytesToRead,
+						   Modio::Detail::DynamicBuffer Destination, CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(std::error_code)>(
-					ReadSomeFromFileBuffered(PlatformIOObjectInstance, PlatformIOObjectInstance->Tell(), MaxBytesToRead,
-											 Destination),
+					ReadSomeFromFileBufferedOp(PlatformIOObjectInstance, PlatformIOObjectInstance->Tell(),
+											   MaxBytesToRead, Destination),
 					Token, Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionTokenType>
-			auto async_write(IOObjectImplementationType PlatformIOObjectInstance, Modio::Detail::Buffer Buffer,
-							 CompletionTokenType&& Token)
+			auto WriteAsync(IOObjectImplementationType PlatformIOObjectInstance, Modio::Detail::Buffer Buffer,
+							CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(std::error_code)>(
-					StreamWrite(PlatformIOObjectInstance, std::move(Buffer)), Token,
+					StreamWriteOp(PlatformIOObjectInstance, std::move(Buffer)), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionTokenType>
-			auto async_DeleteFolder(Modio::filesystem::path FolderPath, CompletionTokenType&& Token)
+			auto DeleteFolderAsync(Modio::filesystem::path FolderPath, CompletionTokenType&& Token)
 			{
 				return asio::async_compose<CompletionTokenType, void(std::error_code)>(
 					DeleteFolderOp(FolderPath), Token, Modio::Detail::Services::GetGlobalContext().get_executor());
@@ -279,9 +280,14 @@ namespace Modio
 
 			virtual const Modio::filesystem::path& LocalMetadataFolder() const override
 			{
-				// Adding emptry string at end forces metadata to be treated as a directory
-				static const Modio::filesystem::path MetadataFolder = RootLocalStoragePath / "metadata" / "";
-				return MetadataFolder;
+				static const Modio::filesystem::path MetadataPath =
+					Modio::Detail::SDKSessionData::GetLastUsedModDirectory().value_or(
+						Modio::filesystem::path(RootLocalStoragePath) / "metadata" / "");
+
+				/*static const Modio::filesystem::path MetadataPath =
+					Modio::filesystem::path(RootLocalStoragePath) / "metadata" / "";*/
+
+				return MetadataPath;
 			}
 
 			const Modio::filesystem::path& GetRootLocalStoragePath() const override

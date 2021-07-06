@@ -1,10 +1,10 @@
 #pragma once
 
-#include "modio/core/ModioStdTypes.h"
 #include "modio/core/ModioErrorCode.h"
-#include <asio.hpp>
-#include <memory>
+#include "modio/core/ModioStdTypes.h"
+#include "modio/detail/AsioWrapper.h"
 #include <atomic>
+#include <memory>
 
 namespace Modio
 {
@@ -12,13 +12,15 @@ namespace Modio
 	{
 		class OperationQueue : public std::enable_shared_from_this<OperationQueue>
 		{
-			std::atomic<bool> OperationInProgress = false;
-			std::atomic<std::int32_t> NumWaiters = 0;
+			std::atomic<bool> OperationInProgress;
+			std::atomic<std::int32_t> NumWaiters;
 			asio::steady_timer QueueImpl;
 
 		public:
 			OperationQueue(asio::io_context& OwningContext)
-				: QueueImpl(OwningContext, std::chrono::steady_clock::time_point::max())
+				: OperationInProgress(false),
+				  NumWaiters(0) ,
+				  QueueImpl(OwningContext, std::chrono::steady_clock::time_point::max())
 			{}
 			OperationQueue(const OperationQueue& Other) = delete;
 
@@ -30,7 +32,8 @@ namespace Modio
 					bool OperationQueued = false;
 
 				public:
-					TicketImpl(std::weak_ptr<Modio::Detail::OperationQueue> AssociatedQueue) : AssociatedQueue(AssociatedQueue)
+					TicketImpl(std::weak_ptr<Modio::Detail::OperationQueue> AssociatedQueue)
+						: AssociatedQueue(AssociatedQueue)
 					{}
 				};
 
@@ -64,7 +67,7 @@ namespace Modio
 				}
 
 				template<typename OperationType>
-				auto async_WaitForTurn(OperationType&& Operation)
+				auto WaitForTurnAsync(OperationType&& Operation)
 				{
 					std::shared_ptr<Modio::Detail::OperationQueue> AssociatedQueue = Impl->AssociatedQueue.lock();
 					if (AssociatedQueue == nullptr)

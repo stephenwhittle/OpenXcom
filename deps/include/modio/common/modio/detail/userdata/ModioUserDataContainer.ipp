@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-	#include "ModioUserDataContainer.h"
+	#include "modio/detail/userdata/ModioUserDataContainer.h"
 #endif
 
 namespace Modio

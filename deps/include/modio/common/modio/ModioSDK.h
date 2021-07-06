@@ -4,14 +4,15 @@
 
 #include "modio/detail/ModioDefines.h"
 
-#include "modio/core/ModioInitializeOptions.h"
+#include "core/entities/ModioTerms.h"
 #include "modio/core/ModioFilterParams.h"
+#include "modio/core/ModioInitializeOptions.h"
 #include "modio/core/ModioModCollectionEntry.h"
 #include "modio/core/ModioStdTypes.h"
 #include "modio/core/entities/ModioModDetails.h"
+#include "modio/core/entities/ModioModInfoList.h"
 #include "modio/core/entities/ModioModTagOptions.h"
 #include "modio/core/entities/ModioUser.h"
-#include "modio/core/entities/ModioModInfoList.h"
 #include "modio/detail/ModioLibraryConfigurationHelpers.h"
 
 namespace Modio
@@ -21,35 +22,35 @@ namespace Modio
 	/// set of mods the specified user has installed on this device
 	/// @param InitOptions Parameters to the function packed as a struct where all members needs to be initialized for
 	/// the call to succeed
-	MODIO_API void InitializeAsync(Modio::InitializeOptions InitOptions,
+	/// @errorcategory NetworkError|Couldn't connect to the mod.io servers
+	/// @errorcategory FilesystemError|Couldn't create the user data or common data folders
+	/// @errorcategory ConfigurationError|InitOptions contains an invalid value - inspect ec.value() to determine what was incorrect
+	/// @error GenericError::SDKAlreadyInitialized|SDK already initialized
+	MODIOSDK_API void InitializeAsync(Modio::InitializeOptions InitOptions,
 								   std::function<void(Modio::ErrorCode)> OnInitComplete);
 
 	/// @docpublic
 	/// @brief Sets the global logging level - messages with a log level below the specified value will not be displayed
 	/// @param Level Value indicating which priority of messages should be included in the log output
-	/// @return
-	MODIO_API void SetLogLevel(Modio::LogLevel Level);
+	MODIOSDK_API void SetLogLevel(Modio::LogLevel Level);
 
 	/// @docpublic
 	/// @brief Provide a callback to handle log messages emitted by the SDK.
 	/// @param LogCallback Callback invoked by the SDK during xref:Modio::RunPendingHandlers[] for each log emitted
 	/// during that invocation
-	/// @return
-	MODIO_API void SetLogCallback(std::function<void(Modio::LogLevel, const std::string&)> LogCallback);
+	MODIOSDK_API void SetLogCallback(std::function<void(Modio::LogLevel, const std::string&)> LogCallback);
 
 	/// @docpublic
 	/// @brief Runs any pending SDK work on the calling thread, including invoking any callbacks passed to asynchronous
 	/// operations.
 	/// NOTE: This should be called while xref:InitializeAsync[] and xref:Modio::Shutdown[] are running,
 	/// as they both utilize the internal event loop for functionality.
-	/// @return
-	MODIO_API void RunPendingHandlers();
+	MODIOSDK_API void RunPendingHandlers();
 
 	/// @docpublic
 	/// @brief Cancels any running internal operations, frees SDK resources, and invokes any pending callbacks with
 	/// Modio::GenericError::OperationCanceled . This function will block while the deinitialization occurs.
-	/// @return
-	MODIO_API void Shutdown();
+	MODIOSDK_API void Shutdown();
 
 	/// @docpublic
 	/// @brief Cancels any running internal operations and invokes any pending callbacks with
@@ -57,7 +58,8 @@ namespace Modio
 	/// Modio::RunPendingHandlers until the callback you provide to this function is invoked.
 	/// @param OnShutdownComplete
 	/// @requires initialized-sdk
-	MODIO_API void ShutdownAsync(std::function<void(Modio::ErrorCode)> OnShutdownComplete);
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	MODIOSDK_API void ShutdownAsync(std::function<void(Modio::ErrorCode)> OnShutdownComplete);
 
 	/// @docpublic
 	/// @brief Sends a request to the Mod.io server to add the specified mod to the user's list of subscriptions, and
@@ -67,7 +69,11 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires authenticated-user
 	/// @requires no-rate-limiting
-	MODIO_API void SubscribeToModAsync(Modio::ModID ModToSubscribeTo,
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @errorcategory EntityNotFoundError|Specified mod does not exist or was deleted
+	/// @error UserDataError::InvalidUser|No authenticated user
+	MODIOSDK_API void SubscribeToModAsync(Modio::ModID ModToSubscribeTo,
 									   std::function<void(Modio::ErrorCode)> OnSubscribeComplete);
 
 	/// @docpublic
@@ -79,7 +85,11 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires authenticated-user
 	/// @requires no-rate-limiting
-	MODIO_API void UnsubscribeFromModAsync(Modio::ModID ModToUnsubscribeFrom,
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @errorcategory EntityNotFoundError|Specified mod does not exist or was deleted
+	/// @error UserDataError::InvalidUser|No authenticated user
+	MODIOSDK_API void UnsubscribeFromModAsync(Modio::ModID ModToUnsubscribeFrom,
 										   std::function<void(Modio::ErrorCode)> OnUnsubscribeComplete);
 
 	/// @docpublic
@@ -93,36 +103,43 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires authenticated-user
 	/// @requires no-rate-limiting
-	MODIO_API void FetchExternalUpdatesAsync(std::function<void(Modio::ErrorCode)> OnFetchDone);
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserDataError::InvalidUser|No authenticated user
+	MODIOSDK_API void FetchExternalUpdatesAsync(std::function<void(Modio::ErrorCode)> OnFetchDone);
 
 	/// @docpublic
 	/// @brief Enables the automatic management of installed mods on the system based on the user's subscriptions.
+	/// Does nothing if mod management is currently enabled.
 	/// @param Callback This callback handler will be invoked with a ModManagementEvent for each mod operation performed
 	/// by the SDK
-	MODIO_API void EnableModManagement(std::function<void(Modio::ModManagementEvent)> Callback);
+	/// @return Modio::ErrorCode indicating if mod management was enabled successfully
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error ModManagementError::ModManagementAlreadyEnabled|Mod management was already enabled. The mod management callback has not been changed
+	MODIOSDK_API Modio::ErrorCode EnableModManagement(std::function<void(Modio::ModManagementEvent)> Callback);
 
 	/// @docpublic
 	/// @brief Disables automatic installation or uninstallation of mods based on the user's subscriptions. Allows
 	/// currently processing installation to complete; will cancel any pending operations when called.
-	MODIO_API void DisableModManagement();
+	MODIOSDK_API void DisableModManagement();
 
 	/// @docpublic
 	/// @brief Checks if the automatic management process is currently installing or removing mods
 	/// @return True if automatic management is currently performing an operation
-	MODIO_API bool IsModManagementBusy();
+	MODIOSDK_API bool IsModManagementBusy();
 
 	/// @docpublic
 	/// @brief Provides progress information for a mod installation or update operation if one is currently in progress.
 	/// @return Optional ModProgressInfo object containing information regarding the progress of the installation
 	/// operation.
-	MODIO_API Modio::Optional<Modio::ModProgressInfo> QueryCurrentModUpdate();
+	MODIOSDK_API Modio::Optional<Modio::ModProgressInfo> QueryCurrentModUpdate();
 
 	/// @docpublic
 	/// @brief Fetches the local view of the user's subscribed mods, including mods that are subscribed but not yet
 	/// installed
 	/// @return std::map using Mod IDs as keys and ModCollectionEntry objects providing information about the subscribed
 	/// mods
-	MODIO_API std::map<Modio::ModID, Modio::ModCollectionEntry> QueryUserSubscriptions();
+	MODIOSDK_API std::map<Modio::ModID, Modio::ModCollectionEntry> QueryUserSubscriptions();
 
 	/// @docpublic
 	/// @brief Fetches the subset of the user's subscribed mods that are installed and therefore ready for loading
@@ -130,14 +147,14 @@ namespace Modio
 	/// that has not yet been installed
 	/// @return std::map using Mod IDs as keys and ModCollectionEntry objects providing information about the subscribed
 	/// mods
-	MODIO_API std::map<Modio::ModID, Modio::ModCollectionEntry> QueryUserInstallations(bool bIncludeOutdatedMods);
+	MODIOSDK_API std::map<Modio::ModID, Modio::ModCollectionEntry> QueryUserInstallations(bool bIncludeOutdatedMods);
 
 	/// @docpublic
 	/// @brief Fetches all mods installed on the system such that a consuming application can present the information in
 	/// a UI in order to free up space by uninstalling mods
 	/// @return std::map using Mod IDs as keys and ModCollectionEntry objects providing information about mods installed
 	/// on the system regardless of which user installed them
-	MODIO_API std::map<Modio::ModID, Modio::ModCollectionEntry> QuerySystemInstallations();
+	MODIOSDK_API std::map<Modio::ModID, Modio::ModCollectionEntry> QuerySystemInstallations();
 
 	/// @docpublic
 	/// @brief Forcibly uninstalls a mod from the system. This is intended for use when a host application requires more
@@ -146,13 +163,16 @@ namespace Modio
 	/// xref:UnsubscribeFromModAsync[].
 	/// @param Callback Callback invoked when the uninstallation is successful, or if it failed because the current user
 	/// remains subscribed.
-	MODIO_API void ForceUninstallModAsync(Modio::ModID ModToRemove, std::function<void(Modio::ErrorCode)> Callback);
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserDataError::InvalidUser|No authenticated user
+	/// @error ModManagementError::AlreadySubscribed|User is still subscribed to the specified mod
+	MODIOSDK_API void ForceUninstallModAsync(Modio::ModID ModToRemove, std::function<void(Modio::ErrorCode)> Callback);
 
 	/// @docpublic
 	/// @brief Fetches the currently authenticated Mod.io user profile if there is one associated with the current
 	/// platform user
 	/// @return Optional Modio::User object containing profile information
-	MODIO_API Modio::Optional<Modio::User> QueryUserProfile();
+	MODIOSDK_API Modio::Optional<Modio::User> QueryUserProfile();
 
 	/// @docpublic
 	/// @brief Uses platform-specific authentication to associate a Mod.io user account with the current platform user
@@ -161,9 +181,25 @@ namespace Modio
 	/// @param Callback Callback invoked once the authentication request has been made
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void AuthenticateUserExternalAsync(Modio::AuthenticationParams User,
+	/// @requires no-authenticated-user
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserAuthError::AlreadyAuthenticated|Authenticated user already signed-in. Call ClearUserDataAsync to de-authenticate the old user, then Shutdown() and reinitialize the SDK first. 
+	MODIOSDK_API void AuthenticateUserExternalAsync(Modio::AuthenticationParams User,
 												 Modio::AuthenticationProvider Provider,
 												 std::function<void(Modio::ErrorCode)> Callback);
+
+	/// @docpublic
+	/// @brief This function retrieves the information required for a game to display the mod.io terms of use to a player
+	/// who wishes to create a mod.io account
+	/// @param Provider The provider to use to perform the authentication
+	/// @param Locale The language to display the terms of use in
+	/// @param Callback Callback invoked with the terms of use data once retrieved from the server
+	/// @requires initialized-sdk
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	MODIOSDK_API void GetTermsOfUseAsync(Modio::AuthenticationProvider Provider, Modio::Language Locale,
+								 std::function<void(Modio::ErrorCode, Modio::Optional<Modio::Terms> Terms)> Callback);
 
 	/// @docpublic
 	/// @brief Provides a list of mods for the current game, that match the parameters specified in the filter
@@ -171,7 +207,9 @@ namespace Modio
 	/// @param Callback Callback invoked with a status code and an optional ModInfoList providing mod profiles
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void ListAllModsAsync(
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	MODIOSDK_API void ListAllModsAsync(
 		Modio::FilterParams Filter,
 		std::function<void(Modio::ErrorCode, Modio::Optional<Modio::ModInfoList>)> Callback);
 
@@ -183,7 +221,10 @@ namespace Modio
 	/// information
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void GetModInfoAsync(Modio::ModID ModId,
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @errorcategory EntityNotFoundError|Specified mod does not exist or was deleted
+	MODIOSDK_API void GetModInfoAsync(Modio::ModID ModId,
 								   std::function<void(Modio::ErrorCode, Modio::Optional<Modio::ModInfo>)> Callback);
 
 	/// @docpublic
@@ -194,7 +235,11 @@ namespace Modio
 	/// downloaded image
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void GetModMediaAsync(
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @errorcategory EntityNotFoundError|Specified mod media does not exist or was deleted
+	/// @error FilesystemError::InsufficientSpace|Not enough space for the file
+	MODIOSDK_API void GetModMediaAsync(
 		Modio::ModID ModId, Modio::LogoSize LogoSize,
 		std::function<void(Modio::ErrorCode, Modio::Optional<Modio::filesystem::path>)> Callback);
 
@@ -207,7 +252,11 @@ namespace Modio
 	/// @param Callback Callback containing a status code and an Optional containing a path to the image file on disk
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void GetModMediaAsync(
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @errorcategory EntityNotFoundError|Specified mod media does not exist or was deleted
+	/// @error FilesystemError::InsufficientSpace|Not enough space for the file
+	MODIOSDK_API void GetModMediaAsync(
 		Modio::ModID ModId, Modio::GallerySize GallerySize, Modio::GalleryIndex Index,
 		std::function<void(Modio::ErrorCode, Modio::Optional<Modio::filesystem::path>)> Callback);
 
@@ -220,14 +269,18 @@ namespace Modio
 	/// downloaded image
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void GetModMediaAsync(
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @errorcategory EntityNotFoundError|Specified mod media does not exist or was deleted
+	/// @error FilesystemError::InsufficientSpace|Not enough space for the file
+	MODIOSDK_API void GetModMediaAsync(
 		Modio::ModID ModId, Modio::AvatarSize AvatarSize,
 		std::function<void(Modio::ErrorCode, Modio::Optional<Modio::filesystem::path>)> Callback);
 
 	/// @docpublic
 	/// @brief Clears the internal HTTP cache
 	/// @requires initialized-sdk
-	MODIO_API void ClearCache();
+	MODIOSDK_API void ClearCache();
 
 	/// @docpublic
 	/// @brief Fetches the available tags used on mods for the current game. These tags can them be used in conjunction
@@ -236,7 +289,9 @@ namespace Modio
 	/// tags
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
-	MODIO_API void GetModTagOptionsAsync(
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	MODIOSDK_API void GetModTagOptionsAsync(
 		std::function<void(Modio::ErrorCode, Modio::Optional<Modio::ModTagOptions>)> Callback);
 
 	/// @docpublic
@@ -247,7 +302,11 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
 	/// @requires no-authenticated-user
-	MODIO_API void RequestEmailAuthCodeAsync(Modio::EmailAddress EmailAddress,
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserAuthError::AlreadyAuthenticated|Authenticated user already signed-in. Call ClearUserDataAsync to
+	/// de-authenticate the old user, then Shutdown() and reinitialize the SDK first.
+	MODIOSDK_API void RequestEmailAuthCodeAsync(Modio::EmailAddress EmailAddress,
 											 std::function<void(Modio::ErrorCode)> Callback);
 
 	/// @docpublic
@@ -258,7 +317,11 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
 	/// @requires no-authenticated-user
-	MODIO_API void AuthenticateUserEmailAsync(Modio::EmailAuthCode AuthenticationCode,
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserAuthError::AlreadyAuthenticated|Authenticated user already signed-in. Call ClearUserDataAsync to
+	/// de-authenticate the old user, then Shutdown() and reinitialize the SDK first.
+	MODIOSDK_API void AuthenticateUserEmailAsync(Modio::EmailAuthCode AuthenticationCode,
 											  std::function<void(Modio::ErrorCode)> Callback);
 
 	/// @docpublic
@@ -270,7 +333,10 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
 	/// @requires authenticated-user
-	MODIO_API void ClearUserDataAsync(std::function<void(Modio::ErrorCode)> Callback);
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserDataError::InvalidUser|No authenticated user
+	MODIOSDK_API void ClearUserDataAsync(std::function<void(Modio::ErrorCode)> Callback);
 
 	/// @docpublic
 	/// @brief Downloads the avatar of the currently authenticated user. Will only perform a download if there is no
@@ -280,14 +346,16 @@ namespace Modio
 	/// @requires initialized-sdk
 	/// @requires no-rate-limiting
 	/// @requires authenticated-user
-	MODIO_API void GetUserMediaAsync(
+	/// @errorcategory NetworkError|Couldn't connect to mod.io servers
+	/// @error GenericError::SDKNotInitialized|SDK not initialized
+	/// @error UserDataError::InvalidUser|No authenticated user
+	MODIOSDK_API void GetUserMediaAsync(
 		Modio::AvatarSize AvatarSize,
 		std::function<void(Modio::ErrorCode, Modio::Optional<Modio::filesystem::path>)> Callback);
 
 } // namespace Modio
 
 // Implementation headers
-
 
 #ifndef MODIO_SEPARATE_COMPILATION
 	#include "modio/impl/SDKCore.ipp"

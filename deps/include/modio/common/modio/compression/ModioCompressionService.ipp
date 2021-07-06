@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION 
-#include "ModioCompressionService.h"
+#include "modio/compression/ModioCompressionService.h"
 #endif
 
 

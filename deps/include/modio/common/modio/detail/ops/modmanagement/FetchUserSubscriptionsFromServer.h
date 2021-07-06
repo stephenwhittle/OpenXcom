@@ -2,16 +2,18 @@
 #include "modio/core/ModioBuffer.h"
 #include "modio/core/entities/ModioModInfoList.h"
 #include "modio/core/entities/ModioPagedResult.h"
+#include "modio/detail/AsioWrapper.h"
 #include "modio/detail/CoreOps.h"
+#include "modio/detail/FmtWrapper.h"
 #include "modio/detail/ModioJsonHelpers.h"
-#include <asio.hpp>
-#include <asio/yield.hpp>
-#include <fmt/format.h>
+
+
 namespace Modio
 {
 	namespace Detail
 	{
-		class FetchUserSubscriptionsFromServer
+	#include <asio/yield.hpp>
+		class FetchUserSubscriptionsFromServerOp
 		{
 		public:
 			template<typename CoroType>
@@ -24,10 +26,11 @@ namespace Modio
 						// Because we're making a raw request here, manually add the filter to paginate 100 results at a
 						// time We're going to gather all the results together at the end of this anyways so the biggest
 						// pages give the best results because it means fewer REST calls
-						yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
+						yield Modio::Detail::ComposedOps::PerformRequestAndGetResponseAsync(
 							SubscriptionBuffer,
 							Modio::Detail::GetUserSubscriptionsRequest.SetFilterString(
-								fmt::format("_limit=100&_offset={}&game_id={}", CurrentResultIndex, Modio::Detail::SDKSessionData::CurrentGameID())),
+								fmt::format("_limit=100&_offset={}&game_id={}", CurrentResultIndex,
+											Modio::Detail::SDKSessionData::CurrentGameID())),
 							Modio::Detail::CachedResponse::Allow, std::move(Self));
 						if (ec)
 						{
@@ -44,7 +47,7 @@ namespace Modio
 						CollatedResults->Append(CurrentModInfoPage);
 						CurrentResultIndex += 100;
 					} while (CurrentResultIndex < PageInfo.GetTotalResultCount());
-					
+
 					Self.complete({}, *(CollatedResults.release()));
 				}
 			}
@@ -56,14 +59,16 @@ namespace Modio
 			std::unique_ptr<Modio::ModInfoList> CollatedResults;
 			std::int32_t CurrentResultIndex = 0;
 		};
+		#include <asio/unyield.hpp>
 
 		template<typename FetchCompleteCallback>
-		auto async_FetchUserSubscriptionsFromServer(FetchCompleteCallback&& OnFetchComplete)
+		auto FetchUserSubscriptionsFromServerAsync(FetchCompleteCallback&& OnFetchComplete)
 		{
-			return asio::async_compose<FetchCompleteCallback, void(Modio::ErrorCode, Modio::Optional<Modio::ModInfoList>)>(
-				FetchUserSubscriptionsFromServer(), OnFetchComplete,
+			return asio::async_compose<FetchCompleteCallback,
+									   void(Modio::ErrorCode, Modio::Optional<Modio::ModInfoList>)>(
+				FetchUserSubscriptionsFromServerOp(), OnFetchComplete,
 				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
+
 	} // namespace Detail
 } // namespace Modio
-#include <asio/unyield.hpp>

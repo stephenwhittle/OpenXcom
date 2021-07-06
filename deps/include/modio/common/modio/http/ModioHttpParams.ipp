@@ -1,7 +1,7 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-	#include "ModioHttpParams.h"
+	#include "modio/http/ModioHttpParams.h"
 #endif
-
+#include "modio/detail/FmtWrapper.h"
 #include "modio/detail/ModioSDKSessionData.h"
 
 namespace Modio
@@ -34,6 +34,19 @@ namespace Modio
 			return NewParamsInstance;
 		}
 
+		Modio::Detail::HttpRequestParams HttpRequestParams::SetLocale(Modio::Language Locale) const
+		{
+			auto NewParamsInstance = HttpRequestParams(*this);
+			NewParamsInstance.OverrideLocale = Locale;
+			return NewParamsInstance;
+		}
+
+		Modio::Detail::HttpRequestParams& HttpRequestParams::SetLocale(Modio::Language Locale)
+		{
+			OverrideLocale = Locale;
+			return *this;
+		}
+
 		Modio::Detail::HttpRequestParams& HttpRequestParams::SetFilterString(const std::string& InFilterString)
 		{
 			// If there was a provided filter string, append on & to ensure that we can append on the API key
@@ -58,7 +71,7 @@ namespace Modio
 			auto NewParamsInstance = HttpRequestParams(*this);
 			if (NewParamsInstance.Payload.has_value())
 			{
-				*NewParamsInstance.Payload += Key + "=" + Value;
+				*NewParamsInstance.Payload += "&" + Key + "=" + Value;
 			}
 			else
 			{
@@ -182,6 +195,10 @@ namespace Modio
 				Headers.push_back({"Range", fmt::format("bytes={}-{}", StartOffset ? StartOffset.value() : 0,
 														EndOffset ? fmt::format("{}", EndOffset.value()) : "")});
 			}
+			if (OverrideLocale)
+			{
+				Headers.push_back({"Accept-Language", Modio::Detail::ToString(*OverrideLocale)});
+			}
 			// @todo: Set Content-Type: multipart/form-data for binary payload
 			return Headers;
 		}
@@ -196,7 +213,35 @@ namespace Modio
 			  CurrentAPIVersion(Modio::Detail::APIVersion::V1)
 		{}
 
-		
+		Modio::Detail::Buffer HttpRequestParams::GetRequestBuffer(bool bPerformURLEncoding) const
+		{
+			std::string HeaderString = fmt::format("{0} {1} HTTP/1.1\r\n", GetVerb(), GetFormattedResourcePath());
+			HeaderString += fmt::format("Host: {0}\r\n", GetServerAddress());
+			for (auto& CurrentHeader : GetHeaders())
+			{
+				HeaderString += fmt::format("{0}: {1}\r\n", CurrentHeader.first, CurrentHeader.second);
+			}
+			auto CurrentPayloadString = GetPayload();
+			if (CurrentPayloadString.has_value())
+			{
+				if (bPerformURLEncoding)
+				{
+					std::string EncodedPayload = Modio::Detail::String::URLEncode(CurrentPayloadString.value());
+					HeaderString += fmt::format("content-length: {0}\r\n", EncodedPayload.size());
+					HeaderString += fmt::format("\r\n{0}\r\n", EncodedPayload);
+				}
+				else
+
+				{
+					HeaderString += fmt::format("content-length: {0}\r\n", CurrentPayloadString->length());
+					HeaderString += fmt::format("\r\n{0}\r\n", CurrentPayloadString.value());
+				}
+			}
+			Modio::Detail::Buffer HeaderBuffer(HeaderString.length());
+			// Use HeaderBuffer size as param for copy to prevent ever having an overrun
+			std::copy(HeaderString.begin(), HeaderString.begin() + HeaderBuffer.GetSize(), HeaderBuffer.begin());
+			return HeaderBuffer;
+		}
 
 		Modio::Optional<Modio::Detail::HttpRequestParams> HttpRequestParams::FileDownload(std::string URL)
 		{
@@ -207,6 +252,23 @@ namespace Modio
 				if (MatchInfo.size() == 4)
 				{
 					return HttpRequestParams(MatchInfo[2].str(), MatchInfo[3].str());
+				}
+			}
+			return {};
+		}
+		Modio::Optional<Modio::Detail::HttpRequestParams> HttpRequestParams::RedirectURL(std::string URL) const
+		{
+			std::regex URLPattern("(https:\\/\\/)?(.*\\.io)(.+)$", std::regex::icase);
+			std::smatch MatchInfo;
+			if (std::regex_search(URL, MatchInfo, URLPattern))
+			{
+				if (MatchInfo.size() == 4)
+				{
+					auto NewParamsInstance = HttpRequestParams(*this);
+					NewParamsInstance.bFileDownload = true;
+					NewParamsInstance.FileDownloadServer = MatchInfo[2].str();
+					NewParamsInstance.ResourcePath = MatchInfo[3].str();
+					return NewParamsInstance;
 				}
 			}
 			return {};
@@ -256,6 +318,8 @@ namespace Modio
 
 			return TempResourcePath;
 		}
-
+#ifdef MODIO_SEPARATE_COMPILATION
+		HttpRequestParams InvalidParams;
+#endif
 	} // namespace Detail
 } // namespace Modio

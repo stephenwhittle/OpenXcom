@@ -2,7 +2,7 @@
 #include "modio/http/ModioHttpParams.h"
 #include "modio/userdata/ModioUserDataService.h"
 #include <memory>
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 namespace Modio
 {
 	namespace Detail
@@ -22,7 +22,7 @@ namespace Modio
 				auto& UserDataService = Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>();
 				reenter(LocalState->CoroutineState)
 				{
-					yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
+					yield Modio::Detail::ComposedOps::PerformRequestAndGetResponseAsync(
 						LocalState->ResponseBuffer, LocalState->AuthenticationParams, Detail::CachedResponse::Disallow, std::move(Self));
 					if (ec)
 					{
@@ -34,7 +34,7 @@ namespace Modio
 						Detail::MarshalResponse<Detail::Schema::AccessTokenObject>(LocalState->ResponseBuffer);
 					LocalState->ResponseBuffer.Clear();
 
-					yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
+					yield Modio::Detail::ComposedOps::PerformRequestAndGetResponseAsync(
 						LocalState->ResponseBuffer,
 						Modio::Detail::GetAuthenticatedUserRequest.SetAuthTokenOverride(LocalState->AuthResponse.AccessToken),
 						Modio::Detail::CachedResponse::Disallow, std::move(Self));
@@ -52,7 +52,7 @@ namespace Modio
 												   LocalState->AuthenticatedUserData.User.UserId !=
 													   Modio::Detail::SDKSessionData::GetAuthenticatedUser()->UserId)
 					{
-						yield UserDataService.async_ClearUserData(std::move(Self));
+						yield UserDataService.ClearUserDataAsync(std::move(Self));
 						Modio::Detail::Services::GetGlobalService<Modio::Detail::CacheService>().ClearCache();
 					}
 					

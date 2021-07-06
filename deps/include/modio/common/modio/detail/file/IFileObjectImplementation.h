@@ -1,7 +1,7 @@
 #pragma once
 #include "modio/core/ModioStdTypes.h"
-
-#include<asio.hpp>
+#include "modio/core/ModioCoreTypes.h"
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {

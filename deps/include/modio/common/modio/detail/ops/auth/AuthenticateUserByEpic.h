@@ -1,5 +1,5 @@
 #pragma once
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include "modio/detail/ops/auth/AuthenticateUserExternal.h"
 
 namespace Modio

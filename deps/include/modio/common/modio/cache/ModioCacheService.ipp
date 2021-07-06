@@ -4,6 +4,7 @@
 
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioLogEnum.h"
+#include "modio/core/ModioBuffer.h"
 
 namespace Modio
 {

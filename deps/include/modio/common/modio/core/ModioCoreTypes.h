@@ -2,8 +2,8 @@
 
 #include "modio/core/ModioStdTypes.h"
 #include <cstdint>
-#include <string>
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace Modio
 {
@@ -209,6 +209,18 @@ namespace Modio
 	struct ModID : public StrongInteger<std::int64_t>
 	{
 		using StrongInteger::StrongInteger;
+		
+		constexpr bool IsValid() const
+		{
+			return *this != InvalidGameID();
+		}
+
+		static ModID InvalidGameID()
+		{
+			static ModID ID(-1);
+
+			return ID;
+		}
 	};
 
 	/// @docpublic
@@ -245,7 +257,6 @@ namespace Modio
 
 	/// @docpublic
 	/// @brief Strong type for a game ID
-	/// @todonow: Rename to GameID
 	struct GameID : public StrongInteger<std::int64_t>
 	{
 		using StrongInteger::StrongInteger;
@@ -265,6 +276,7 @@ namespace Modio
 
 	// TODO: @Modio-core strong type for filesystem::paths that are directories?
 
+	/// @docpublic
 	/// @brief Simple struct to encapsulate data passed to external authentication systems
 	struct AuthenticationParams
 	{
@@ -273,14 +285,103 @@ namespace Modio
 		bool bUserHasAcceptedTerms = false;
 	};
 
+	/// @docpublic
+	/// @brief Enum representing the languages mod.io support responses in
+	enum class Language
+	{
+		English,
+		Bulgarian,
+		French,
+		German,
+		Italian,
+		Polish,
+		Portuguese,
+		Hungarian,
+		Japanese,
+		Korean,
+		Russian,
+		Spanish,
+		Thai,
+		ChineseSimplified,
+		ChineseTraditional
+	};
+
+	/// @docpublic
+	/// @brief Simple struct to encapsulate data passed to external authentication systems
 	enum class AuthenticationProvider
 	{
 		XboxLive,
-		Epic,
 		Steam,
 		GoG,
 		Itch,
 		Switch,
 		Discord
 	};
+} // namespace Modio
+
+namespace Modio
+{
+	namespace Detail
+	{
+		inline std::string ToString(Modio::Language Locale)
+		{
+			switch (Locale)
+			{
+				case Language::English:
+					return "en";
+				case Language::Bulgarian:
+					return "bg";
+				case Language::French:
+					return "fr";
+				case Language::German:
+					return "de";
+				case Language::Italian:
+					return "it";
+				case Language::Polish:
+					return "pl";
+				case Language::Portuguese:
+					return "pt";
+				case Language::Hungarian:
+					return "hu";
+				case Language::Japanese:
+					return "ja";
+				case Language::Korean:
+					return "ko";
+				case Language::Russian:
+					return "ru";
+				case Language::Spanish:
+					return "es";
+				case Language::Thai:
+					return "th";
+				case Language::ChineseSimplified:
+					return "zh-CN";
+				case Language::ChineseTraditional:
+					return "zh-TW";
+			}
+			assert(false && "Invalid value to ToString(Modio::Language)");
+			return "Unknown";
+		}
+
+		inline std::string ToString(Modio::AuthenticationProvider Provider)
+		{
+			switch (Provider)
+			{
+				case AuthenticationProvider::XboxLive:
+					return "xbox";
+				case AuthenticationProvider::Steam:
+					return "steam";
+				case AuthenticationProvider::GoG:
+					return "gog";
+				case AuthenticationProvider::Itch:
+					return "itchio";
+				case AuthenticationProvider::Switch:
+					return "switch";
+				case AuthenticationProvider::Discord:
+					return "discord";
+			}
+
+			assert(false && "Invalid value to ToString(Modio::Provider)");
+			return "Unknown";
+		}
+	} // namespace Detail
 } // namespace Modio

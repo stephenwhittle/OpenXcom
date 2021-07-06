@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-#include "ModioSDKSessionData.h"
+	#include "modio/detail/ModioSDKSessionData.h"
 #endif
 
 namespace Modio
@@ -16,13 +16,15 @@ namespace Modio
 		bool SDKSessionData::Initialize(Modio::GameID GameID, const Modio::ApiKey& APIKey,
 										Modio::Environment Environment)
 		{
-			if (Get().bInitialized)
+			// If we are already initializing or done with init, bail
+			if (Get().CurrentInitializationState != InitializationState::NotInitialized)
 			{
 				return false;
 			}
 			else
 			{
 				Get() = std::move(SDKSessionData(GameID, APIKey, Environment));
+				Get().CurrentInitializationState = InitializationState::Initializing;
 				return true;
 			}
 		}
@@ -31,12 +33,17 @@ namespace Modio
 		{
 			Get().FlushModManagementLog();
 
-			Get().bInitialized = false;
+			Get().CurrentInitializationState = InitializationState::NotInitialized;
+		}
+
+		void SDKSessionData::ConfirmInitialize()
+		{
+			Get().CurrentInitializationState = InitializationState::InitializationComplete;
 		}
 
 		bool SDKSessionData::IsInitialized()
 		{
-			return Get().bInitialized;
+			return Get().CurrentInitializationState == InitializationState::InitializationComplete;
 		}
 
 		Modio::GameID SDKSessionData::CurrentGameID()
@@ -163,6 +170,22 @@ namespace Modio
 												   UserData.DeferredUnsubscriptions.end());
 		}
 
+		Modio::Optional<Modio::filesystem::path> SDKSessionData::GetLastUsedModDirectory()
+		{
+			return Get().UserData.LastUsedModDirectory;
+		}
+
+		bool SDKSessionData::SetDefaultModDirectory(Modio::filesystem::path DefaultDirectory)
+		{
+			UserDataContainer& UserData = Get().UserData;
+			if (!UserData.LastUsedModDirectory.has_value())
+			{
+				UserData.LastUsedModDirectory = DefaultDirectory;
+				return true;
+			}
+			return false;
+		}
+
 		void SDKSessionData::SetUserModManagementCallback(std::function<void(Modio::ModManagementEvent)> Callback)
 		{
 			Get().ModManagementEventCallback = Callback;
@@ -234,7 +257,7 @@ namespace Modio
 			: GameID(GameID),
 			  APIKey(APIKey),
 			  Environment(Environment),
-			  bInitialized(true)
+			  CurrentInitializationState(InitializationState::NotInitialized)
 		{}
 	} // namespace Detail
 

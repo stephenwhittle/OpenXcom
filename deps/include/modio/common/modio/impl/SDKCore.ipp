@@ -1,17 +1,17 @@
 #pragma once
 
 #ifdef MODIO_SEPARATE_COMPILATION
-#include "modio/ModioSDK.h"
+	#include "modio/ModioSDK.h"
 #endif
 
 #include "modio/cache/ModioCacheService.h"
 #include "modio/detail/ModioSDKSessionData.h"
-#include "modio/detail/ops/AsyncShutdown.h"
-#include "modio/detail/ops/ServiceInitialization.h"
+#include "modio/detail/ops/ServiceInitializationOp.h"
+#include "modio/detail/ops/Shutdown.h"
 #include "modio/file/ModioFileService.h"
 #include "modio/http/ModioHttpService.h"
-#include "modio/impl/SDKPostAsync.ipp"
-#include "modio/impl/SDKPreconditionChecks.ipp"
+#include "modio/impl/SDKPostAsync.h"
+#include "modio/impl/SDKPreconditionChecks.h"
 #include "modio/userdata/ModioUserDataService.h"
 // Implementation header - do not include directly
 
@@ -25,8 +25,8 @@ namespace Modio
 		{
 			auto WrappedCallback = Modio::Detail::ApplyPostAsyncChecks(OnInitComplete);
 			return asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-				ServiceInitialization(InitOptions.GameID, std::move(InitOptions.APIKey), InitOptions.GameEnvironment,
-									  InitOptions.User),
+				ServiceInitializationOp(InitOptions.GameID, std::move(InitOptions.APIKey), InitOptions.GameEnvironment,
+										InitOptions.User),
 				WrappedCallback, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}
@@ -55,7 +55,6 @@ namespace Modio
 	// Forward declaration
 	void DisableModManagement();
 #endif
-	
 
 	void Shutdown()
 	{
@@ -104,7 +103,7 @@ namespace Modio
 			// Post to the new io_context an operation that will exhaust the old context and call the user callback when
 			// it's completed
 			asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-				Modio::Detail::AsyncShutdown(std::move(OldContext)), OnShutdownComplete,
+				Modio::Detail::ShutdownOp(std::move(OldContext)), OnShutdownComplete,
 				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}

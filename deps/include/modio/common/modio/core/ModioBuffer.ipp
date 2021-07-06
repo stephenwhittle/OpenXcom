@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-	#include "ModioBuffer.h"
+	#include "modio/core/ModioBuffer.h"
 #endif
 
 #include <limits>

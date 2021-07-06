@@ -1,10 +1,28 @@
 #pragma once
 
 #include "modio/core/ModioBuffer.h"
+#include "modio/detail/FilesystemWrapper.h"
 #include <nlohmann/json.hpp>
 
 namespace Modio
 {
+	//Has to live here for ADL to work
+	namespace ghc
+	{
+		namespace filesystem
+		{
+			inline void to_json(nlohmann::json& Json, const Modio::filesystem::path& Path)
+			{
+				return to_json(Json, Path.u8string());
+			}
+
+			inline void from_json(const nlohmann::json& Json, Modio::filesystem::path& Path)
+			{
+				Path = Modio::filesystem::path(Json.get<std::string>());
+			}
+		} // namespace filesystem
+	} // namespace ghc
+
 	namespace Detail
 	{
 		template<typename T>
@@ -13,6 +31,22 @@ namespace Modio
 			if (Json.contains(Key) && !Json.at(Key).is_null())
 			{
 				Json.at(Key).get_to<T>(OutVar);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		template<>
+		inline bool ParseSafe<Modio::filesystem::path>(const nlohmann::json& Json, Modio::filesystem::path& OutVar,
+													   const std::string& Key)
+		{
+			if (Json.contains(Key) && !Json.at(Key).is_null())
+			{
+				std::string PathString = Json.at(Key).get<std::string>();
+				OutVar = Modio::filesystem::path(PathString);
 				return true;
 			}
 			else
@@ -86,6 +120,10 @@ namespace Modio
 			return nlohmann::json::parse(LinearBuffer.Data());
 		}
 
+		inline nlohmann::json ToJson(Modio::filesystem::path Path)
+		{
+			return nlohmann::json::parse(Path.string());
+		}
 
 		template<typename T>
 		inline T MarshalResponse(Modio::Detail::DynamicBuffer ResponseBuffer)
@@ -114,6 +152,5 @@ namespace Modio
 			return ResultStructure;
 		}
 
-		
 	} // namespace Detail
 } // namespace Modio

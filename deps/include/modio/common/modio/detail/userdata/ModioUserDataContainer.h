@@ -32,6 +32,8 @@ namespace Modio
 			std::vector<Modio::ModID> DeferredUnsubscriptions;
 			Modio::Optional<Modio::Detail::ProfileData> AuthenticatedProfile;
 
+			Modio::Optional<Modio::filesystem::path> LastUsedModDirectory;
+
 			friend void to_json(nlohmann::json& Json, const Modio::Detail::UserDataContainer& UserData)
 			{
 				Json = nlohmann::json::object(
@@ -43,6 +45,7 @@ namespace Modio
 					Json[Modio::Detail::Constants::JSONKeys::UserProfile] = UserData.AuthenticatedProfile->GetUser();
 					Json[Modio::Detail::Constants::JSONKeys::Avatar] = UserData.AuthenticatedProfile->GetAvatar();
 				}
+				Json[Modio::Detail::Constants::JSONKeys::LastUsedModDirectory] = UserData.LastUsedModDirectory.value().u8string();
 			}
 			friend void from_json(const nlohmann::json& Json, Modio::Detail::UserDataContainer& UserData)
 			{
@@ -62,6 +65,12 @@ namespace Modio
 										 Modio::Detail::Constants::JSONKeys::UserSubscriptionList);
 				Modio::Detail::ParseSafe(Json, UserData.DeferredUnsubscriptions,
 										 Modio::Detail::Constants::JSONKeys::DeferredUnsubscribes);
+				std::string TmpPath;
+				Modio::Detail::ParseSafe(Json, TmpPath, Modio::Detail::Constants::JSONKeys::LastUsedModDirectory);
+				if (!TmpPath.empty())
+				{
+					UserData.LastUsedModDirectory = Modio::filesystem::path(TmpPath);
+				}
 			}
 		};
 	} // namespace Detail

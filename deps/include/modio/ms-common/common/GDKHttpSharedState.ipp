@@ -1,11 +1,11 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-#include "GDKHttpSharedState.h"
+#include "common/GDKHttpSharedState.h"
 #endif
 
 
  HttpSharedStateBase::HttpSharedStateBase(HINTERNET SessionHandle) : CurrentSession(SessionHandle) {}
 
-void HttpSharedStateBase::InitializeRequest(std::shared_ptr<HttpRequestImplementation> Request, asio::error_code& ec)
+void HttpSharedStateBase::InitializeRequest(std::shared_ptr<HttpRequestImplementation> Request, Modio::ErrorCode& ec)
 {
 	Modio::Detail::Logger().Log(Modio::LogLevel::Info, Modio::LogCategory::Http, "Initializing {0} request for {1} {2}", Request->GetParameters().GetVerb(),
 			   Request->GetParameters().GetServerAddress(), Request->GetParameters().GetFormattedResourcePath());

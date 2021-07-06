@@ -5,13 +5,13 @@
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/file/ModioFile.h"
 #include "modio/file/ModioFileService.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <asio/yield.hpp>
 namespace Modio
 {
 	namespace Detail
 	{
-		class LoadModCollectionFromStorage
+		class LoadModCollectionFromStorageOp
 		{
 		public:
 			template<typename CoroType>
@@ -26,7 +26,7 @@ namespace Modio
 								"state.json",
 							false);
 
-					yield DestinationFile->async_Read(DestinationFile->GetFileSize(), DataBuffer , std::move(Self));
+					yield DestinationFile->ReadAsync(DestinationFile->GetFileSize(), DataBuffer , std::move(Self));
 					if (ec)
 					{
 						Self.complete(ec);
@@ -57,7 +57,7 @@ namespace Modio
 		auto LoadModCollectionFromStorageAsync(LoadModCollectionCallback&& OnLoadComplete)
 		{
 			return asio::async_compose<LoadModCollectionCallback, void(Modio::ErrorCode)>(
-				LoadModCollectionFromStorage(), OnLoadComplete,
+				LoadModCollectionFromStorageOp(), OnLoadComplete,
 				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	} // namespace Detail

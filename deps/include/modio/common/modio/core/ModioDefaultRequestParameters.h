@@ -6,8 +6,11 @@ namespace Modio
 {
     namespace Detail
     {
+        static const HttpRequestParams TermsRequest { Modio::Detail::Verb::GET, "/authenticate/terms" }; 
         static const HttpRequestParams MakeBatchRequestRequest { Modio::Detail::Verb::POST, "/batch" }; 
         static const HttpRequestParams AuthenticateViaDiscordRequest { Modio::Detail::Verb::POST, "/external/discordauth" }; 
+        static const HttpRequestParams AuthenticateViaGogGalaxyRequest { Modio::Detail::Verb::POST, "/external/galaxyauth" }; 
+        static const HttpRequestParams AuthenticateViaGoogleRequest { Modio::Detail::Verb::POST, "/external/googleauth" }; 
         static const HttpRequestParams AuthenticateViaItchioRequest { Modio::Detail::Verb::POST, "/external/itchioauth" }; 
         static const HttpRequestParams AuthenticateViaOculusRequest { Modio::Detail::Verb::POST, "/external/oculusauth" }; 
         static const HttpRequestParams AuthenticateViaSteamRequest { Modio::Detail::Verb::POST, "/external/steamauth" }; 
@@ -69,8 +72,5 @@ namespace Modio
         static const HttpRequestParams ExchangeEmailSecurityCodeRequest { Modio::Detail::Verb::POST, "/oauth/emailexchange" }; 
         static const HttpRequestParams RequestEmailSecurityCodeRequest { Modio::Detail::Verb::POST, "/oauth/emailrequest" }; 
         static const HttpRequestParams SubmitReportRequest { Modio::Detail::Verb::POST, "/report" }; 
-        static const HttpRequestParams TermsRequest { Modio::Detail::Verb::GET, "authenticate/terms" }; 
-        static const HttpRequestParams AuthenticateViaGogGalaxyRequest { Modio::Detail::Verb::POST, "external/galaxyauth" }; 
-        static const HttpRequestParams AuthenticateViaGoogleRequest { Modio::Detail::Verb::POST, "external/googleauth" }; 
     }
 }

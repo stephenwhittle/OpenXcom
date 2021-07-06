@@ -3,8 +3,8 @@
 #include "ModioGeneratedVariables.h"
 #include "common/UTF16Support.h"
 #include "common/http/HttpRequestImplementation.h"
-#include "fmt/format.h"
 #include "modio/core/ModioErrorCode.h"
+#include "modio/detail/FmtWrapper.h"
 #include <atomic>
 #include <memory>
 #include <queue>
@@ -65,10 +65,10 @@ public:
 	MODIO_IMPL HttpSharedStateBase(HINTERNET SessionHandle);
 	HttpSharedStateBase& operator=(HttpSharedStateBase&& Other) = default;
 
-	MODIO_IMPL void InitializeRequest(std::shared_ptr<HttpRequestImplementation> Request, asio::error_code& ec);
+	MODIO_IMPL void InitializeRequest(std::shared_ptr<HttpRequestImplementation> Request, Modio::ErrorCode& ec);
 
 	MODIO_IMPL void SetHandleStatus(HINTERNET Handle, WinHTTPCallbackStatus Status, void* ExtendedStatusData,
-						 unsigned long ExtendedStatusLength);
+									unsigned long ExtendedStatusLength);
 
 	MODIO_IMPL WinHTTPCallbackStatus PeekHandleStatus(HINTERNET Handle);
 

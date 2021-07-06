@@ -3,8 +3,8 @@
 #include "ModioGeneratedVariables.h"
 #include "modio/detail/ModioDefines.h"
 
-#include "ghc/filesystem.hpp"
-#include "tl/optional.hpp"
+#include "modio/detail/FilesystemWrapper.h"
+#include "modio/detail/OptionalWrapper.h"
 
 #include <chrono>
 #include <cstdint>

@@ -1,25 +1,21 @@
 #pragma once
-#include <asio.hpp>
-#include <winhttp.h>
-
+#include "ModioGeneratedVariables.h"
+#include "common/detail/ops/http/ReadHttpResponseHeadersOp.h"
+#include "common/detail/ops/http/ReadSomeResponseBodyOp.h"
+#include "common/detail/ops/http/SendHttpRequestOp.h"
+#include "common/http/HttpRequestImplementation.h"
+#include "modio/core/ModioErrorCode.h"
+#include "modio/core/ModioServices.h"
+#include "modio/detail/AsioWrapper.h"
+#include "modio/detail/http/IHttpServiceImplementation.h"
+#include "modio/http/ModioHttpParams.h"
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
 #include <thread>
+#include <winhttp.h>
 
-#include "modio/http/ModioHttpParams.h"
-
-#include "ModioGeneratedVariables.h"
-
-#include "common/detail/ops/http/ReadHttpResponseHeaders.h"
-#include "common/detail/ops/http/ReadSomeResponseBody.h"
-#include "common/detail/ops/http/SendHttpRequest.h"
-#include "common/http/HttpRequestImplementation.h"
-
-#include "modio/core/ModioErrorCode.h"
-#include "modio/core/ModioServices.h"
-#include "modio/detail/http/IHttpServiceImplementation.h"
 namespace Modio
 {
 	namespace Detail
@@ -64,7 +60,7 @@ namespace Modio
 			}
 
 			template<typename CompletionToken>
-			auto async_InitializeHTTP(CompletionToken&& Token)
+			auto InitializeHTTPAsync(CompletionToken&& Token)
 			{
 				constexpr const wchar_t* ModioAgentString =
 					L"Modio SDK v2 built from " MODIO_COMMIT_HASH ":" MODIO_TARGET_PLATFORM_ID;
@@ -75,28 +71,28 @@ namespace Modio
 			}
 
 			template<typename CompletionToken>
-			auto async_SendRequest(IOObjectImplementationType PlatformIOObjectInstance, CompletionToken&& Token)
+			auto SendRequestAsync(IOObjectImplementationType PlatformIOObjectInstance, CompletionToken&& Token)
 			{
 				return asio::async_compose<CompletionToken, void(Modio::ErrorCode)>(
-					SendHttpRequest(PlatformIOObjectInstance, HttpState), Token,
+					SendHttpRequestOp(PlatformIOObjectInstance, HttpState), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionToken>
-			auto async_ReadResponseHeaders(IOObjectImplementationType PlatformIOObjectInstance, CompletionToken Token)
+			auto ReadResponseHeadersAsync(IOObjectImplementationType PlatformIOObjectInstance, CompletionToken Token)
 			{
 				return asio::async_compose<CompletionToken, void(Modio::ErrorCode)>(
-					ReadHttpResponseHeaders(PlatformIOObjectInstance, HttpState), Token,
+					ReadHttpResponseHeadersOp(PlatformIOObjectInstance, HttpState), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionToken>
-			auto async_ReadSomeFromResponseBody(IOObjectImplementationType PlatformIOObjectInstance,
-												Modio::Detail::DynamicBuffer DynamicBufferInstance,
-												CompletionToken Token)
+			auto ReadSomeFromResponseBodyAsync(IOObjectImplementationType PlatformIOObjectInstance,
+											   Modio::Detail::DynamicBuffer DynamicBufferInstance,
+											   CompletionToken Token)
 			{
 				return asio::async_compose<CompletionToken, void(Modio::ErrorCode)>(
-					ReadSomeResponseBody(PlatformIOObjectInstance, DynamicBufferInstance, HttpState), Token,
+					ReadSomeResponseBodyOp(PlatformIOObjectInstance, DynamicBufferInstance, HttpState), Token,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
@@ -104,6 +100,7 @@ namespace Modio
 			{
 				HttpState->Close();
 			}
+
 		};
 	} // namespace Detail
 } // namespace Modio

@@ -2,9 +2,8 @@
 #pragma once
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioStdTypes.h"
+#include "modio/detail/AsioWrapper.h"
 #include "modio/detail/file/IFileObjectImplementation.h"
-#include <asio.hpp>
-// TODO: @modio-xdk decide if we want to wrap fileapi in nominmax etc
 #include <atomic>
 #include <chrono>
 #include <fileapi.h>
@@ -14,8 +13,8 @@ namespace Modio
 	{
 		class FileObjectImplementation : public Modio::Detail::IFileObjectImplementation
 		{
-			filesystem::path FilePath;
-			filesystem::path BasePath;
+			Modio::filesystem::path FilePath;
+			Modio::filesystem::path BasePath;
 			HANDLE FileHandle;
 			// Strand so that IO ops don't get performed simultaneously
 			asio::strand<asio::io_context::executor_type>* Strand;
@@ -26,10 +25,10 @@ namespace Modio
 			bool CancelRequested = false;
 
 		public:
-			FileObjectImplementation(asio::io_context& ParentContext, filesystem::path BasePath)
-				: FileHandle(INVALID_HANDLE_VALUE),
+			FileObjectImplementation(asio::io_context& ParentContext, Modio::filesystem::path BasePath)
+				: FilePath(),
 				  BasePath(BasePath),
-				  FilePath(),
+				  FileHandle(INVALID_HANDLE_VALUE),
 				  Strand(nullptr),
 				  OperationQueue(ParentContext, std::chrono::steady_clock::time_point::max()),
 				  CurrentSeekOffset(0)
@@ -90,7 +89,7 @@ namespace Modio
 				}
 			}
 
-			filesystem::path GetPath()
+			Modio::filesystem::path GetPath()
 			{
 				return FilePath;
 			}
@@ -169,24 +168,24 @@ namespace Modio
 				return *Strand;
 			}
 
-			std::error_code CreateFile(filesystem::path FilePath)
+			std::error_code CreateFile(Modio::filesystem::path NewFilePath)
 			{
-				return OpenFile(FilePath, true);
+				return OpenFile(NewFilePath, true);
 			}
 
-			std::error_code OpenFile(filesystem::path FilePath, bool bOverwrite = false)
+			std::error_code OpenFile(Modio::filesystem::path Path, bool bOverwrite = false)
 			{
 				Modio::ErrorCode ec;
-				filesystem::create_directories(FilePath.parent_path(), ec);
+				filesystem::create_directories(Path.parent_path(), ec);
 				if (ec)
 				{
 					return ec;
 				}
 
-				this->FilePath = FilePath;
+				this->FilePath = Path;
 				FileHandle = ::CreateFileW(this->FilePath.generic_wstring().c_str(), GENERIC_READ | GENERIC_WRITE,
-										  FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-										  bOverwrite ? CREATE_ALWAYS : OPEN_ALWAYS, FILE_FLAG_OVERLAPPED, NULL);
+										   FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+										   bOverwrite ? CREATE_ALWAYS : OPEN_ALWAYS, FILE_FLAG_OVERLAPPED, NULL);
 				if (FileHandle != INVALID_HANDLE_VALUE)
 				{
 					return std::error_code {};

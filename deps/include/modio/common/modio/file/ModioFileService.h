@@ -8,7 +8,7 @@
 #include "modio/detail/entities/ModioLogo.h"
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioLogEnum.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <iostream>
 #include <memory>
 
@@ -71,56 +71,56 @@ namespace Modio
 			}
 
 			template<typename CompletionHandlerType>
-			auto async_Initialize(Modio::UserHandleType User, Modio::GameID GameId, CompletionHandlerType&& Handler)
+			auto InitializeAsync(Modio::UserHandleType User, Modio::GameID GameId, CompletionHandlerType&& Handler)
 			{
-				return PlatformImplementation->async_Initialize(
+				return PlatformImplementation->InitializeAsync(
 					User, GameId, std::forward<CompletionHandlerType>(std::move(Handler)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_write_some_at(implementation_type& PlatformIOObject, std::uintmax_t Offset, Modio::Detail::Buffer Buffer,
+			auto WriteSomeAtAsync(implementation_type& PlatformIOObject, std::uintmax_t Offset, Modio::Detail::Buffer Buffer,
 									 CompletionTokenType&& Token)
 			{
-				return PlatformImplementation->async_write_some_at(PlatformIOObject, Offset, std::move(Buffer),
+				return PlatformImplementation->WriteSomeAtAsync(PlatformIOObject, Offset, std::move(Buffer),
 																   std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_read_some_at(implementation_type& PlatformIOObject, std::uintmax_t Offset, std::uintmax_t Length,
+			auto ReadSomeAtAsync(implementation_type& PlatformIOObject, std::uintmax_t Offset, std::uintmax_t Length,
 									CompletionTokenType&& Token)
 			{
-				return PlatformImplementation->async_read_some_at(PlatformIOObject, Offset, Length,
+				return PlatformImplementation->ReadSomeAtAsync(PlatformIOObject, Offset, Length,
 																  std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_read_some_at(implementation_type& PlatformIOObject, std::uintmax_t Offset,
+			auto ReadSomeAtAsync(implementation_type& PlatformIOObject, std::uintmax_t Offset,
 									std::uintmax_t MaxBytesToRead, Modio::Detail::DynamicBuffer Destination,
 									CompletionTokenType&& Token)
 			{
-				return PlatformImplementation->async_read_some_at(PlatformIOObject, Offset, MaxBytesToRead, Destination,
+				return PlatformImplementation->ReadSomeAtAsync(PlatformIOObject, Offset, MaxBytesToRead, Destination,
 																  std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_read(implementation_type& PlatformIOObject, std::uintmax_t MaxBytesToRead,
+			auto ReadAsync(implementation_type& PlatformIOObject, std::uintmax_t MaxBytesToRead,
 							Modio::Detail::DynamicBuffer Destination, CompletionTokenType&& Token)
 			{
-				return PlatformImplementation->async_read(PlatformIOObject, MaxBytesToRead, Destination,
+				return PlatformImplementation->ReadAsync(PlatformIOObject, MaxBytesToRead, Destination,
 														  std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_write(implementation_type& PlatformIOObject, Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
+			auto WriteAsync(implementation_type& PlatformIOObject, Modio::Detail::Buffer Buffer, CompletionTokenType&& Token)
 			{
-				return PlatformImplementation->async_write(PlatformIOObject, std::move(Buffer),
+				return PlatformImplementation->WriteAsync(PlatformIOObject, std::move(Buffer),
 														   std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_DeleteFolder(Modio::filesystem::path FolderPath, CompletionTokenType&& Token)
+			auto DeleteFolderAsync(Modio::filesystem::path FolderPath, CompletionTokenType&& Token)
 			{
-				return PlatformImplementation->async_DeleteFolder(FolderPath,
+				return PlatformImplementation->DeleteFolderAsync(FolderPath,
 																  std::forward<CompletionTokenType>(std::move(Token)));
 			}
 

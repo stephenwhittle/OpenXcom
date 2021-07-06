@@ -16,10 +16,10 @@ namespace Modio
 		/// </summary>
 		/// <typeparam name="ImageType">Type of image we want to download</typeparam>
 		template<typename ImageType>
-		class DownloadImage : public Modio::Detail::BaseOperation<DownloadImage<ImageType>>
+		class DownloadImageOp : public Modio::Detail::BaseOperation<DownloadImageOp<ImageType>>
 		{
 		public:
-			DownloadImage(ImageType ImageTypeImp, Modio::StableStorage<Modio::filesystem::path> Result)
+			DownloadImageOp(ImageType ImageTypeImp, Modio::StableStorage<Modio::filesystem::path> Result)
 				: ImageTypeImp(ImageTypeImp),
 				  Result(Result)
 			{}
@@ -41,7 +41,7 @@ namespace Modio
 							return;
 						}
 						OpState.DestinationTempPath = OpState.DestinationPath;
-						OpState.DestinationTempPath += Modio::filesystem::path(".download");
+						//OpState.DestinationTempPath += Modio::filesystem::path(".download");
 
 						// If the Image is already downloaded, then don't fetch it again
 						if (FileService.FileExists(OpState.DestinationPath))
@@ -84,7 +84,7 @@ namespace Modio
 					}
 
 					// Download the file
-					yield Modio::Detail::ComposedOps::async_DownloadImage(
+					yield Modio::Detail::ComposedOps::DownloadImageAsync(
 						OpState.DownloadRequestParams.value(),
 						OpState.DestinationTempPath, std::move(Self));
 
@@ -133,7 +133,7 @@ namespace Modio
 								DownloadImageCallback&& OnDownloadComplete)
 		{
 			return asio::async_compose<DownloadImageCallback, void(Modio::ErrorCode)>(
-				DownloadImage(Wrapper, OutAvatarPath), OnDownloadComplete,
+				DownloadImageOp<ImageType>(Wrapper, OutAvatarPath), OnDownloadComplete,
 				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	} // namespace Detail

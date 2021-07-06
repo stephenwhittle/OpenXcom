@@ -1,11 +1,9 @@
 #pragma once
 
 #include "ModioGeneratedVariables.h"
+
 #include "modio/detail/ModioDefines.h"
-
-#include "ModioGeneratedVariables.h"
 #include "modio/core/ModioStdTypes.h"
-
 #include <chrono>
 #include <string>
 #include <vector>

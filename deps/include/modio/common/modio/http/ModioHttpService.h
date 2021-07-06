@@ -3,7 +3,7 @@
 #include "ModioGeneratedVariables.h"
 #include "http/HttpImplementation.h"
 #include "modio/detail/ModioOperationQueue.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <iostream>
 #include <memory>
 
@@ -42,31 +42,31 @@ namespace Modio
 			MODIO_IMPL void destroy(implementation_type& Implementation);
 
 			template<typename CompletionHandler>
-			auto async_Initialize(CompletionHandler Handler)
+			auto InitializeAsync(CompletionHandler Handler)
 			{
-				return PlatformImplementation->async_InitializeHTTP(
+				return PlatformImplementation->InitializeHTTPAsync(
 					std::forward<CompletionHandler>(std::move(Handler)));
 			}
 
 			template<typename CompletionHandler>
-			auto async_SendRequest(implementation_type& PlatformIOObject, CompletionHandler Handler)
+			auto SendRequestAsync(implementation_type& PlatformIOObject, CompletionHandler Handler)
 			{
-				return PlatformImplementation->async_SendRequest(PlatformIOObject,
+				return PlatformImplementation->SendRequestAsync(PlatformIOObject,
 																 std::forward<CompletionHandler>(std::move(Handler)));
 			}
 
 			template<typename CompletionHandler>
-			auto async_ReadResponseHeaders(implementation_type& PlatformIOObject, CompletionHandler Handler)
+			auto ReadResponseHeadersAsync(implementation_type& PlatformIOObject, CompletionHandler Handler)
 			{
-				return PlatformImplementation->async_ReadResponseHeaders(
+				return PlatformImplementation->ReadResponseHeadersAsync(
 					PlatformIOObject, std::forward<CompletionHandler>(std::move(Handler)));
 			}
 
 			template<typename CompletionHandler>
-			auto async_ReadSomeFromResponseBody(implementation_type& PlatformIOObject,
+			auto ReadSomeFromResponseBodyAsync(implementation_type& PlatformIOObject,
 												DynamicBuffer DynamicBufferInstance, CompletionHandler&& Handler)
 			{
-				return PlatformImplementation->async_ReadSomeFromResponseBody(
+				return PlatformImplementation->ReadSomeFromResponseBodyAsync(
 					PlatformIOObject, DynamicBufferInstance, std::forward<CompletionHandler>(std::move(Handler)));
 			}
 

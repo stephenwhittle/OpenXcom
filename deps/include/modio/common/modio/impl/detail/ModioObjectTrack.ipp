@@ -1,5 +1,7 @@
 ﻿#pragma once
-
+#ifdef MODIO_SEPARATE_COMPILATION
+#include "modio/detail/ModioObjectTrack.h"
+#endif
 #include "modio/core/ModioLogger.h"
 
 namespace Modio
@@ -37,6 +39,9 @@ namespace Modio
 			sprintf(output, "%s %d\n", __FUNCTION__, Count);
 			OutputDebugStringA(output);
 		}
+#endif
+#if MODIO_SEPARATE_COMPILATION
+		bool BaseOperationCommonImpl::RequiresShutdown = false;
 #endif
 	} // namespace Detail
 } // namespace Modio

@@ -6,16 +6,17 @@
 #endif
 
 #include "modio/core/ModioCoreTypes.h"
-#include "modio/detail/ops/AuthenticateUserByEmail.h"
-#include "modio/detail/ops/RequestEmailAuthCode.h"
-#include "modio/detail/ops/user/GetUserMedia.h"
+#include "modio/detail/ops/AuthenticateUserByEmailOp.h"
+#include "modio/detail/ops/RequestEmailAuthCodeOp.h"
 #include "modio/detail/ops/auth/AuthenticateUserByDiscord.h"
+#include "modio/detail/ops/auth/AuthenticateUserByGog.h"
+#include "modio/detail/ops/auth/AuthenticateUserByItch.h"
 #include "modio/detail/ops/auth/AuthenticateUserBySteam.h"
 #include "modio/detail/ops/auth/AuthenticateUserBySwitchID.h"
-#include "modio/detail/ops/auth/AuthenticateUserByGog.h"
 #include "modio/detail/ops/auth/AuthenticateUserByXBoxLive.h"
-#include "modio/detail/ops/auth/AuthenticateUserByItch.h"
-#include "modio/impl/SDKPreconditionChecks.ipp"
+#include "modio/detail/ops/auth/ModioGetTermsOfUseOp.h"
+#include "modio/detail/ops/user/GetUserMediaOp.h"
+#include "modio/impl/SDKPreconditionChecks.h"
 #include "modio/userdata/ModioUserDataService.h"
 
 namespace Modio
@@ -23,31 +24,44 @@ namespace Modio
 	void RequestEmailAuthCodeAsync(Modio::EmailAddress EmailAddress, std::function<void(Modio::ErrorCode)> Callback)
 	{
 		return asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-			Modio::Detail::RequestEmailAuthCode(std::move(EmailAddress.InternalAddress)), Callback,
+			Modio::Detail::RequestEmailAuthCodeOp(std::move(EmailAddress.InternalAddress)), Callback,
 			Modio::Detail::Services::GetGlobalContext().get_executor());
+	}
+
+	void GetTermsOfUseAsync(Modio::AuthenticationProvider Provider, Modio::Language Locale,
+					   std::function<void(Modio::ErrorCode, Modio::Optional<Modio::Terms> Terms)> Callback)
+	{
+		if (Modio::Detail::RequireSDKIsInitialized(Callback))
+		{
+			return asio::async_compose<std::function<void(Modio::ErrorCode, Modio::Optional<Modio::Terms>)>, void(Modio::ErrorCode, Modio::Optional<Modio::Terms>)>(
+				Modio::Detail::GetTermsOfUseOp(Provider, Locale), Callback,
+				Modio::Detail::Services::GetGlobalContext().get_executor());
+		}
 	}
 
 	void AuthenticateUserExternalAsync(Modio::AuthenticationParams User, Modio::AuthenticationProvider Provider,
 									   std::function<void(Modio::ErrorCode)> Callback)
 	{
-		if (Modio::Detail::RequireSDKIsInitialized(Callback) && Modio::Detail::RequireNotRateLimited(Callback) && Modio::Detail::RequireUserIsNOTAuthenticated(Callback))
+		if (Modio::Detail::RequireSDKIsInitialized(Callback) && Modio::Detail::RequireNotRateLimited(Callback) &&
+			Modio::Detail::RequireUserIsNOTAuthenticated(Callback))
 		{
 			switch (Provider)
 			{
-				case AuthenticationProvider::Epic:
-					// AuthenticateUserWithEpicAsync(User, Callback);
-					break;
+				// @todo: Add Epic when we support Epic
+				/*case AuthenticationProvider::Epic:
+					AuthenticateUserWithEpicAsync(User, Callback);
+					break;*/
 				case AuthenticationProvider::GoG:
-					Modio::Detail::AuthenticateUserByGoGAsync(User,Callback);
+					Modio::Detail::AuthenticateUserByGoGAsync(User, Callback);
 					break;
 				case AuthenticationProvider::Itch:
-					Modio::Detail::AuthenticateUserByItchAsync(User,Callback);
+					Modio::Detail::AuthenticateUserByItchAsync(User, Callback);
 					break;
 				case AuthenticationProvider::Steam:
-					Modio::Detail::AuthenticateUserBySteamAsync(User,Callback);
+					Modio::Detail::AuthenticateUserBySteamAsync(User, Callback);
 					break;
 				case AuthenticationProvider::XboxLive:
-					Modio::Detail::AuthenticateUserByXBoxLiveAsync(User,Callback);
+					Modio::Detail::AuthenticateUserByXBoxLiveAsync(User, Callback);
 					break;
 				case AuthenticationProvider::Switch:
 					Modio::Detail::AuthenticateUserBySwitchIDAsync(User, Callback);
@@ -65,7 +79,7 @@ namespace Modio
 		if (Modio::Detail::RequireUserIsNOTAuthenticated(Callback))
 		{
 			return asio::async_compose<std::function<void(Modio::ErrorCode)>, void(Modio::ErrorCode)>(
-				Modio::Detail::AuthenticateUserByEmail(AuthenticationCode), Callback,
+				Modio::Detail::AuthenticateUserByEmailOp(AuthenticationCode), Callback,
 				Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}
@@ -75,7 +89,7 @@ namespace Modio
 		if (Modio::Detail::RequireSDKIsInitialized(Callback) && Modio::Detail::RequireNotRateLimited(Callback) &&
 			Modio::Detail::RequireUserIsAuthenticated(Callback))
 		{
-			return Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>().async_ClearUserData(
+			return Modio::Detail::Services::GetGlobalService<Modio::Detail::UserDataService>().ClearUserDataAsync(
 				Callback);
 		}
 	}
@@ -93,8 +107,8 @@ namespace Modio
 		{
 			return asio::async_compose<std::function<void(Modio::ErrorCode, Modio::Optional<Modio::filesystem::path>)>,
 									   void(Modio::ErrorCode, Modio::Optional<Modio::filesystem::path>)>(
-				Modio::Detail::GetUserMedia(Modio::Detail::SDKSessionData::CurrentGameID(),
-											Modio::Detail::SDKSessionData::CurrentAPIKey(), AvatarSize),
+				Modio::Detail::GetUserMediaOp(Modio::Detail::SDKSessionData::CurrentGameID(),
+											  Modio::Detail::SDKSessionData::CurrentAPIKey(), AvatarSize),
 				Callback, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	}

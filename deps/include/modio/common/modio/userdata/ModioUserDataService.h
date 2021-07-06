@@ -1,10 +1,10 @@
 #pragma once
 #include "modio/core/entities/ModioUser.h"
 #include "modio/core/ModioModCollectionEntry.h"
-#include "modio/detail/ops/userdata/SaveUserDataToStorage.h"
-#include "modio/detail/ops/userdata/InitializeUserData.h"
+#include "modio/detail/ops/userdata/SaveUserDataToStorageOp.h"
+#include "modio/detail/ops/userdata/InitializeUserDataOp.h"
 
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <vector>
 
 #include <asio/yield.hpp>
@@ -29,14 +29,14 @@ namespace Modio
 			}
 
 			template<typename CompletionHandlerType>
-			auto async_Initialize( CompletionHandlerType&& Handler)
+			auto InitializeAsync( CompletionHandlerType&& Handler)
 			{
 				return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(
-					InitializeUserData(), Handler, Modio::Detail::Services::GetGlobalContext().get_executor());
+					InitializeUserDataOp(), Handler, Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionHandlerType>
-			auto async_ClearUserData(CompletionHandlerType&& Handler)
+			auto ClearUserDataAsync(CompletionHandlerType&& Handler)
 			{
 				ModCollection FilteredModCollection =
 					Modio::Detail::SDKSessionData::FilterSystemModCollectionByUserSubscriptions();
@@ -54,7 +54,7 @@ namespace Modio
 			auto SaveUserDataToStorageAsync(CompletionHandlerType&& Handler)
 			{
 				return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(
-					SaveUserDataToStorage(), Handler,
+					SaveUserDataToStorageOp(), Handler,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 

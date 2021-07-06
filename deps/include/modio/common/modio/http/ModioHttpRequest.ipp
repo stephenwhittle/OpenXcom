@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-	#include "ModioHttpRequest.h"
+	#include "modio/http/ModioHttpRequest.h"
 #endif
 
 #include "modio/core/ModioLogger.h"
@@ -9,13 +9,15 @@ namespace Modio
 	namespace Detail
 	{
 		HttpRequest::HttpRequest(HttpRequest&& Other)
-			: RequestParameters(std::move(Other.RequestParameters)),
-			  asio::basic_io_object<HttpService>(std::move(Other))
+			: asio::basic_io_object<HttpService>(std::move(Other)),
+			  RequestParameters(std::move(Other.RequestParameters))
+
 		{}
 
 		HttpRequest::HttpRequest(asio::io_context& Context, HttpRequestParams RequestParams)
-			: RequestParameters(RequestParams),
-			  asio::basic_io_object<HttpService>(Context)
+			: asio::basic_io_object<HttpService>(Context),
+			  RequestParameters(RequestParams)
+
 		{
 			get_implementation()->Parameters = RequestParams;
 			Logger().Log(LogLevel::Trace, LogCategory::Http, "Creating Request for {}",
@@ -23,8 +25,8 @@ namespace Modio
 		}
 
 		HttpRequest::HttpRequest(HttpRequestParams RequestParams)
-			: RequestParameters(RequestParams),
-			  asio::basic_io_object<HttpService>(Modio::Detail::Services::GetGlobalContext())
+			: asio::basic_io_object<HttpService>(Modio::Detail::Services::GetGlobalContext()),
+			  RequestParameters(RequestParams)
 		{
 			get_implementation()->Parameters = RequestParameters;
 			Logger().Log(LogLevel::Trace, LogCategory::Http, "Creating Request for {}",
@@ -42,6 +44,12 @@ namespace Modio
 		{
 			return get_implementation()->GetResponseCode();
 		}
+
+		Modio::Optional<std::string> HttpRequest::GetRedirectURL() const 
+		{
+			return get_implementation()->GetRedirectURL();
+		}
+
 
 	} // namespace Detail
 } // namespace Modio

@@ -1,10 +1,11 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
-#include "fmt/format.h"
+#include "modio/core/ModioBuffer.h"
 #include "modio/core/ModioCoreTypes.h"
+#include "modio/core/ModioLogger.h"
+#include "modio/detail/FmtWrapper.h"
 #include "modio/detail/ModioStringHelpers.h"
 #include "modio/detail/http/ModioRequestBodyKVPContainer.h"
-#include "modio/core/ModioLogger.h"
 #include <regex>
 #include <string>
 #undef DELETE
@@ -43,6 +44,10 @@ namespace Modio
 			MODIO_IMPL HttpRequestParams SetFilterString(const std::string& InFilterString) const;
 
 			MODIO_IMPL HttpRequestParams& SetFilterString(const std::string& InFilterString);
+
+			MODIO_IMPL HttpRequestParams SetLocale(const Modio::Language Locale) const;
+
+			MODIO_IMPL HttpRequestParams& SetLocale(const Modio::Language Locale);
 
 			// Overload to silently drop nulled keys - doesn't have to be a template strictly, but is one so that it's
 			// lower priority than the std::string version in the overload set
@@ -145,7 +150,7 @@ namespace Modio
 				  CurrentOperationType(CurrentOperationType),
 				  CurrentAPIVersion(Modio::Detail::APIVersion::V1)
 			{}
-			
+
 			HttpRequestParams()
 				: ResourcePath("NOT_SET"),
 				  GameID(0),
@@ -154,8 +159,10 @@ namespace Modio
 				  CurrentAPIVersion(Modio::Detail::APIVersion::V1)
 			{}
 
-			MODIO_IMPL static Modio::Optional<HttpRequestParams> FileDownload(std::string URL);
+			MODIO_IMPL Modio::Detail::Buffer GetRequestBuffer(bool bPerformURLEncoding = false) const;
 
+			MODIO_IMPL static Modio::Optional<HttpRequestParams> FileDownload(std::string URL);
+			MODIO_IMPL Modio::Optional<Modio::Detail::HttpRequestParams> RedirectURL(std::string URL) const;
 		private:
 			MODIO_IMPL HttpRequestParams(std::string Server, std::string ResourcePath);
 			MODIO_IMPL std::string GetAPIVersionString() const;
@@ -184,6 +191,9 @@ namespace Modio
 			Modio::Optional<std::string> Payload;
 			Modio::Optional<std::string> AuthTokenOverride;
 
+			// Temporary workaround for specifying the locale on Terms request
+			Modio::Optional<Modio::Language> OverrideLocale;
+
 			std::string APIKey;
 			// constexpr static const char* APIKey = MODIO_API_KEY;
 
@@ -200,13 +210,17 @@ namespace Modio
 			Modio::Optional<Modio::FileOffset> EndOffset;
 		};
 
-		// TODO: @Modio-core implement comparison operator for HttpRequestParams and maybe IsValid()?
-		static inline HttpRequestParams InvalidParams {};
+// TODO: @Modio-core implement comparison operator for HttpRequestParams and maybe IsValid()?
+#ifdef MODIO_SEPARATE_COMPILATION
+		extern HttpRequestParams InvalidParams;
+#else
+		MODIO_IMPL HttpRequestParams InvalidParams;
+#endif
 	} // namespace Detail
 }; // namespace Modio
 
 #ifndef MODIO_SEPARATE_COMPILATION
-#include "ModioHttpParams.ipp"
+	#include "ModioHttpParams.ipp"
 #endif
 
 #include "modio/core/ModioDefaultRequestParameters.h"

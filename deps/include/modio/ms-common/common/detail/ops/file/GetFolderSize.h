@@ -3,7 +3,7 @@
 #include "common/detail/ops/file/DeleteFile.h"
 #include "modio/core/ModioErrorCode.h"
 #include "modio/core/ModioLogger.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {
@@ -14,14 +14,13 @@ namespace Modio
 		/// This class recursively iterates over a specified folder and either calls itself on subfolders, or
 		/// asynchronously deletes files
 		/// </summary>
-		class GetFolderSize
+		class GetFolderSizeOp
 		{
 		public:
-			GetFolderSize(Modio::filesystem::path FolderPath) : FolderPath(FolderPath), CurrentSize(0) {};
+			GetFolderSizeOp(Modio::filesystem::path FolderPath) : FolderPath(FolderPath), CurrentSize(0) {};
 			template<typename CoroType>
 			void operator()(CoroType& Self, Modio::ErrorCode ec = {}, std::size_t SizeToAdd = 0)
 			{
-				
 				reenter(CoroutineState)
 				{
 					{
@@ -72,7 +71,7 @@ namespace Modio
 		auto GetFolderSizeAsync(Modio::filesystem::path FilePath, DeleteCallback&& OnDeleteDone)
 		{
 			return asio::async_compose<DeleteCallback, void(Modio::ErrorCode, std::size_t)>(
-				GetFolderSize(FilePath), OnDeleteDone, Modio::Detail::Services::GetGlobalContext().get_executor());
+				GetFolderSizeOp(FilePath), OnDeleteDone, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	} // namespace Detail
 } // namespace Modio

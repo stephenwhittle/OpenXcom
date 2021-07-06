@@ -622,7 +622,7 @@ void refreshMods()
 					{
 						if (entry.path().filename() == Modio::filesystem::path("metadata.yml"))
 						{
-							loadModFromPath(entry.path().parent_path());
+							loadModFromPath(entry.path().parent_path().u8string());
 							break;
 						}
 					}

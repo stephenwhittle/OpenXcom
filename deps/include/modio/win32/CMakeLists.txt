@@ -3,7 +3,7 @@ if (NOT TARGET platform)
 	add_library(platform INTERFACE)
 endif()
 
-target_compile_features(platform INTERFACE cxx_std_17)
+target_compile_features(platform INTERFACE cxx_std_14)
 
 target_include_directories(platform INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(platform INTERFACE fmt-header-only utf8cpp ws2_32 winhttp)

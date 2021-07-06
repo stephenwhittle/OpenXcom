@@ -1,8 +1,8 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-	#include "ModioFilterParams.h"
+	#include "modio/core/ModioFilterParams.h"
 #endif
 
-#include "fmt/chrono.h"
+#include "modio/detail/FmtWrapper.h"
 
 namespace Modio
 {

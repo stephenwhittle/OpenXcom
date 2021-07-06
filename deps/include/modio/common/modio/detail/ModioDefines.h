@@ -138,15 +138,3 @@
 	#define UNICODE
 #endif
 
-#ifdef _WIN32
-	// Set the proper SDK version before including asio
-	#include <SDKDDKVer.h>
-	// Note asio includes Windows.h.
-	#include <asio.hpp>
-	// Ensure that we are linking against Winhttp that we require on Windows
-	#pragma comment(lib, "Winhttp.lib")
-#else // _WIN32
-	#include <asio.hpp>
-#endif //_WIN32
-
-

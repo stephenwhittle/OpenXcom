@@ -3,10 +3,9 @@
 #include "modio/compression/ModioCompressionService.h"
 #include "modio/core/ModioCoreTypes.h"
 #include "modio/core/ModioStdTypes.h"
-#include "modio/detail/ops/compression/ExtractEntry.h"
-#include "modio/detail/ops/compression/ParseArchiveContents.h"
-
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
+#include "modio/detail/ops/compression/ExtractEntryOp.h"
+#include "modio/detail/ops/compression/ParseArchiveContentsOp.h"
 #include <memory>
 #include <vector>
 
@@ -26,16 +25,16 @@ namespace Modio
 				get_implementation()->FilePath = FilePath;
 			};
 			ArchiveFile(ArchiveFile&& Other)
-				: FilePath(std::move(Other.FilePath)),
-				  asio::basic_io_object<CompressionService>(std::move(Other))
+				: asio::basic_io_object<CompressionService>(std::move(Other)),
+				  FilePath(std::move(Other.FilePath))
 			{}
 			// internal methods
 			// add entry from file on disk
 			// extract entry to file on disk
 
 			// public methods
-			// async_ParseArchiveContents
-			// async_CreateArchiveFromFiles
+			// ParseArchiveContentsAsync
+			// CreateArchiveFromFilesAsync
 			// async_ExtractToFolder
 
 			// compression implementation class
@@ -55,26 +54,26 @@ namespace Modio
 			}
 
 			template<typename CompletionHandlerType>
-			auto async_ParseArchiveContents(CompletionHandlerType&& Handler)
+			auto ParseArchiveContentsAsync(CompletionHandlerType&& Handler)
 			{
 				return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(
-					ParseArchiveContents(get_implementation()), Handler,
+					ParseArchiveContentsOp(get_implementation()), Handler,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 
 			template<typename CompletionHandlerType>
-			auto async_CreateArchiveFromFiles(std::vector<Modio::filesystem::path> FilePaths,
-											  CompletionHandlerType&& Handler)
+			auto CreateArchiveFromFilesAsync(std::vector<Modio::filesystem::path> FilePaths,
+											 CompletionHandlerType&& Handler)
 			{}
 
 			template<typename CompletionHandlerType>
-			auto async_ExtractEntry(ArchiveFileImplementation::ArchiveEntry Entry,
-									Modio::filesystem::path RootPathToExtractTo,
-									Modio::Optional<std::weak_ptr<Modio::ModProgressInfo>> ProgressInfo,
-									CompletionHandlerType&& Handler)
+			auto ExtractEntryAsync(ArchiveFileImplementation::ArchiveEntry Entry,
+								   Modio::filesystem::path RootPathToExtractTo,
+								   Modio::Optional<std::weak_ptr<Modio::ModProgressInfo>> ProgressInfo,
+								   CompletionHandlerType&& Handler)
 			{
 				return asio::async_compose<CompletionHandlerType, void(Modio::ErrorCode)>(
-					ExtractEntry(get_implementation(), Entry, RootPathToExtractTo, ProgressInfo), Handler,
+					ExtractEntryOp(get_implementation(), Entry, RootPathToExtractTo, ProgressInfo), Handler,
 					Modio::Detail::Services::GetGlobalContext().get_executor());
 			}
 			Modio::FileSize GetTotalExtractedSize()

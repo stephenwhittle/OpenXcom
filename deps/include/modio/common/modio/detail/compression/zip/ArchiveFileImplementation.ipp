@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-#include "ArchiveFileImplementation.h"
+#include "modio/detail/compression/zip/ArchiveFileImplementation.h"
 #endif
 
 namespace Modio

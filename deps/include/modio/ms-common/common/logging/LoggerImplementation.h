@@ -1,7 +1,7 @@
 #pragma once
-#include "fmt/chrono.h"
 #include "modio/core/ModioLogEnum.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
+#include "modio/detail/FmtWrapper.h"
 
 namespace Modio
 {

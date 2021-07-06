@@ -1,5 +1,5 @@
 #ifdef MODIO_SEPARATE_COMPILATION
-#include "ModioHttpService.h"
+#include "modio/http/ModioHttpService.h"
 #endif
 
 namespace Modio

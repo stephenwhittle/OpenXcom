@@ -6,7 +6,7 @@
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/file/ModioFile.h"
 #include "modio/file/ModioFileService.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <asio/yield.hpp>
 namespace Modio
 {
@@ -33,7 +33,7 @@ namespace Modio
 						std::copy(teststring.begin(), teststring.end(), DataBuffer->begin());
 					}
 
-					yield DestinationFile->async_Write(std::move(*(DataBuffer.release())), std::move(Self));
+					yield DestinationFile->WriteAsync(std::move(*(DataBuffer.release())), std::move(Self));
 					if (ec)
 					{
 						Self.complete(ec);

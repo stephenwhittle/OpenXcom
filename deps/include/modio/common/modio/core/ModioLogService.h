@@ -1,10 +1,10 @@
 #pragma once
-
+#include "ModioGeneratedVariables.h"
 #include "modio/core/ModioServices.h"
 #include "logging/LoggerImplementation.h"
 #include "modio/core/ModioLogBuffer.h"
 #include "modio/core/ModioLogEnum.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {
@@ -19,49 +19,20 @@ namespace Modio
 			};
 
 		public:
-			explicit LogService(asio::io_context& IOService)
-				: asio::detail::service_base<LogService>(IOService),
-				  CurrentLogLevel(LogLevel::Trace),
-				  LogStrand(asio::make_strand(IOService))
-			{}
+			MODIO_IMPL explicit LogService(asio::io_context& IOService);
 
 			using implementation_type = std::shared_ptr<Modio::Detail::LoggerImplementation>;
 
-			void construct(implementation_type& Implementation)
-			{
-				Implementation = std::make_shared<LoggerImplementation>(LogStrand);
-			}
-			void destroy(implementation_type& Implementation)
-			{
-				Implementation.reset();
-			}
+			MODIO_IMPL void construct(implementation_type& Implementation);
+			MODIO_IMPL void destroy(implementation_type& Implementation);
 
-			void Shutdown()
-			{
-				FlushLogBuffer();
-			}
+			MODIO_IMPL void Shutdown();
 
-			void SetLogLevel(LogLevel Level)
-			{
-				CurrentLogLevel = Level;
-			}
+			MODIO_IMPL void SetLogLevel(LogLevel Level);
 
-			LogLevel GetLogLevel() const
-			{
-				return CurrentLogLevel;
-			}
+			MODIO_IMPL LogLevel GetLogLevel() const;
 
-			void FlushLogBuffer()
-			{
-				if (UserCallbackFunction)
-				{
-					for (const LogMessage& Log : LogBuffer)
-					{
-						UserCallbackFunction(Log.Level, Log.Message);
-					}
-				}
-				LogBuffer.clear();
-			}
+			MODIO_IMPL void FlushLogBuffer();
 
 			template<typename... ArgTypes>
 			void Log(implementation_type& PlatformLoggerObject, LogLevel Level, LogCategory Category,
@@ -85,32 +56,19 @@ namespace Modio
 				}
 			}
 			// TODO: @modio-core this should not be a static function
-			static void SetLogCallback(std::function<void(Modio::LogLevel, const std::string&)> LogCallback)
-			{
-				// Flush out the current logs
-				if (UserCallbackFunction)
-				{
-					// @todo: What will happen here if there is no service alive as the global context is dead?
-					Modio::Detail::Services::GetGlobalService<Modio::Detail::LogService>().FlushLogBuffer();
-				}
-				UserCallbackFunction = LogCallback;
-			}
+			static MODIO_IMPL void SetLogCallback(std::function<void(Modio::LogLevel, const std::string&)> LogCallback);
 
 			/// <summary>
 			/// Static function to allow easy setting of the global logging level
 			/// </summary>
 			/// <param name="Level">The minimum severity level to display</param>
-			static void SetGlobalLogLevel(Modio::LogLevel Level)
-			{
-				auto& LogService = asio::use_service<Modio::Detail::LogService>(Modio::Detail::Services::GetGlobalContext());
-				LogService.SetLogLevel(Level);
-			}
+			static MODIO_IMPL void SetGlobalLogLevel(Modio::LogLevel Level);
 
 		private:
 			// Todo: @modio-core move this to the SDKSessionData so it's permanently valid
 			// Not stored in global state, as it's created during startup, and we want to be able to capture logs from
 			// the startup
-			static inline std::function<void(Modio::LogLevel, const std::string&)> UserCallbackFunction;
+			static MODIO_IMPL std::function<void(Modio::LogLevel, const std::string&)> UserCallbackFunction;
 
 			LogLevel CurrentLogLevel;
 			asio::strand<asio::io_context::executor_type> LogStrand;
@@ -118,3 +76,7 @@ namespace Modio
 		};
 	} // namespace Detail
 } // namespace Modio
+
+#ifndef MODIO_SEPARATE_COMPILATION
+	#include "ModioLogService.ipp"
+#endif

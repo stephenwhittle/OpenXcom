@@ -1,6 +1,6 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <memory>
 #include "modio/detail/compression/zip/CompressionImplementation.h"
 

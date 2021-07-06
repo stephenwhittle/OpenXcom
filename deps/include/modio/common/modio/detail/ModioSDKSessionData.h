@@ -29,7 +29,7 @@ namespace Modio
 											  Modio::Environment Environment);
 
 			MODIO_IMPL static void Deinitialize();
-
+			MODIO_IMPL static void ConfirmInitialize();
 			MODIO_IMPL static bool IsInitialized();
 			MODIO_IMPL static Modio::GameID CurrentGameID();
 			MODIO_IMPL static const Modio::ApiKey& CurrentAPIKey();
@@ -66,6 +66,9 @@ namespace Modio
 
 			MODIO_IMPL static void RemoveDeferredUnsubscription(Modio::ModID NoLongerDeferredUnsubscription);
 
+			MODIO_IMPL static Modio::Optional<Modio::filesystem::path> GetLastUsedModDirectory();
+			MODIO_IMPL static bool SetDefaultModDirectory(Modio::filesystem::path DefaultDirectory);
+
 			MODIO_IMPL static void SetUserModManagementCallback(
 				std::function<void(Modio::ModManagementEvent)> Callback);
 
@@ -75,7 +78,7 @@ namespace Modio
 
 			/// <summary>
 			/// Initializes a ModProgressInfo for the specified mod, storing it in global state. This method is only
-			/// intended for use by InstallOrUpdateMod
+			/// intended for use by InstallOrUpdateModOp
 			/// </summary>
 			/// <param name="ID">ModID for the mod to begin reporting progress on</param>
 			/// <returns>Weak pointer to the ModProgressInfo, or null if a mod is already downloading/updating
@@ -87,7 +90,7 @@ namespace Modio
 			/// <summary>
 			/// Resets the internal ModProgressInfo object such that calls to GetModProgress return an empty optional
 			/// indicating no mods are currently updating or installing. This method is only intended for use by
-			/// InstallOrUpdateMod
+			/// InstallOrUpdateModOp
 			/// </summary>
 			MODIO_IMPL static void FinishModDownloadOrUpdate();
 
@@ -99,6 +102,15 @@ namespace Modio
 			MODIO_IMPL static Modio::Optional<const Modio::ModProgressInfo> GetModProgress();
 
 		private:
+
+			enum class InitializationState
+			{
+				NotInitialized,
+				Initializing,
+				InitializationComplete
+			};
+
+
 			MODIO_IMPL SDKSessionData(Modio::GameID GameID, const Modio::ApiKey& APIKey,
 									  Modio::Environment Environment);
 			MODIO_IMPL SDKSessionData();
@@ -109,7 +121,7 @@ namespace Modio
 			Modio::GameID GameID;
 			Modio::ApiKey APIKey;
 			Modio::Environment Environment;
-			bool bInitialized = false;
+			InitializationState CurrentInitializationState = InitializationState::NotInitialized;
 			bool bModManagementEnabled = false;
 			bool bShutdownRequested = false;
 

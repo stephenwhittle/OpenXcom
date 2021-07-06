@@ -3,9 +3,9 @@
 #include "modio/detail/CoreOps.h"
 #include "modio/detail/ModioObjectTrack.h"
 #include "modio/detail/ModioSDKSessionData.h"
-#include "modio/detail/ops/http/PerformRequestAndGetResponse.h"
+#include "modio/detail/ops/http/PerformRequestAndGetResponseOp.h"
 #include "modio/file/ModioFileService.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <nlohmann/json.hpp>
 
 #include <asio/yield.hpp>
@@ -13,10 +13,10 @@ namespace Modio
 {
 	namespace Detail
 	{
-		class InstallOrUpdateMod : public Modio::Detail::BaseOperation<InstallOrUpdateMod>
+		class InstallOrUpdateModOp : public Modio::Detail::BaseOperation<InstallOrUpdateModOp>
 		{
 		public:
-			InstallOrUpdateMod(Modio::ModID Mod) : Mod(Mod)
+			InstallOrUpdateModOp(Modio::ModID Mod) : Mod(Mod)
 			{
 				ModProgress = Modio::Detail::SDKSessionData::StartModDownloadOrUpdate(Mod);
 			};
@@ -36,7 +36,7 @@ namespace Modio
 					Transaction =
 						BeginTransaction(Modio::Detail::SDKSessionData::GetSystemModCollection().Entries().at(Mod));
 
-					yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
+					yield Modio::Detail::ComposedOps::PerformRequestAndGetResponseAsync(
 						ModInfoBuffer,
 						Modio::Detail::GetModRequest.SetGameID(Modio::Detail::SDKSessionData::CurrentGameID())
 							.SetModID(Mod),
@@ -90,7 +90,7 @@ namespace Modio
 						ModInfoResponse["modfile"]["filename"].get<std::string>(),
 						ModInfoResponse["id"].get<Modio::ModID>(), ModInfoResponse["name"].get<std::string>());
 
-					yield Modio::Detail::ComposedOps::async_DownloadFile(
+					yield Modio::Detail::ComposedOps::DownloadFileAsync(
 						Modio::Detail::HttpRequestParams::FileDownload(
 							ModInfoResponse["modfile"]["download"]["binary_url"])
 							.value(),
@@ -109,7 +109,7 @@ namespace Modio
 					if (Modio::filesystem::exists(InstallPath, ec) && !ec)
 					{
 						yield Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>()
-							.async_DeleteFolder(InstallPath, std::move(Self));
+							.DeleteFolderAsync(InstallPath, std::move(Self));
 						if (ec)
 						{
 							Modio::Detail::SDKSessionData::FinishModDownloadOrUpdate();
@@ -125,7 +125,7 @@ namespace Modio
 						return;
 					}
 
-					yield Modio::Detail::ComposedOps::async_ExtractAllFiles(DownloadPath, InstallPath, ModProgress,
+					yield Modio::Detail::ComposedOps::ExtractAllFilesAsync(DownloadPath, InstallPath, ModProgress,
 																			std::move(Self));
 
 					if (ec)
@@ -163,10 +163,10 @@ namespace Modio
 		};
 
 		template<typename InstallDoneCallback>
-		auto async_InstallOrUpdateMod(Modio::ModID Mod, InstallDoneCallback&& OnInstallComplete)
+		auto InstallOrUpdateModAsync(Modio::ModID Mod, InstallDoneCallback&& OnInstallComplete)
 		{
 			return asio::async_compose<InstallDoneCallback, void(Modio::ErrorCode)>(
-				InstallOrUpdateMod(Mod), OnInstallComplete, Modio::Detail::Services::GetGlobalContext().get_executor());
+				InstallOrUpdateModOp(Mod), OnInstallComplete, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	} // namespace Detail
 } // namespace Modio

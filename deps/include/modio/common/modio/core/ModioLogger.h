@@ -3,7 +3,7 @@
 #include "modio/core/ModioLogEnum.h"
 #include "modio/core/ModioLogService.h"
 #include "modio/core/ModioServices.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {

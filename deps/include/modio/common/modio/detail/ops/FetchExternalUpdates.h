@@ -6,6 +6,7 @@
 #include "modio/detail/ops/SaveModCollectionToStorage.h"
 #include "modio/detail/ops/UnsubscribeFromMod.h"
 #include "modio/detail/ops/modmanagement/FetchUserSubscriptionsFromServer.h"
+#include "modio/file/ModioFileService.h"
 #include "modio/userdata/ModioUserDataService.h"
 #include <algorithm>
 #include <asio/coroutine.hpp>
@@ -15,7 +16,7 @@ namespace Modio
 {
 	namespace Detail
 	{
-		class FetchExternalUpdates
+		class FetchExternalUpdatesOp
 		{
 		public:
 			template<typename CoroType>
@@ -49,7 +50,7 @@ namespace Modio
 						}
 					}
 
-					yield async_FetchUserSubscriptionsFromServer(std::move(Self));
+					yield FetchUserSubscriptionsFromServerAsync(std::move(Self));
 					if (ec)
 					{
 						Self.complete(ec);
@@ -58,7 +59,7 @@ namespace Modio
 
 					{
 						Modio::UserSubscriptionList ServerSubscriptionModIDs;
-						std::map<Modio::ModID, Modio::ModInfo&> ServerSubsModProfiles;
+						std::map<Modio::ModID, Modio::ModInfo> ServerSubsModProfiles;
 						if (!ServerSubscriptionList)
 						{
 							Self.complete(ec);
@@ -67,8 +68,11 @@ namespace Modio
 						for (Modio::ModInfo& Profile : ServerSubscriptionList.value())
 						{
 							ServerSubscriptionModIDs.AddMod(Profile);
-							ServerSubsModProfiles.insert_or_assign(Profile.ModId, Profile);
-							Modio::Detail::SDKSessionData::GetSystemModCollection().AddOrUpdateMod(Profile);
+							ServerSubsModProfiles[Profile.ModId] = Profile;
+							Modio::Detail::SDKSessionData::GetSystemModCollection().AddOrUpdateMod(
+								Profile,
+								Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().MakeModPath(
+									Profile.ModId));
 						}
 
 						std::map<Modio::ModID, Modio::UserSubscriptionList::ChangeType> ModListDiff =
@@ -138,7 +142,7 @@ namespace Modio
 		auto FetchExternalUpdatesAsync(FetchDoneCallback&& OnFetchComplete)
 		{
 			return asio::async_compose<FetchDoneCallback, void(Modio::ErrorCode)>(
-				FetchExternalUpdates(), OnFetchComplete, Modio::Detail::Services::GetGlobalContext().get_executor());
+				FetchExternalUpdatesOp(), OnFetchComplete, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 
 	} // namespace Detail

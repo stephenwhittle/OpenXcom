@@ -3,7 +3,7 @@
 #include "modio/detail/ops/modmanagement/ProcessNextModInUserCollection.h"
 #include "modio/detail/ops/FetchExternalUpdates.h"
 
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <asio/yield.hpp>
 #include <memory>
 namespace Modio
@@ -40,7 +40,7 @@ namespace Modio
 							//yield Modio::Detail::FetchExternalUpdatesAsync(std::move(Self));
 						}
 
-						//todo: @modio-core ensure that ops like FetchExternalUpdates translate their error codes into public codes for errors like Not Authorized
+						//todo: @modio-core ensure that ops like FetchExternalUpdatesOp translate their error codes into public codes for errors like Not Authorized
 						if (ec) {
 							Self.complete(ec);
 							return;
@@ -51,7 +51,7 @@ namespace Modio
 						// (installation, update, etc).
 						// It flags the mod with any error state that it encounters, so we don't need to handle that
 						// here, just sleep and try to process the next mod
-						yield Modio::Detail::async_ProcessNextModInUserCollection(std::move(Self));
+						yield Modio::Detail::ProcessNextModInUserCollectionAsync(std::move(Self));
 
 						// lazy-initialize the timer
 						if (IdleTimer == nullptr)
@@ -73,7 +73,7 @@ namespace Modio
 		};
 
 		template<typename ManagementLoopEndCallback>
-		auto async_BeginModManagementLoop(ManagementLoopEndCallback&& OnLoopEnded)
+		auto BeginModManagementLoopAsync(ManagementLoopEndCallback&& OnLoopEnded)
 		{
 			return asio::async_compose<ManagementLoopEndCallback, void(Modio::ErrorCode)>(
 				ModManagementLoop(), OnLoopEnded, Modio::Detail::Services::GetGlobalContext().get_executor());

@@ -1,7 +1,8 @@
 #pragma once
 #include "ModioGeneratedVariables.h"
+#include "modio/core/ModioStdTypes.h"
 #include "modio/core/ModioBuffer.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <chrono>
 #include <memory>
 #include <string>
@@ -9,8 +10,11 @@
 
 namespace Modio
 {
+	
 	namespace Detail
 	{
+		class DynamicBuffer;
+
 		class CacheService : public asio::detail::service_base<CacheService>
 		{
 		public:

@@ -4,7 +4,7 @@
 #include "modio/core/ModioBuffer.h"
 #include "modio/http/ModioHttpParams.h"
 #include "modio/http/ModioHttpService.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {
@@ -25,29 +25,31 @@ namespace Modio
 
 			MODIO_IMPL std::uint32_t GetResponseCode();
 
+			MODIO_IMPL Modio::Optional<std::string> GetRedirectURL() const;
+
 			// pass in a const buffer as well?
 			template<typename CompletionTokenType>
-			auto async_Send(CompletionTokenType&& Token)
+			auto SendAsync(CompletionTokenType&& Token)
 			{
 				// TODO: @Modio-core Make sure request hasn't been sent already
-				get_service().async_SendRequest(get_implementation(),
+				get_service().SendRequestAsync(get_implementation(),
 												std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			template<typename CompletionTokenType>
-			auto async_ReadResponseHeaders(CompletionTokenType&& Token)
+			auto ReadResponseHeadersAsync(CompletionTokenType&& Token)
 			{
 				// Must have sent the request first before we read headers
 
-				get_service().async_ReadResponseHeaders(get_implementation(),
+				get_service().ReadResponseHeadersAsync(get_implementation(),
 														std::forward<CompletionTokenType>(std::move(Token)));
 			}
 
 			// pass in a mutable buffer to read into as well?
 			template<typename CompletionTokenType>
-			auto async_ReadSomeFromResponseBody(DynamicBuffer DynamicBufferInstance, CompletionTokenType&& Token)
+			auto ReadSomeFromResponseBodyAsync(DynamicBuffer DynamicBufferInstance, CompletionTokenType&& Token)
 			{
-				get_service().async_ReadSomeFromResponseBody(get_implementation(), DynamicBufferInstance,
+				get_service().ReadSomeFromResponseBodyAsync(get_implementation(), DynamicBufferInstance,
 															 std::forward<CompletionTokenType>(std::move(Token)));
 			}
 		};

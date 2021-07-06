@@ -1,11 +1,12 @@
 #pragma once
+#include "ModioGeneratedVariables.h"
 namespace Modio
 {
 	namespace Detail
 	{
 		struct BaseOperationCommonImpl
 		{
-			inline static bool RequiresShutdown = false;
+			static MODIO_IMPL bool RequiresShutdown;
 		};
 
 		template<typename Base>
@@ -21,5 +22,6 @@ namespace Modio
 		};
 	} // namespace Detail
 } // namespace Modio
-
+#ifndef MODIO_SEPARATE_COMPILATION
 #include "modio/impl/detail/ModioObjectTrack.ipp"
+#endif

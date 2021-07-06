@@ -9,10 +9,10 @@ namespace Modio
 {
 	namespace Detail
 	{
-		class UnsubscribeFromMod
+		class UnsubscribeFromModOp
 		{
 		public:
-			UnsubscribeFromMod(Modio::GameID GameID, Modio::ModID ModId) : GameID(GameID), ModId(ModId) {};
+			UnsubscribeFromModOp(Modio::GameID GameID, Modio::ModID ModId) : GameID(GameID), ModId(ModId) {};
 
 			template<typename CoroType>
 			void operator()(CoroType& Self, Modio::ErrorCode ec = {})
@@ -34,10 +34,16 @@ namespace Modio
 						}
 					}
 
-					yield Modio::Detail::ComposedOps::async_PerformRequestAndGetResponse(
+					yield Modio::Detail::ComposedOps::PerformRequestAndGetResponseAsync(
 						ResponseBodyBuffer, Modio::Detail::UnsubscribeFromModRequest.SetGameID(GameID).SetModID(ModId),
 						Modio::Detail::CachedResponse::Allow, std::move(Self));
-					if (ec)
+					
+					if (ec == Modio::ErrorConditionTypes::ApiErrorRefSuccess)
+					{
+						Modio::Detail::Logger().Log(Modio::LogLevel::Warning, Modio::LogCategory::ModManagement,
+													"User was not subscribed to mod {}", ModId);
+					} 
+					else if (ec)
 					{
 						if (ec != Modio::GenericError::OperationCanceled)
 						{
@@ -71,7 +77,7 @@ namespace Modio
 									 UnsubscribeCompleteCallback&& OnUnsubscribeComplete)
 		{
 			return asio::async_compose<UnsubscribeCompleteCallback, void(Modio::ErrorCode)>(
-				Modio::Detail::UnsubscribeFromMod(Modio::Detail::SDKSessionData::CurrentGameID(), ModToUnsubscribeFrom),
+				Modio::Detail::UnsubscribeFromModOp(Modio::Detail::SDKSessionData::CurrentGameID(), ModToUnsubscribeFrom),
 				OnUnsubscribeComplete, Modio::Detail::Services::GetGlobalContext().get_executor());
 		}
 	} // namespace Detail

@@ -1,6 +1,6 @@
 #pragma once
 #include "modio/core/ModioLogEnum.h"
-#include <asio.hpp>
+#include "modio/detail/AsioWrapper.h"
 
 namespace Modio
 {

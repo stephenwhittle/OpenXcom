@@ -1,11 +1,11 @@
+#include "common/GDKHttpSharedState.h"
 #include "modio/core/ModioLogger.h"
 #include "modio/core/ModioServices.h"
-#include "common/GDKHttpSharedState.h"
-#include <asio.hpp>
-#include <fmt/format.h>
+#include "modio/detail/AsioWrapper.h"
+#include "modio/detail/FmtWrapper.h"
 #include <winhttp.h>
 
- static void __stdcall ModioWinhttpStatusCallback(HINTERNET InternetHandle, DWORD_PTR Context, DWORD InternetStatus,
+static void __stdcall ModioWinhttpStatusCallback(HINTERNET InternetHandle, DWORD_PTR Context, DWORD InternetStatus,
 												 LPVOID StatusInformation, DWORD StatusInformationLength)
 {
 	DWORD_PTR AlternativeContext = 0;
@@ -31,6 +31,6 @@
 	}
 	else
 	{
-		//throw;
+		// throw;
 	}
 }

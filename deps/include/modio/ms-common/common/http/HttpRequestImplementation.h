@@ -1,7 +1,7 @@
 #pragma once
 
-#include "modio/http/ModioHttpParams.h"
 #include "modio/detail/http/IHttpRequestImplementation.h"
+#include "modio/http/ModioHttpParams.h"
 #include "winhttp.h"
 
 struct HttpRequestImplementation : public Modio::Detail::IHttpRequestImplementation
@@ -10,7 +10,7 @@ struct HttpRequestImplementation : public Modio::Detail::IHttpRequestImplementat
 	HINTERNET RequestHandle;
 	std::uint32_t ResponseCode;
 
-	~HttpRequestImplementation()
+	virtual ~HttpRequestImplementation()
 	{
 		WinHttpCloseHandle(RequestHandle);
 		WinHttpCloseHandle(ConnectionHandle);
@@ -27,9 +27,12 @@ struct HttpRequestImplementation : public Modio::Detail::IHttpRequestImplementat
 		return ResponseCode;
 	}
 
-
 	virtual Modio::Detail::HttpRequestParams& GetParameters() override
 	{
 		return Parameters;
+	}
+	virtual Modio::Optional<std::string> GetRedirectURL() override
+	{
+		return {};
 	}
 };

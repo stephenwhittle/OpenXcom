@@ -1,5 +1,5 @@
 #pragma once
-
+#include "ModioGeneratedVariables.h"
 #include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/ModioJsonHelpers.h"
 #include <string>
@@ -24,14 +24,14 @@ namespace Modio
 		std::string ProfileUrl;
 	};
 
-	static void from_json(const nlohmann::json& Json, Modio::User& User)
+	inline void from_json(const nlohmann::json& Json, Modio::User& User)
 	{
 		Detail::ParseSafe(Json, User.UserId, "id");
 		Detail::ParseSafe(Json, User.Username, "username");
 		Detail::ParseSafe(Json, User.DateOnline, "date_online");
 		Detail::ParseSafe(Json, User.ProfileUrl, "profile_url");
 	}
-	static void to_json(nlohmann::json& Json, const Modio::User& User)
+	inline void to_json(nlohmann::json& Json, const Modio::User& User)
 	{
 		Json = nlohmann::json {{"id", User.UserId},
 							   {"username", User.Username},

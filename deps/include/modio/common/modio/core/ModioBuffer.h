@@ -2,7 +2,7 @@
 #include "modio/detail/ModioDefines.h"
 #include "ModioGeneratedVariables.h"
 #include "modio/core/ModioStdTypes.h"
-#include <asio/buffer.hpp>
+#include "modio/detail/AsioWrapper.h"
 #include <memory>
 #include <mutex>
 

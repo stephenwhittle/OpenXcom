@@ -6,10 +6,10 @@
 #include "modio/core/entities/ModioModStats.h"
 #include "modio/core/entities/ModioURLList.h"
 #include "modio/core/entities/ModioUser.h"
-#include "modio/detail/ModioJsonHelpers.h"
 #include "modio/detail/entities/ModioGalleryList.h"
 #include <string>
 #include <vector>
+#include <nlohmann/json.hpp>
 
 namespace Modio
 {
@@ -28,6 +28,10 @@ namespace Modio
 		std::string Tag;
 	};
 
+	MODIO_IMPL void from_json(const nlohmann::json& Json, Modio::ModTag& ModTag);
+	MODIO_IMPL void to_json(nlohmann::json& Json, const Modio::ModTag& Tag);
+
+
 	// Migrate: std::vector<Modio::ModTag> Tags to a custom class that encapsulates std::map helpers to fetch Values as
 	// something like this: Metadata.Get<int32>( "OptimizedFor" );
 	struct Metadata
@@ -36,26 +40,9 @@ namespace Modio
 		std::string Value;
 	};
 
-	inline void from_json(const nlohmann::json& Json, Modio::Metadata& Metadata)
-	{
-		Detail::ParseSafe(Json, Metadata.Key, "metakey");
-		Detail::ParseSafe(Json, Metadata.Value, "metavalue");
-	}
+	MODIO_IMPL void from_json(const nlohmann::json& Json, Modio::Metadata& Metadata);
+	MODIO_IMPL void to_json(nlohmann::json& Json, const Modio::Metadata& Metadata);
 
-	inline void to_json(nlohmann::json& Json, const Modio::Metadata& Metadata)
-	{
-		Json = nlohmann::json {{"metakey", Metadata.Key}, {"metavalue", Metadata.Value}};
-	}
-
-	inline void from_json(const nlohmann::json& Json, Modio::ModTag& ModTag)
-	{
-		Detail::ParseSafe(Json, ModTag.Tag, "name");
-	}
-
-	inline void to_json(nlohmann::json& Json, const Modio::ModTag& Tag)
-	{
-		Json = nlohmann::json {{"name", Tag.Tag}};
-	}
 	/// @docpublic
 	/// @brief Full mod profile including current release information, media links, and stats
 	struct ModInfo
@@ -109,71 +96,13 @@ namespace Modio
 		Modio::SketchfabURLList SketchfabURLs;
 		/// @brief Stats and rating information for the mod
 		Modio::ModStats Stats;
+		
 	};
 
-	static void from_json(const nlohmann::json& Json, Modio::ModInfo& ModInfo)
-	{
-		Detail::ParseSafe(Json, ModInfo.ModId, "id");
-
-		{
-			Detail::ParseSafe(Json, ModInfo.FileInfo, "modfile");
-			Detail::ParseSafe(Json, ModInfo.MetadataBlob, "metadata_blob");
-			Detail::ParseSafe(Json, ModInfo.MetadataKvp, "metadata_kvp");
-			Detail::ParseSafe(Json, ModInfo.Tags, "tags");
-		}
-
-		{
-			Detail::ParseSafe(Json, ModInfo.ProfileDateAdded, "date_added");
-			Detail::ParseSafe(Json, ModInfo.ProfileDateLive, "date_live");
-			Detail::ParseSafe(Json, ModInfo.ProfileDateUpdated, "date_updated");
-			Detail::ParseSafe(Json, ModInfo.ProfileDescription, "description");
-			Detail::ParseSafe(Json, ModInfo.ProfileDescriptionPlaintext, "description_plaintext");
-			Detail::ParseSafe(Json, ModInfo.ProfileMaturityOption, "maturity_option");
-			Detail::ParseSafe(Json, ModInfo.ProfileName, "name");
-			Detail::ParseSafe(Json, ModInfo.ProfileURL, "profile_url");
-			Detail::ParseSafe(Json, ModInfo.ProfileSubmittedBy, "submitted_by");
-			Detail::ParseSafe(Json, ModInfo.ProfileSummary, "summary");
-		}
-
-		{
-			Detail::ParseSafe(Json, ModInfo.Stats, "stats");
-		}
-
-		{
-			Detail::ParseSafe(Json, ModInfo.YoutubeURLs, "media");
-			Detail::ParseSafe(Json, ModInfo.SketchfabURLs, "media");
-		}
-
-		{
-			// @todo: Inefficient: This parses out much more data than needed just to throw it away
-			Modio::Detail::GalleryList Gallery;
-			if( Detail::ParseSafe(Json, Gallery, "media"))
-			{
-				ModInfo.NumGalleryImages = Gallery.Size();
-			}
-
-		}
-	}
-
-	static void to_json(nlohmann::json& Json, const Modio::ModInfo& Info)
-	{
-		Json = nlohmann::json {{"id", Info.ModId},
-							   {"modfile", Info.FileInfo},
-							   {"metadata_blob", Info.MetadataBlob},
-							   {"metadata_kvp", Info.MetadataKvp},
-							   {"tags", Info.Tags},
-							   {"date_added", Info.ProfileDateAdded},
-							   {"date_live", Info.ProfileDateLive},
-							   {"date_updated", Info.ProfileDateUpdated},
-							   {"description", Info.ProfileDescription},
-							   {"description_plaintext", Info.ProfileDescriptionPlaintext},
-							   {"maturity_option", Info.ProfileMaturityOption},
-							   {"name", Info.ProfileName},
-							   {"profile_url", Info.ProfileURL},
-							   {"submitted_by", Info.ProfileSubmittedBy},
-							   {"summary", Info.ProfileSummary},
-							   {"stats", Info.Stats},
-							   {"media", Info.YoutubeURLs}};
-	}
-
+	MODIO_IMPL void from_json(const nlohmann::json& Json, Modio::ModInfo& ModInfo);
+	MODIO_IMPL void to_json(nlohmann::json& Json, const Modio::ModInfo& Info);
 } // namespace Modio
+
+#ifndef MODIO_SEPARATE_COMPILATION
+	#include "ModioModInfo.ipp"
+#endif
