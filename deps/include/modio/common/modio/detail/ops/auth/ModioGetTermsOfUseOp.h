@@ -37,8 +37,17 @@ namespace Modio
 						Self.complete(ec, {});
 						return;
 					}
-
-					Self.complete(ec, MarshalResponse<Modio::Terms>(ResponseBodyBuffer));
+					{
+						auto TermsData = TryMarshalResponse<Modio::Terms>(ResponseBodyBuffer);
+						if (TermsData.has_value())
+						{
+							Self.complete(ec, TermsData);
+						}
+						else
+						{
+							Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse), {});
+						}
+					}
 					return;
 				}
 			}

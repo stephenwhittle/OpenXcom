@@ -6,7 +6,7 @@
 
 namespace Modio
 {
-	//Has to live here for ADL to work
+	// Has to live here for ADL to work
 	namespace ghc
 	{
 		namespace filesystem
@@ -109,7 +109,7 @@ namespace Modio
 
 		inline nlohmann::json ToJson(Modio::Detail::Buffer InBuffer)
 		{
-			return nlohmann::json::parse(InBuffer.Data());
+			return nlohmann::json::parse(InBuffer.Data(), nullptr, false);
 		}
 
 		inline nlohmann::json ToJson(Modio::Detail::DynamicBuffer ResponseBuffer)
@@ -117,15 +117,16 @@ namespace Modio
 			Modio::Detail::Buffer LinearBuffer(ResponseBuffer.size());
 			Modio::Detail::BufferCopy(LinearBuffer, ResponseBuffer);
 
-			return nlohmann::json::parse(LinearBuffer.Data());
+			return nlohmann::json::parse(LinearBuffer.Data(), nullptr, false);
 		}
 
 		inline nlohmann::json ToJson(Modio::filesystem::path Path)
 		{
-			return nlohmann::json::parse(Path.string());
+			return nlohmann::json::parse(Path.string(), nullptr, false);
 		}
 
-		template<typename T>
+		// Deprecated, use TryMarshalResponse instead
+		/*template<typename T>
 		inline T MarshalResponse(Modio::Detail::DynamicBuffer ResponseBuffer)
 		{
 			// @todonow: I have managed to get in results of size 1 here that crash from ListAllMods
@@ -134,19 +135,46 @@ namespace Modio
 			from_json(ToJson(ResponseBuffer), ResultStructure);
 
 			return ResultStructure;
+		}*/
+
+		template<typename T>
+		inline Modio::Optional<T> TryMarshalResponse(Modio::Detail::DynamicBuffer ResponseBuffer)
+		{
+			// @todonow: I have managed to get in results of size 1 here that crash from ListAllMods
+			T ResultStructure;
+
+			auto ParsedJson = ToJson(ResponseBuffer);
+			if (ParsedJson.is_discarded())
+			{
+				return {};
+			}
+
+			using nlohmann::from_json;
+			from_json(ParsedJson, ResultStructure);
+			return ResultStructure;
 		}
 
 		template<typename T>
-		inline T MarshalSubobjectResponse(std::string SubobjectName, Modio::Detail::DynamicBuffer ResponseBuffer)
+		inline Modio::Optional<T> MarshalSubobjectResponse(std::string SubobjectName,
+														   Modio::Detail::DynamicBuffer ResponseBuffer)
 		{
 			T ResultStructure;
 			using nlohmann::from_json;
 
 			nlohmann::json Json = ToJson(ResponseBuffer);
+			if (Json.is_discarded())
+			{
+				return {};
+			}
+
 			nlohmann::json SubobjectJson;
 			if (GetSubobjectSafe(Json, SubobjectName, SubobjectJson))
 			{
 				from_json(SubobjectJson, ResultStructure);
+			}
+			else
+			{
+				return {};
 			}
 
 			return ResultStructure;

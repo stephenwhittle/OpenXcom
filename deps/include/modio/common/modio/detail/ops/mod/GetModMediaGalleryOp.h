@@ -47,8 +47,17 @@ namespace Modio
 						return;
 					}
 
-					OpState.GalleryList = Modio::Detail::MarshalSubobjectResponse<Modio::Detail::GalleryList>(
-						"media", OpState.ResponseBodyBuffer);
+					if (auto ParsedGalleryList = Modio::Detail::MarshalSubobjectResponse<Modio::Detail::GalleryList>(
+						"media", OpState.ResponseBodyBuffer))
+					{
+						OpState.GalleryList = ParsedGalleryList.value();
+					}
+					else
+					{
+						Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse), {});
+						return;
+					}
+
 					if (ImageIndex >= OpState.GalleryList.Size())
 					{
 						// FAILED

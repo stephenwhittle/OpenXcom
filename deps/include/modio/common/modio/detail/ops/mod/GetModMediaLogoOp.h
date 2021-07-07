@@ -2,8 +2,8 @@
 
 #include "modio/core/ModioCoreTypes.h"
 #include "modio/detail/entities/ModioLogo.h"
-#include "modio/detail/ops/ModioLogoImageType.h"
 #include "modio/detail/ops/ModioDownloadImage.h"
+#include "modio/detail/ops/ModioLogoImageType.h"
 #include <asio/coroutine.hpp>
 #include <asio/yield.hpp>
 
@@ -58,8 +58,16 @@ namespace Modio
 					}
 
 					// Marshall the result of the request
-					OpState.Logo = Modio::Detail::MarshalSubobjectResponse<Modio::Detail::Logo>(
-						"logo", OpState.ResponseBodyBuffer);
+					if (auto ParsedLogo = Modio::Detail::MarshalSubobjectResponse<Modio::Detail::Logo>(
+							"logo", OpState.ResponseBodyBuffer))
+					{
+						OpState.Logo = ParsedLogo.value();
+					}
+					else
+					{
+						Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse), {});
+						return;
+					}
 
 					yield Modio::Detail::DownloadImageAsync(LogoImageType(ModId, LogoSize, OpState.Logo),
 															OpState.DestinationPath, std::move(Self));

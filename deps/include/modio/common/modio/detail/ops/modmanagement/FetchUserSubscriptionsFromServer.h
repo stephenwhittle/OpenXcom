@@ -7,12 +7,11 @@
 #include "modio/detail/FmtWrapper.h"
 #include "modio/detail/ModioJsonHelpers.h"
 
-
 namespace Modio
 {
 	namespace Detail
 	{
-	#include <asio/yield.hpp>
+#include <asio/yield.hpp>
 		class FetchUserSubscriptionsFromServerOp
 		{
 		public:
@@ -42,9 +41,30 @@ namespace Modio
 							CollatedResults = std::make_unique<Modio::ModInfoList>();
 						}
 						// append the results to a modinfolist in stable storage
-						Modio::ModInfoList CurrentModInfoPage = MarshalResponse<Modio::ModInfoList>(SubscriptionBuffer);
-						PageInfo = MarshalResponse<Modio::PagedResult>(SubscriptionBuffer);
-						CollatedResults->Append(CurrentModInfoPage);
+						{
+							Modio::Optional<Modio::ModInfoList> CurrentModInfoPage =
+								TryMarshalResponse<Modio::ModInfoList>(SubscriptionBuffer);
+							if (!CurrentModInfoPage.has_value())
+							{
+								Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse), {});
+								return;
+							}
+
+							{
+								auto PageData = TryMarshalResponse<Modio::PagedResult>(SubscriptionBuffer);
+								if (PageData.has_value())
+								{
+									PageInfo = PageData.value();
+								}
+								else
+								{
+									Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse), {});
+									return;
+								}
+							}
+
+							CollatedResults->Append(CurrentModInfoPage.value());
+						}
 						CurrentResultIndex += 100;
 					} while (CurrentResultIndex < PageInfo.GetTotalResultCount());
 
@@ -59,7 +79,7 @@ namespace Modio
 			std::unique_ptr<Modio::ModInfoList> CollatedResults;
 			std::int32_t CurrentResultIndex = 0;
 		};
-		#include <asio/unyield.hpp>
+#include <asio/unyield.hpp>
 
 		template<typename FetchCompleteCallback>
 		auto FetchUserSubscriptionsFromServerAsync(FetchCompleteCallback&& OnFetchComplete)

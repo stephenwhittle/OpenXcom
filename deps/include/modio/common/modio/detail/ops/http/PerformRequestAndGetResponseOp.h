@@ -180,29 +180,39 @@ public:
 				}
 
 				// Inspect the error ref, only treat it as an error if it isn't a no-op
-				ResponseError Error = MarshalResponse<ResponseError>(ResultBuffer);
-				Modio::ErrorCode ErrRef = Modio::make_error_code(static_cast<Modio::ApiError>(Error.ErrorRef));
-
-				if (ErrRef != Modio::ErrorConditionTypes::ApiErrorRefSuccess)
+				Modio::Optional<ResponseError> Error = TryMarshalResponse<ResponseError>(ResultBuffer);
+				if (Error.has_value())
 				{
-					// No need to log rate-limited response out
-					if (ErrRef == Modio::ApiError::Ratelimited)
-					{
-						Modio::Detail::SDKSessionData::MarkAsRateLimited();
-					}
-					else
-					{
-						Modio::Detail::Buffer ResponseBuffer(ResultBuffer.size());
-						Modio::Detail::BufferCopy(ResponseBuffer, ResultBuffer);
+					Modio::ErrorCode ErrRef = Modio::make_error_code(static_cast<Modio::ApiError>(Error->ErrorRef));
 
-						Modio::Detail::Logger().Log(Modio::LogLevel::Error, Modio::LogCategory::Http,
-													"Non 200-204 response received: {}", ResponseBuffer.Data());
+					if (ErrRef != Modio::ErrorConditionTypes::ApiErrorRefSuccess)
+					{
+						// No need to log rate-limited response out
+						if (ErrRef == Modio::ApiError::Ratelimited)
+						{
+							Modio::Detail::SDKSessionData::MarkAsRateLimited();
+						}
+						else
+						{
+							Modio::Detail::Buffer ResponseBuffer(ResultBuffer.size());
+							Modio::Detail::BufferCopy(ResponseBuffer, ResultBuffer);
+
+							Modio::Detail::Logger().Log(Modio::LogLevel::Error, Modio::LogCategory::Http,
+														"Non 200-204 response received: {}", ResponseBuffer.Data());
+						}
 					}
-					
+					// Return the error-ref regardless, defer upwards to Subscribe/Unsubscribe etc to handle as success
+					Self.complete(Modio::make_error_code(static_cast<Modio::ApiError>(Error->ErrorRef)));
+					return;
 				}
-				//Return the error-ref regardless, defer upwards to Subscribe/Unsubscribe etc to handle as success
-				Self.complete(Modio::make_error_code(static_cast<Modio::ApiError>(Error.ErrorRef)));
-				return;
+				else
+				{
+					//we have a raw HTTP response error but no error ref (ie probably we have a cloudflare error)
+					//Self.complete(Modio::make_error_code(static_cast<Modio::RawHttpError>(ResponseCode);
+					//return;
+					Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse));
+					return;
+				}
 			}
 
 			if (ec != make_error_code(Modio::GenericError::EndOfFile))

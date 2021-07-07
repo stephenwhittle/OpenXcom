@@ -43,8 +43,16 @@ namespace Modio
 					}
 
 					// Marshall the result of the request
-					OpState.User = Modio::Detail::MarshalSubobjectResponse<Modio::Detail::AuthenticatedUser>(
-						"submitted_by", OpState.ResponseBodyBuffer);
+					if (auto ParsedUser = Modio::Detail::MarshalSubobjectResponse<Modio::Detail::AuthenticatedUser>(
+						"submitted_by", OpState.ResponseBodyBuffer))
+					{
+						OpState.User = ParsedUser.value();
+					}
+					else
+					{
+						Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse), {});
+						return;
+					}
 
 					yield Modio::Detail::DownloadImageAsync(
 						AvatarImageType(OpState.User.User.UserId, AvatarSize,

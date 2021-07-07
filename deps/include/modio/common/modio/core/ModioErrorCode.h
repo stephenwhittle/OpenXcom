@@ -14,13 +14,14 @@ namespace Modio
 		HttpAlreadyInitialized = 20484,
 		HttpNotInitialized = 20485,
 		InsufficientPermissions = 20486,
-		RateLimited = 20487,
-		RequestError = 20488,
-		ResourceNotAvailable = 20489,
-		SecurityConfigurationInvalid = 20490,
-		ServerClosedConnection = 20491,
-		ServerUnavailable = 20492,
-		ServersOverloaded = 20493
+		InvalidResponse = 20487,
+		RateLimited = 20488,
+		RequestError = 20489,
+		ResourceNotAvailable = 20490,
+		SecurityConfigurationInvalid = 20491,
+		ServerClosedConnection = 20492,
+		ServerUnavailable = 20493,
+		ServersOverloaded = 20494
 	};
 
 	struct HttpErrorCategoryImpl : std::error_category
@@ -47,6 +48,9 @@ namespace Modio
 					break;
 				case HttpError::InsufficientPermissions:
 						return "Insufficient permissions";
+					break;
+				case HttpError::InvalidResponse:
+						return "The HTTP response was malformed or not in the expected format";
 					break;
 				case HttpError::RateLimited:
 						return "Too many requests made to the mod.io API within the rate-limiting window. Please wait and try again";
@@ -888,6 +892,11 @@ namespace Modio
 						return true;
 					}
 
+					if (ec == Modio::HttpError::InvalidResponse)
+					{
+						return true;
+					}
+
 					if (ec == Modio::HttpError::RateLimited)
 					{
 						return true;
@@ -1121,6 +1130,11 @@ namespace Modio
 					}
 
 					if (ec == Modio::HttpError::InsufficientPermissions)
+					{
+						return true;
+					}
+
+					if (ec == Modio::HttpError::InvalidResponse)
 					{
 						return true;
 					}

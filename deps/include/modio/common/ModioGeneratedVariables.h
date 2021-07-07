@@ -3,7 +3,7 @@
 #pragma once 
 
 #define MODIO_API_KEY "31672f8640babdcfe91a4a12d16e3423"
-#define MODIO_COMMIT_HASH "a3d27b81cdbc3c64a423a916387c22c8c058216c"
+#define MODIO_COMMIT_HASH "c5e9ce77fa380a34ab3545a2dba6cf9dd1a1f54a"
 #define MODIO_DEFAULT_SERVER Modio::Environment::Live
 
 #ifndef MODIO_TARGET_PLATFORM_ID

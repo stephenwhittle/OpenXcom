@@ -46,20 +46,26 @@ namespace Modio
 						Self.complete(ec);
 						return;
 					}
-					
 
 					{
-						Modio::ModInfo ProfileData = MarshalResponse<Modio::ModInfo>(ResponseBodyBuffer);
+						Modio::Optional<Modio::ModInfo> ProfileData =
+							TryMarshalResponse<Modio::ModInfo>(ResponseBodyBuffer);
+						if (!ProfileData.has_value())
+						{
+							Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse));
+							return;
+						}
 						Modio::Detail::SDKSessionData::GetSystemModCollection().AddOrUpdateMod(
-							ProfileData,
-							Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().MakeModPath(ProfileData.ModId));
+							ProfileData.value(),
+							Modio::Detail::Services::GetGlobalService<Modio::Detail::FileService>().MakeModPath(
+								ProfileData->ModId));
 						// Returns true if this is a new subscription for the user
-						if (Modio::Detail::SDKSessionData::GetUserSubscriptions().AddMod(ProfileData))
+						if (Modio::Detail::SDKSessionData::GetUserSubscriptions().AddMod(ProfileData.value()))
 						{
 							// Increment the reference count
 							Modio::Detail::SDKSessionData::GetSystemModCollection()
 								.Entries()
-								.at(ProfileData.ModId)
+								.at(ProfileData->ModId)
 								->AddLocalUserSubscription(Modio::Detail::SDKSessionData::GetAuthenticatedUser());
 
 							// Currently not checking the return values from these calls, because if they fail we'll

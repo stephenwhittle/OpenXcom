@@ -7,7 +7,6 @@
 #include "modio/detail/ModioAuthenticatedUser.h"
 #include "modio/detail/ModioSDKSessionData.h"
 #include "modio/detail/schema/AccessTokenObject.h"
-#include "modio/detail/CoreOps.h"
 #include "modio/http/ModioHttpParams.h"
 #include "modio/userdata/ModioUserDataService.h"
 
@@ -45,8 +44,20 @@ namespace Modio
 						return;
 					}
 
-					Local.AuthResponse =
-						Detail::MarshalResponse<Detail::Schema::AccessTokenObject>(Local.ResponseBodyBuffer);
+					{
+						Modio::Optional<Modio::Detail::Schema::AccessTokenObject> Token =
+							Detail::TryMarshalResponse<Detail::Schema::AccessTokenObject>(Local.ResponseBodyBuffer);
+						if (Token.has_value())
+						{
+							Local.AuthResponse = Token.value();
+						}
+						else
+						{
+							Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse));
+							return;
+						}
+					}
+
 					Local.ResponseBodyBuffer.Clear();
 
 					yield Detail::ComposedOps::PerformRequestAndGetResponseAsync(
@@ -59,9 +70,20 @@ namespace Modio
 						Self.complete(ec);
 						return;
 					}
-
-					Local.NewlyAuthenticatedUser =
-						Detail::MarshalResponse<Modio::Detail::AuthenticatedUser>(Local.ResponseBodyBuffer);
+					
+					{
+						Modio::Optional<Modio::Detail::AuthenticatedUser> User =
+							Detail::TryMarshalResponse<Modio::Detail::AuthenticatedUser>(Local.ResponseBodyBuffer);
+						if (User.has_value())
+						{
+							Local.NewlyAuthenticatedUser = User.value();
+						}
+						else
+						{
+							Self.complete(Modio::make_error_code(Modio::HttpError::InvalidResponse));
+							return;
+						}
+					}
 					Local.ResponseBodyBuffer.Clear();
 
 					Modio::Detail::SDKSessionData::InitializeForAuthenticatedUser(
