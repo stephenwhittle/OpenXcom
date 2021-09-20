@@ -1,0 +1,4 @@
+[submodule "deps/modio"]
+	path = deps/modio
+	url = https://github.com/modio/modio-sdk
+	branch = main

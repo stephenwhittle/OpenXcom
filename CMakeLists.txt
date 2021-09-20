@@ -35,6 +35,7 @@ endif ()
 
 if ( WIN32 )
   set ( default_deps_dir "${CMAKE_SOURCE_DIR}/deps" )
+  set (MODIO_PLATFORM "WIN")
 endif ()
 
 if ( APPLE )
@@ -51,12 +52,6 @@ set ( DEPS_DIR "${default_deps_dir}" CACHE STRING "Dependencies directory" )
 if ( IS_DIRECTORY ${DEPS_DIR}/include )
    include_directories ( SYSTEM ${DEPS_DIR}/include/SDL ${DEPS_DIR}/include/yaml-cpp ${DEPS_DIR}/include )
 
-    include_directories ( ${DEPS_DIR}/include/modio/common )
-    include_directories ( ${DEPS_DIR}/include/modio/ext )
-   if (WIN32)
-   include_directories ( ${DEPS_DIR}/include/modio/win32 )
-   include_directories ( ${DEPS_DIR}/include/modio/ms-common )
-   endif()
    if ( CMAKE_CL_64 )
      link_directories ( ${DEPS_DIR}/lib/x64 )
    else ( )
@@ -111,6 +106,8 @@ else ( )
     message ( "found yaml-cpp(${YAMLCPP_LIBRARY_DIRS}:${YAMLCPP_INCLUDE_DIR})" )
   endif ( NOT YAMLCPP_FOUND )
 endif()
+
+add_subdirectory(deps/modio EXCLUDE_FROM_ALL)
 
 # Find OpenGL
 set (OpenGL_GL_PREFERENCE LEGACY)

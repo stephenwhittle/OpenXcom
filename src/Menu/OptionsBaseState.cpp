@@ -209,11 +209,11 @@ void OptionsBaseState::btnOkClick(Action *)
 	//This forces us to enable the SDK if the settings change 
 	if (Options::enableModioSDK)
 	{
-		Modio::InitializeOptions Opts = Modio::InitializeOptions(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, "openxcom_modio");
+		Modio::InitializeOptions Opts = Modio::InitializeOptions(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, Modio::Portal::None, "openxcom_modio");
 		Modio::InitializeAsync(Opts, [](Modio::ErrorCode ec) {
 			if (ec)
 			{
-				//Log(LOG_ERROR) << "Mod.io SDK initialization failed:" << ec.message();
+				Log(LOG_ERROR) << "Mod.io SDK initialization failed:" << ec.message();
 			}
 		});
 	}
