@@ -35,7 +35,6 @@ endif ()
 
 if ( WIN32 )
   set ( default_deps_dir "${CMAKE_SOURCE_DIR}/deps" )
-  set (MODIO_PLATFORM "WIN")
 endif ()
 
 if ( APPLE )
@@ -107,7 +106,23 @@ else ( )
   endif ( NOT YAMLCPP_FOUND )
 endif()
 
-add_subdirectory(deps/modio EXCLUDE_FROM_ALL)
+if (WIN32)
+  set(MODIO_PLATFORM "WIN" CACHE STRING  "target platform for modio SDK")
+  message ("Setting modio SDK platform WIN")
+elseif (APPLE)
+  set(MODIO_PLATFORM "OSX" CACHE STRING "target platform for modio SDK")
+  message ("Setting modio SDK platform OSX")
+elseif (LINUX) 
+  set(MODIO_PLATFORM "LINUX" CACHE STRING  "target platform for modio SDK")
+  message ("Setting modio SDK platform LINUX")
+endif()
+
+if (MODIO_PLATFORM)
+  add_subdirectory(deps/modio EXCLUDE_FROM_ALL)
+  set(MODIO_LIBRARY ${MODIO_TARGET_NAME}Static)
+else()
+  message( WARNING "Unrecognised platform, disabling mod.io SDK support")
+endif()
 
 # Find OpenGL
 set (OpenGL_GL_PREFERENCE LEGACY)
