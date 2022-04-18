@@ -61,7 +61,8 @@ const std::string SavedGame::AUTOSAVE_GEOSCAPE = "_autogeo_.asav",
 				  SavedGame::AUTOSAVE_BATTLESCAPE = "_autobattle_.asav",
 				  SavedGame::QUICKSAVE = "_quick_.asav";
 
-struct findRuleResearch
+struct findRuleResearch : public std::unary_function<ResearchProject *,
+								bool>
 {
 	RuleResearch * _toFind;
 	findRuleResearch(RuleResearch * toFind);
@@ -77,7 +78,8 @@ bool findRuleResearch::operator()(const ResearchProject *r) const
 	return _toFind == r->getRules();
 }
 
-struct equalProduction
+struct equalProduction : public std::unary_function<Production *,
+							bool>
 {
 	RuleManufacture * _item;
 	equalProduction(RuleManufacture * item);
@@ -1699,7 +1701,7 @@ bool SavedGame::getDebugMode() const
 /** @brief Match a mission based on region and type.
  * This function object will match alien missions based on region and type.
  */
-class matchRegionAndType
+class matchRegionAndType: public std::unary_function<AlienMission *, bool>
 {
 public:
 	/// Store the region and type.
@@ -1796,7 +1798,7 @@ void SavedGame::setWarned(bool warned)
 /** @brief Check if a point is contained in a region.
  * This function object checks if a point is contained inside a region.
  */
-class ContainsPoint
+class ContainsPoint: public std::unary_function<const Region *, bool>
 {
 public:
 	/// Remember the coordinates.

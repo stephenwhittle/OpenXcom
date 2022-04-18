@@ -19,7 +19,6 @@
 #include "CraftSoldiersState.h"
 #include <algorithm>
 #include <climits>
-#include <functional>
 #include "../Engine/Action.h"
 #include "../Engine/Game.h"
 #include "../Mod/Mod.h"
@@ -42,7 +41,7 @@ namespace OpenXcom
 
 typedef int (*getStatFn_t)(Game *, Soldier *);
 
-struct SortFunctor /*: public std::binary_function<Soldier *, Soldier *, bool>*/
+struct SortFunctor : public std::binary_function<Soldier *, Soldier *, bool>
 {
 	Game *_game;
 	getStatFn_t _getStatFn;

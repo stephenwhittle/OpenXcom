@@ -1034,7 +1034,7 @@ void GeoscapeState::time5Seconds()
 /**
  * Functor that attempt to detect an XCOM base.
  */
-class DetectXCOMBase
+class DetectXCOMBase: public std::unary_function<Ufo *, bool>
 {
 public:
 	/// Create a detector for the given base.
@@ -1068,10 +1068,10 @@ bool DetectXCOMBase::operator()(const Ufo *ufo) const
  * Functor that marks an XCOM base for retaliation.
  * This is required because of the iterator type.
  */
-struct SetRetaliationTarget
+struct SetRetaliationTarget: public std::unary_function<std::map<const Region *, Base *>::value_type, void>
 {
 	/// Mark as a valid retaliation target.
-	void operator()(const std::map<const Region*, Base*>::value_type&iter) const { iter.second->setRetaliationTarget(true); }
+	void operator()(const argument_type &iter) const { iter.second->setRetaliationTarget(true); }
 };
 
 /**
@@ -1147,7 +1147,7 @@ void GeoscapeState::time10Minutes()
 /** @brief Call AlienMission::think() with proper parameters.
  * This function object calls AlienMission::think() with the proper parameters.
  */
-class callThink
+class callThink: public std::unary_function<AlienMission*, void>
 {
 public:
 	/// Store the parameters.
@@ -1206,7 +1206,7 @@ bool GeoscapeState::processMissionSite(MissionSite *site) const
 /** @brief Advance time for crashed UFOs.
  * This function object will decrease the expiration timer for crashed UFOs.
  */
-struct expireCrashedUfo
+struct expireCrashedUfo: public std::unary_function<Ufo*, void>
 {
 	/// Decrease UFO expiration timer.
 	void operator()(Ufo *ufo) const
@@ -1472,7 +1472,7 @@ void GeoscapeState::time1Hour()
  * This class will attempt to generate a supply mission for a base.
  * Each alien base has a 6/101 chance to generate a supply mission.
  */
-class GenerateSupplyMission
+class GenerateSupplyMission: public std::unary_function<const AlienBase *, void>
 {
 public:
 	/// Store rules and game data references for later use.
