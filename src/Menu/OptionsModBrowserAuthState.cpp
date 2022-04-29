@@ -16,10 +16,14 @@
 
 void OpenXcom::OptionsModBrowserAuthState::submitEmailClick(Action* action)
 {
-	Modio::RequestEmailAuthCodeAsync(Modio::EmailAddress(_emailAddrInput->getText()), [_palette = this->_palette, _game = this->_game](Modio::ErrorCode ec) {
+	Modio::RequestEmailAuthCodeAsync(Modio::EmailAddress(_emailAddrInput->getText()), [_authRequiredText = this->_authRequiredText, _palette = this->_palette, _game = this->_game](Modio::ErrorCode ec) {
 		if (ec)
 		{
 			_game->pushState(new ErrorMessageState((std::string("mod.io SDK auth failure: ") + ec.message()).c_str(), _palette, _game->getMod()->getInterface("errorMessages")->getElement("geoscapeColor")->color, "BACK01.SCR", _game->getMod()->getInterface("errorMessages")->getElement("geoscapePalette")->color));
+		}
+		else
+		{
+			_authRequiredText->setText("A code has been requested for the specified email address. Please enter it and click 'Submit authentication code'");
 		}
 	});
 }
@@ -73,7 +77,7 @@ OpenXcom::OptionsModBrowserAuthState::OptionsModBrowserAuthState()
 
 	_window->setBackground(_game->getMod()->getSurface("BACK01.SCR"));
 
-	_authRequiredText->setText("Please enter the email address for your mod.io account to authenticate and manage your OpenXcom mod subscriptions");
+	_authRequiredText->setText("Please enter the email address for your mod.io account and click 'Submit code request'");
 	_authRequiredText->setColor(138);
 	_authRequiredText->setWordWrap(true);
 	_authRequiredText->setAlign(ALIGN_CENTER);

@@ -176,7 +176,7 @@ void OpenXcom::OptionsModBrowserUserConfigState::onBackClicked(Action *action)
 void OpenXcom::OptionsModBrowserUserConfigState::updateSubscriptionList()
 {
 	_currentUserMods->clearList();
-
+	_userSubscriptions = Modio::QueryUserSubscriptions();
 	for (const std::pair<Modio::ModID, Modio::ModCollectionEntry> &ModEntry : _userSubscriptions)
 	{
 		_currentUserMods->addRow(1, ModEntry.second.GetModProfile().ProfileName.c_str());
