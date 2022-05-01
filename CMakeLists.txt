@@ -8,8 +8,7 @@ include(GNUInstallDirs)
 
 # For yaml-cpp
 set (CMAKE_CXX_STANDARD 14)
-add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
-# use std=c++11 rather than std=gnu++11
+# use std=c++14 rather than std=gnu++14
 set (CMAKE_CXX_EXTENSIONS OFF)
 
 option ( DEV_BUILD "Development Build. Disable this for release builds" ON )
@@ -51,7 +50,6 @@ set ( DEPS_DIR "${default_deps_dir}" CACHE STRING "Dependencies directory" )
 # Add check for library (SDL_gfx, yaml-cpp )
 if ( IS_DIRECTORY ${DEPS_DIR}/include )
    include_directories ( SYSTEM ${DEPS_DIR}/include/SDL ${DEPS_DIR}/include/yaml-cpp ${DEPS_DIR}/include )
-
    if ( CMAKE_CL_64 )
      link_directories ( ${DEPS_DIR}/lib/x64 )
    else ( )
@@ -64,8 +62,6 @@ if ( IS_DIRECTORY ${DEPS_DIR}/include )
    set ( YAMLCPP_LIBRARY yaml-cpp )
    set ( YAMLCPP_LIBRARY_DEBUG yaml-cppd )
    add_definitions( -DYAML_CPP_DLL )
-   #hacky but removes the tons of noise caused by yaml-cpp
-   add_compile_options( /wd4251 /wd4275)
 else ( )
   find_package ( SDL2 COMPONENTS mixer gfx image)
   find_package ( Yaml_cpp 0.5.3)

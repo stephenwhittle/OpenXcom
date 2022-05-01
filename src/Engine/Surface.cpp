@@ -856,7 +856,7 @@ SDL_Rect *Surface::getCrop()
  */
 void Surface::setPalette(SDL_Color *colors, int firstcolor, int ncolors)
 {
-	//if (_surface->format->BitsPerPixel == 8)
+	if (_surface->format->BitsPerPixel == 8)
 		SDL_SetColors(_surface, colors, firstcolor, ncolors);
 }
 

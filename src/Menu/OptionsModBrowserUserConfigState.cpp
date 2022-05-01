@@ -199,10 +199,12 @@ void OpenXcom::OptionsModBrowserUserConfigState::updateModActionButton()
 		{
 			_unsubscribeButton->setText("Unsubscribe");
 		}
+		_unsubscribeButton->setHidden(false);
 	}
 	else
 	{
 		_unsubscribeButton->setText("Unsubscribe");
+		_unsubscribeButton->setHidden(true);
 	}
 }
 

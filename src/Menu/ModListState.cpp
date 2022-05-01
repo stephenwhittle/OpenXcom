@@ -84,7 +84,6 @@ ModListState::ModListState() : _curMasterIdx(0)
 	// how much room do we need for YES/NO
 	Text text = Text(100, 9, 0, 0);
 	text.initText(_game->getMod()->getFont("FONT_BIG"), _game->getMod()->getFont("FONT_SMALL"), _game->getLanguage());
-
 	text.setText(tr("STR_YES"));
 	int yes = text.getTextWidth();
 	text.setText(tr("STR_NO"));
@@ -332,13 +331,13 @@ void ModListState::moveModUp(Action *action, unsigned int row, bool max)
 		{
 			int ydiff = _lstMods->getTextHeight(row - 1);
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-						  action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
+				 action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
 		}
 		else
 		{
 			int ydiff = _lstMods->getRowY(row) - _lstMods->getY();
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-						  action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
+				 action->getTopBlackBand() + action->getYMouse() - static_cast<Uint16>(ydiff * action->getYScale()));
 			_lstMods->scrollTo(targetScrollPos);
 		}
 
@@ -370,7 +369,7 @@ void ModListState::lstModsRightArrowClick(Action *action)
 static void _moveBelow(const std::pair<std::string, bool> &srcMod, const std::pair<std::string, bool> &destMod)
 {
 	// insert copy of srcMod below destMod
-	for (std::vector<std::pair<std::string, bool> >::reverse_iterator i = Options::mods.rbegin(); i != Options::mods.rend(); ++i)
+	for (std::vector< std::pair<std::string, bool> >::reverse_iterator i = Options::mods.rbegin(); i != Options::mods.rend(); ++i)
 	{
 		if (destMod.first == i->first)
 		{
@@ -380,7 +379,7 @@ static void _moveBelow(const std::pair<std::string, bool> &srcMod, const std::pa
 	}
 
 	// remove old copy of srcMod in separate loop since the insert above invalidated the iterator
-	for (std::vector<std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	for (std::vector< std::pair<std::string, bool> >::iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
 	{
 		if (srcMod.first == i->first)
 		{
@@ -416,13 +415,13 @@ void ModListState::moveModDown(Action *action, unsigned int row, bool max)
 		{
 			int ydiff = _lstMods->getTextHeight(row + 1);
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-						  action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
+				 action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
 		}
 		else
 		{
 			int ydiff = _lstMods->getY() + _lstMods->getHeight() - (_lstMods->getRowY(row) + _lstMods->getTextHeight(row));
 			SDL_WarpMouse(action->getLeftBlackBand() + action->getXMouse(),
-						  action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
+				 action->getTopBlackBand() + action->getYMouse() + static_cast<Uint16>(ydiff * action->getYScale()));
 			_lstMods->scrollTo(targetScrollPos - _lstMods->getVisibleRows() + 1);
 		}
 

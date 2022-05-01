@@ -70,13 +70,13 @@ void create()
 	_info.push_back(OptionInfo("displayHeight", &displayHeight, Screen::ORIGINAL_HEIGHT));
 	_info.push_back(OptionInfo("fullscreen", &fullscreen, true));
 	_info.push_back(OptionInfo("asyncBlit", &asyncBlit, false));
-	_info.push_back(OptionInfo("keyboardMode", (int *)&keyboardMode, KEYBOARD_OFF));
+	_info.push_back(OptionInfo("keyboardMode", (int*)&keyboardMode, KEYBOARD_OFF));
 #else
-	_info.push_back(OptionInfo("displayWidth", &displayWidth, Screen::ORIGINAL_WIDTH * 2));
-	_info.push_back(OptionInfo("displayHeight", &displayHeight, Screen::ORIGINAL_HEIGHT * 2));
+	_info.push_back(OptionInfo("displayWidth", &displayWidth, Screen::ORIGINAL_WIDTH*2));
+	_info.push_back(OptionInfo("displayHeight", &displayHeight, Screen::ORIGINAL_HEIGHT*2));
 	_info.push_back(OptionInfo("fullscreen", &fullscreen, false));
 	_info.push_back(OptionInfo("asyncBlit", &asyncBlit, true));
-	_info.push_back(OptionInfo("keyboardMode", (int *)&keyboardMode, KEYBOARD_ON));
+	_info.push_back(OptionInfo("keyboardMode", (int*)&keyboardMode, KEYBOARD_ON));
 #endif
 
 	_info.push_back(OptionInfo("maxFrameSkip", &maxFrameSkip, 0));
@@ -101,19 +101,19 @@ void create()
 	_info.push_back(OptionInfo("useOpenGLSmoothing", &useOpenGLSmoothing, true));
 	_info.push_back(OptionInfo("debug", &debug, false));
 	_info.push_back(OptionInfo("debugUi", &debugUi, false));
-	_info.push_back(OptionInfo("soundVolume", &soundVolume, 2 * (MIX_MAX_VOLUME / 3)));
-	_info.push_back(OptionInfo("musicVolume", &musicVolume, 2 * (MIX_MAX_VOLUME / 3)));
-	_info.push_back(OptionInfo("uiVolume", &uiVolume, MIX_MAX_VOLUME / 3));
+	_info.push_back(OptionInfo("soundVolume", &soundVolume, 2*(MIX_MAX_VOLUME/3)));
+	_info.push_back(OptionInfo("musicVolume", &musicVolume, 2*(MIX_MAX_VOLUME/3)));
+	_info.push_back(OptionInfo("uiVolume", &uiVolume, MIX_MAX_VOLUME/3));
 	_info.push_back(OptionInfo("language", &language, ""));
 	_info.push_back(OptionInfo("battleScrollSpeed", &battleScrollSpeed, 8));
-	_info.push_back(OptionInfo("battleEdgeScroll", (int *)&battleEdgeScroll, SCROLL_AUTO));
+	_info.push_back(OptionInfo("battleEdgeScroll", (int*)&battleEdgeScroll, SCROLL_AUTO));
 	_info.push_back(OptionInfo("battleDragScrollButton", &battleDragScrollButton, SDL_BUTTON_MIDDLE));
-	_info.push_back(OptionInfo("dragScrollTimeTolerance", &dragScrollTimeTolerance, 300));	// miliSecond
+	_info.push_back(OptionInfo("dragScrollTimeTolerance", &dragScrollTimeTolerance, 300)); // miliSecond
 	_info.push_back(OptionInfo("dragScrollPixelTolerance", &dragScrollPixelTolerance, 10)); // count of pixels
 	_info.push_back(OptionInfo("battleFireSpeed", &battleFireSpeed, 6));
 	_info.push_back(OptionInfo("battleXcomSpeed", &battleXcomSpeed, 30));
 	_info.push_back(OptionInfo("battleAlienSpeed", &battleAlienSpeed, 30));
-	_info.push_back(OptionInfo("battleNewPreviewPath", (int *)&battleNewPreviewPath, PATH_NONE)); // requires double-click to confirm moves
+	_info.push_back(OptionInfo("battleNewPreviewPath", (int*)&battleNewPreviewPath, PATH_NONE)); // requires double-click to confirm moves
 	_info.push_back(OptionInfo("fpsCounter", &fpsCounter, false));
 	_info.push_back(OptionInfo("globeDetail", &globeDetail, true));
 	_info.push_back(OptionInfo("globeRadarLines", &globeRadarLines, true));
@@ -129,22 +129,22 @@ void create()
 	_info.push_back(OptionInfo("windowedModePositionX", &windowedModePositionX, 0));
 	_info.push_back(OptionInfo("windowedModePositionY", &windowedModePositionY, 0));
 	_info.push_back(OptionInfo("borderless", &borderless, false));
-	_info.push_back(OptionInfo("captureMouse", (bool *)&captureMouse, false));
+	_info.push_back(OptionInfo("captureMouse", (bool*)&captureMouse, false));
 	_info.push_back(OptionInfo("battleTooltips", &battleTooltips, true));
 	_info.push_back(OptionInfo("keepAspectRatio", &keepAspectRatio, true));
 	_info.push_back(OptionInfo("nonSquarePixelRatio", &nonSquarePixelRatio, false));
 	_info.push_back(OptionInfo("cursorInBlackBandsInFullscreen", &cursorInBlackBandsInFullscreen, false));
 	_info.push_back(OptionInfo("cursorInBlackBandsInWindow", &cursorInBlackBandsInWindow, true));
 	_info.push_back(OptionInfo("cursorInBlackBandsInBorderlessWindow", &cursorInBlackBandsInBorderlessWindow, false));
-	_info.push_back(OptionInfo("saveOrder", (int *)&saveOrder, SORT_DATE_DESC));
+	_info.push_back(OptionInfo("saveOrder", (int*)&saveOrder, SORT_DATE_DESC));
 	_info.push_back(OptionInfo("geoClockSpeed", &geoClockSpeed, 80));
 	_info.push_back(OptionInfo("dogfightSpeed", &dogfightSpeed, 30));
 	_info.push_back(OptionInfo("geoScrollSpeed", &geoScrollSpeed, 20));
 	_info.push_back(OptionInfo("geoDragScrollButton", &geoDragScrollButton, SDL_BUTTON_MIDDLE));
-	_info.push_back(OptionInfo("preferredMusic", (int *)&preferredMusic, MUSIC_AUTO));
-	_info.push_back(OptionInfo("preferredSound", (int *)&preferredSound, SOUND_AUTO));
-	_info.push_back(OptionInfo("preferredVideo", (int *)&preferredVideo, VIDEO_FMV));
-	_info.push_back(OptionInfo("wordwrap", (int *)&wordwrap, WRAP_AUTO));
+	_info.push_back(OptionInfo("preferredMusic", (int*)&preferredMusic, MUSIC_AUTO));
+	_info.push_back(OptionInfo("preferredSound", (int*)&preferredSound, SOUND_AUTO));
+	_info.push_back(OptionInfo("preferredVideo", (int*)&preferredVideo, VIDEO_FMV));
+	_info.push_back(OptionInfo("wordwrap", (int*)&wordwrap, WRAP_AUTO));
 	_info.push_back(OptionInfo("musicAlwaysLoop", &musicAlwaysLoop, false));
 	_info.push_back(OptionInfo("touchEnabled", &touchEnabled, false));
 	_info.push_back(OptionInfo("rootWindowedMode", &rootWindowedMode, false));
@@ -166,13 +166,13 @@ void create()
 #ifdef __ANDROID_API__
 	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, true, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
 #elif __APPLE__
-// todo: ask grussel how badly i messed this up.
-#include "TargetConditionals.h"
-#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, true, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
-#else
-	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, false, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
-#endif
+	// todo: ask grussel how badly i messed this up.
+	#include "TargetConditionals.h"
+	#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+		_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, true, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
+	#else
+		_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, false, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
+	#endif
 #else
 	_info.push_back(OptionInfo("maximizeInfoScreens", &maximizeInfoScreens, false, "STR_MAXIMIZE_INFO_SCREENS", "STR_GENERAL"));
 #endif
@@ -298,6 +298,7 @@ void create()
 	_info.push_back(OptionInfo("FPS", &FPS, 60, "STR_FPS_LIMIT", "STR_GENERAL"));
 	_info.push_back(OptionInfo("FPSInactive", &FPSInactive, 30, "STR_FPS_INACTIVE_LIMIT", "STR_GENERAL"));
 #endif
+
 }
 
 // we can get fancier with these detection routines, but for now just look for
@@ -308,7 +309,8 @@ static bool _gameIsInstalled(const std::string &gameName)
 	// look for game data in either the data or user directories
 	std::string dataGameFolder = CrossPlatform::searchDataFolder(gameName);
 	std::string userGameFolder = _userFolder + gameName;
-	return (CrossPlatform::folderExists(dataGameFolder) && CrossPlatform::getFolderContents(dataGameFolder).size() >= 8) || (CrossPlatform::folderExists(userGameFolder) && CrossPlatform::getFolderContents(userGameFolder).size() >= 8);
+	return (CrossPlatform::folderExists(dataGameFolder)	&& CrossPlatform::getFolderContents(dataGameFolder).size() >= 8)
+	    || (CrossPlatform::folderExists(userGameFolder)	&& CrossPlatform::getFolderContents(userGameFolder).size() >= 8);
 }
 
 static bool _ufoIsInstalled()
@@ -372,9 +374,9 @@ void loadArgs(int argc, char *argv[])
 		{
 			std::string argname;
 			if (arg[1] == '-' && arg.length() > 2)
-				argname = arg.substr(2, arg.length() - 1);
+				argname = arg.substr(2, arg.length()-1);
 			else
-				argname = arg.substr(1, arg.length() - 1);
+				argname = arg.substr(1, arg.length()-1);
 			std::transform(argname.begin(), argname.end(), argname.begin(), ::tolower);
 			if (argc > i + 1)
 			{
@@ -419,23 +421,17 @@ bool showHelp(int argc, char *argv[])
 {
 	std::ostringstream help;
 	help << "OpenXcom v" << OPENXCOM_VERSION_SHORT << std::endl;
-	help << "Usage: openxcom [OPTION]..." << std::endl
-		 << std::endl;
+	help << "Usage: openxcom [OPTION]..." << std::endl << std::endl;
 	help << "-data PATH" << std::endl;
-	help << "        use PATH as the default Data Folder instead of auto-detecting" << std::endl
-		 << std::endl;
+	help << "        use PATH as the default Data Folder instead of auto-detecting" << std::endl << std::endl;
 	help << "-user PATH" << std::endl;
-	help << "        use PATH as the default User Folder instead of auto-detecting" << std::endl
-		 << std::endl;
+	help << "        use PATH as the default User Folder instead of auto-detecting" << std::endl << std::endl;
 	help << "-cfg PATH  or  -config PATH" << std::endl;
-	help << "        use PATH as the default Config Folder instead of auto-detecting" << std::endl
-		 << std::endl;
+	help << "        use PATH as the default Config Folder instead of auto-detecting" << std::endl << std::endl;
 	help << "-master MOD" << std::endl;
-	help << "        set MOD to the current master mod (eg. -master xcom2)" << std::endl
-		 << std::endl;
+	help << "        set MOD to the current master mod (eg. -master xcom2)" << std::endl << std::endl;
 	help << "-KEY VALUE" << std::endl;
-	help << "        override option KEY with VALUE (eg. -displayWidth 640)" << std::endl
-		 << std::endl;
+	help << "        override option KEY with VALUE (eg. -displayWidth 640)" << std::endl << std::endl;
 	help << "-help" << std::endl;
 	help << "-?" << std::endl;
 	help << "        show command-line help" << std::endl;
@@ -446,9 +442,9 @@ bool showHelp(int argc, char *argv[])
 		{
 			std::string argname;
 			if (arg[1] == '-' && arg.length() > 2)
-				argname = arg.substr(2, arg.length() - 1);
+				argname = arg.substr(2, arg.length()-1);
 			else
-				argname = arg.substr(1, arg.length() - 1);
+				argname = arg.substr(1, arg.length()-1);
 			std::transform(argname.begin(), argname.end(), argname.begin(), ::tolower);
 			if (argname == "help" || argname == "?")
 			{
@@ -569,7 +565,7 @@ bool init(int argc, char *argv[])
 	Log(LOG_INFO) << "Platform: Windows";
 #elif __APPLE__
 	Log(LOG_INFO) << "Platform: OSX";
-#elif __ANDROID_API__
+#elif  __ANDROID_API__
 	Log(LOG_INFO) << "Platform: Android";
 #else
 	Log(LOG_INFO) << "Platform: Unix-like";
@@ -632,10 +628,12 @@ void refreshMods()
 	}
 
 	// remove mods from list that no longer exist
-	for (std::vector<std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end();)
+	for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); )
 	{
 		std::map<std::string, ModInfo>::const_iterator modIt = _modInfos.find(i->first);
-		if (_modInfos.end() == modIt || (i->first == "xcom1" && !_ufoIsInstalled()) || (i->first == "xcom2" && !_tftdIsInstalled()))
+		if (_modInfos.end() == modIt
+			|| (i->first == "xcom1" && !_ufoIsInstalled())
+			|| (i->first == "xcom2" && !_tftdIsInstalled()))
 		{
 			Log(LOG_VERBOSE) << "removing references to missing mod: " << i->first;
 			i = mods.erase(i);
@@ -651,7 +649,7 @@ void refreshMods()
 	for (std::map<std::string, ModInfo>::const_iterator i = _modInfos.begin(); i != _modInfos.end(); ++i)
 	{
 		bool found = false;
-		for (std::vector<std::pair<std::string, bool> >::iterator j = mods.begin(); j != mods.end(); ++j)
+		for (std::vector< std::pair<std::string, bool> >::iterator j = mods.begin(); j != mods.end(); ++j)
 		{
 			if (i->first == j->first)
 			{
@@ -743,8 +741,8 @@ void updateMods()
 	userSplitMasters();
 
 	Log(LOG_INFO) << "Active mods:";
-	std::vector<const ModInfo *> activeMods = Options::getActiveMods();
-	for (std::vector<const ModInfo *>::const_iterator i = activeMods.begin(); i != activeMods.end(); ++i)
+	std::vector<const ModInfo*> activeMods = Options::getActiveMods();
+	for (std::vector<const ModInfo*>::const_iterator i = activeMods.begin(); i != activeMods.end(); ++i)
 	{
 		Log(LOG_INFO) << "- " << (*i)->getId() << " v" << (*i)->getVersion();
 	}
@@ -806,7 +804,7 @@ void mapResources()
 	Log(LOG_INFO) << "Mapping resource files...";
 	FileMap::clear();
 
-	for (std::vector<std::pair<std::string, bool> >::reverse_iterator i = mods.rbegin(); i != mods.rend(); ++i)
+	for (std::vector< std::pair<std::string, bool> >::reverse_iterator i = mods.rbegin(); i != mods.rend(); ++i)
 	{
 		if (!i->second)
 		{
@@ -921,7 +919,7 @@ void userSplitMasters()
 			{
 				std::string srcFile = _userFolder + (*j);
 				YAML::Node doc = YAML::LoadFile(srcFile);
-				std::vector<std::string> srcMods = doc["mods"].as<std::vector<std::string> >(std::vector<std::string>());
+				std::vector<std::string> srcMods = doc["mods"].as<std::vector< std::string> >(std::vector<std::string>());
 				if (std::find(srcMods.begin(), srcMods.end(), (*i)) != srcMods.end())
 				{
 					std::string dstFile = masterFolder + CrossPlatform::PATH_SEPARATOR + (*j);
@@ -1011,49 +1009,49 @@ bool load(const std::string &filename)
 	return true;
 }
 
-void writeNode(const YAML::Node &node, YAML::Emitter &emitter)
+void writeNode(const YAML::Node& node, YAML::Emitter& emitter)
 {
 	switch (node.Type())
 	{
-	case YAML::NodeType::Sequence:
-	{
-		emitter << YAML::BeginSeq;
-		for (size_t i = 0; i < node.size(); i++)
+		case YAML::NodeType::Sequence:
 		{
-			writeNode(node[i], emitter);
+			emitter << YAML::BeginSeq;
+			for (size_t i = 0; i < node.size(); i++)
+			{
+				writeNode(node[i], emitter);
+			}
+			emitter << YAML::EndSeq;
+			break;
 		}
-		emitter << YAML::EndSeq;
-		break;
-	}
-	case YAML::NodeType::Map:
-	{
-		emitter << YAML::BeginMap;
-
-		// First collect all the keys
-		std::vector<std::string> keys(node.size());
-		int key_it = 0;
-		for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
+		case YAML::NodeType::Map:
 		{
-			keys[key_it++] = it->first.as<std::string>();
-		}
+			emitter << YAML::BeginMap;
 
-		// Then sort them
-		std::sort(keys.begin(), keys.end());
+			// First collect all the keys
+			std::vector<std::string> keys(node.size());
+			int key_it = 0;
+			for (YAML::const_iterator it = node.begin(); it != node.end(); ++it)
+			{
+				keys[key_it++] = it->first.as<std::string>();
+			}
 
-		// Then emit all the entries in sorted order.
-		for (size_t i = 0; i < keys.size(); i++)
-		{
-			emitter << YAML::Key;
-			emitter << keys[i];
-			emitter << YAML::Value;
-			writeNode(node[keys[i]], emitter);
+			// Then sort them
+			std::sort(keys.begin(), keys.end());
+
+			// Then emit all the entries in sorted order.
+			for(size_t i = 0; i < keys.size(); i++)
+			{
+				emitter << YAML::Key;
+				emitter << keys[i];
+				emitter << YAML::Value;
+				writeNode(node[keys[i]], emitter);
+			}
+			emitter << YAML::EndMap;
+			break;
 		}
-		emitter << YAML::EndMap;
-		break;
-	}
-	default:
-		emitter << node;
-		break;
+		default:
+			emitter << node;
+			break;
 	}
 }
 
@@ -1082,7 +1080,7 @@ bool save(const std::string &filename)
 		}
 		doc["options"] = node;
 
-		for (std::vector<std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
+		for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
 		{
 			YAML::Node mod;
 			mod["id"] = i->first;
@@ -1185,8 +1183,8 @@ const std::vector<OptionInfo> &getOptionInfo()
  */
 std::vector<const ModInfo *> getActiveMods()
 {
-	std::vector<const ModInfo *> activeMods;
-	for (std::vector<std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
+	std::vector<const ModInfo*> activeMods;
+	for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); ++i)
 	{
 		if (i->second)
 		{

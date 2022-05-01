@@ -49,7 +49,7 @@ class ModListState : public State
 	std::string _currentTooltip;
 	std::vector<const ModInfo *> _masters;
 	std::string _curMasterId;
-	std::vector<std::pair<std::string, bool> > _mods;
+	std::vector< std::pair<std::string, bool> > _mods;
 	size_t _curMasterIdx;
 	bool _reloadModsRequired = false;
   public:
