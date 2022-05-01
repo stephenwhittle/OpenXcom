@@ -7,8 +7,8 @@ include(BuildType)
 include(GNUInstallDirs)
 
 # For yaml-cpp
-set (CMAKE_CXX_STANDARD 11)
-# use std=c++11 rather than std=gnu++11
+set (CMAKE_CXX_STANDARD 14)
+# use std=c++14 rather than std=gnu++14
 set (CMAKE_CXX_EXTENSIONS OFF)
 
 option ( DEV_BUILD "Development Build. Disable this for release builds" ON )
@@ -101,6 +101,24 @@ else ( )
     include_directories ( SYSTEM ${YAMLCPP_INCLUDE_DIR} )
     message ( "found yaml-cpp(${YAMLCPP_LIBRARY_DIRS}:${YAMLCPP_INCLUDE_DIR})" )
   endif ( NOT YAMLCPP_FOUND )
+endif()
+
+if (WIN32)
+  set(MODIO_PLATFORM "WIN" CACHE STRING  "target platform for modio SDK")
+  message ("Setting modio SDK platform WIN")
+elseif (APPLE)
+  set(MODIO_PLATFORM "OSX" CACHE STRING "target platform for modio SDK")
+  message ("Setting modio SDK platform OSX")
+elseif (UNIX AND NOT APPLE) 
+  set(MODIO_PLATFORM "LINUX" CACHE STRING  "target platform for modio SDK")
+  message ("Setting modio SDK platform LINUX")
+endif()
+
+if (MODIO_PLATFORM)
+  add_subdirectory(ext/modio EXCLUDE_FROM_ALL)
+  set(MODIO_LIBRARY ${MODIO_TARGET_NAME}Static)
+else()
+  message( WARNING "Unrecognised platform, disabling mod.io SDK support")
 endif()
 
 # Find OpenGL

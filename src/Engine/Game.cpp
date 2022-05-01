@@ -41,6 +41,11 @@
 #include "Unicode.h"
 #include "../Menu/TestState.h"
 
+#pragma push_macro("Log")
+#undef Log
+#include "modio/ModioSDK.h"
+#pragma pop_macro("Log")
+
 namespace OpenXcom
 {
 
@@ -338,6 +343,7 @@ void Game::run()
 			case SLOWED: case PAUSED:
 				SDL_Delay(100); break; //More slowing down.
 		}
+		Modio::RunPendingHandlers();	
 	}
 
 	Options::save();

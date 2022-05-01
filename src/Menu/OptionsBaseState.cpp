@@ -20,6 +20,7 @@
 #include <SDL.h>
 #include "../Engine/Game.h"
 #include "../Engine/Options.h"
+#include "../Engine/Logger.h"
 #include "../Engine/LocalizedText.h"
 #include "../Engine/Screen.h"
 #include "../Mod/Mod.h"
@@ -42,6 +43,11 @@
 #include "OptionsDefaultsState.h"
 #include "OptionsConfirmState.h"
 #include "StartState.h"
+
+#pragma push_macro("Log")
+#undef Log
+#include "modio/ModioSDK.h"
+#pragma pop_macro("Log")
 
 namespace OpenXcom
 {
@@ -199,6 +205,19 @@ void OptionsBaseState::btnOkClick(Action *)
 	SDL_WM_GrabInput(Options::captureMouse);
 	_game->getScreen()->resetDisplay();
 	_game->setVolume(Options::soundVolume, Options::musicVolume, Options::uiVolume);
+
+	//This forces us to enable the SDK if the settings change 
+	if (Options::enableModioSDK)
+	{
+		Modio::InitializeOptions Opts = Modio::InitializeOptions(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, Modio::Portal::None, "openxcom_modio");
+		Modio::InitializeAsync(Opts, [](Modio::ErrorCode ec) {
+			if (ec)
+			{
+				Log(LOG_ERROR) << "Mod.io SDK initialization failed:" << ec.message();
+			}
+		});
+	}
+
 	if (Options::reload && _origin == OPT_MENU)
 	{
 		_game->setState(new StartState);

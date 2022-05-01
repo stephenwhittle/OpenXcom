@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with OpenXcom.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "../Engine/State.h"
 #include "../Engine/ModInfo.h"
-#include <vector>
+#include "../Engine/State.h"
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace OpenXcom
 {
@@ -37,19 +37,22 @@ class ComboBox;
  */
 class ModListState : public State
 {
-private:
+  private:
 	Window *_window;
 	Text *_txtMaster;
 	ComboBox *_cbxMasters;
 	TextList *_lstMods;
-	TextButton *_btnOk, *_btnCancel, *_btnPortal;
+	TextButton *_btnOk;
+	TextButton *_btnCancel;
+	TextButton *_btnOpenModBrowser;
 	Text *_txtTooltip;
 	std::string _currentTooltip;
 	std::vector<const ModInfo *> _masters;
 	std::string _curMasterId;
 	std::vector< std::pair<std::string, bool> > _mods;
 	size_t _curMasterIdx;
-public:
+	bool _reloadModsRequired = false;
+  public:
 	/// Creates the Mods state.
 	ModListState();
 	/// Cleans up the Mods state.
@@ -82,6 +85,10 @@ public:
 	void btnOkClick(Action *action);
 	/// Handler for clicking the Cancel button.
 	void btnCancelClick(Action *action);
+	/// Handler for clicking the Open Mod Browser button.
+	void btnOpenModBrowserClick(Action *action);
+
+	void init() override;
 };
 
 }

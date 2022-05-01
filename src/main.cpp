@@ -24,6 +24,12 @@
 #include "Engine/Options.h"
 #include "Menu/StartState.h"
 
+#pragma push_macro("Log")
+#undef Log
+//NB if this is moved below the include of windows.h, you *must* define NOMINMAX/WIN32_LEAN_AND_MEAN before you include windows.h
+#include "modio/ModioSDK.h"
+#pragma pop_macro("Log")
+
 /** @mainpage
  * @author OpenXcom Developers
  *
@@ -115,11 +121,23 @@ int main(int argc, char *argv[])
 	Options::baseXResolution = Options::displayWidth;
 	Options::baseYResolution = Options::displayHeight;
 
+	if (Options::enableModioSDK)
+	{
+		Modio::InitializeOptions Opts = Modio::InitializeOptions(Modio::GameID(51), Modio::ApiKey("68147f0659a3da8529f481e511bba9db"), Modio::Environment::Live, Modio::Portal::None, "openxcom_modio");
+		Modio::InitializeAsync(Opts, [](Modio::ErrorCode ec) {
+			if (ec)
+			{
+				//Log failure here, potentially set a flag someplace so we can display a toast notification in the UI
+			}
+		});
+	}
+
 	game = new Game(title.str());
 	State::setGamePtr(game);
 	game->setState(new StartState);
 	game->run();
-
+	//Call this unconditionally so if the user disabled the SDK in the options earlier we still handle shutdown
+	Modio::Shutdown();
 	// Comment this for faster exit.
 	delete game;
 	return EXIT_SUCCESS;

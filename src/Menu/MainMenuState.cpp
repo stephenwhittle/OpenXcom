@@ -17,21 +17,27 @@
  * along with OpenXcom.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "MainMenuState.h"
-#include <sstream>
-#include "../version.h"
 #include "../Engine/Game.h"
-#include "../Mod/Mod.h"
 #include "../Engine/LocalizedText.h"
+#include "../Engine/Logger.h"
+#include "../Engine/Options.h"
 #include "../Engine/Screen.h"
+#include "../Interface/Text.h"
 #include "../Interface/TextButton.h"
 #include "../Interface/Window.h"
-#include "../Interface/Text.h"
-#include "NewGameState.h"
-#include "NewBattleState.h"
+#include "../Mod/Mod.h"
+#include "../version.h"
 #include "ListLoadState.h"
-#include "OptionsVideoState.h"
 #include "ModListState.h"
-#include "../Engine/Options.h"
+#include "NewBattleState.h"
+#include "NewGameState.h"
+#include "OptionsVideoState.h"
+#include <sstream>
+
+#pragma push_macro("Log")
+#undef Log
+#include "modio/ModioSDK.h"
+#pragma pop_macro("Log")
 
 namespace OpenXcom
 {
@@ -100,6 +106,48 @@ MainMenuState::MainMenuState()
 	title << tr("STR_OPENXCOM") << Unicode::TOK_NL_SMALL;
 	title << OPENXCOM_VERSION_SHORT << OPENXCOM_VERSION_GIT;
 	_txtTitle->setText(title.str());
+
+	if (Options::enableModioSDK)
+	{
+		//Placeholder lambda, should probably eventually use a delegate exposed on the game object?
+		Modio::EnableModManagement([](Modio::ModManagementEvent e) {
+			switch (e.Event)
+			{
+			case Modio::ModManagementEvent::EventType::Installed:
+				if (e.Status)
+				{
+					Log(LOG_INFO) << "Mod " << e.ID << " failed install :" << e.Status.message();
+				}
+				else
+				{
+					Log(LOG_INFO) << "Mod " << e.ID << " Installed";
+				}
+
+				break;
+			case Modio::ModManagementEvent::EventType::Uninstalled:
+				if (e.Status)
+				{
+					Log(LOG_INFO) << "Mod " << e.ID << " failed uninstall :" << e.Status.message();
+				}
+				else
+				{
+					Log(LOG_INFO) << "Mod " << e.ID << " Uninstalled";
+				}
+				break;
+			case Modio::ModManagementEvent::EventType::Updated:
+				if (e.Status)
+				{
+					Log(LOG_INFO) << "Mod " << e.ID << " failed update :" << e.Status.message();
+				}
+				else
+				{
+					Log(LOG_INFO) << "Mod " << e.ID << " Updated";
+				}
+				break;
+			}
+		});
+		Modio::FetchExternalUpdatesAsync([](Modio::ErrorCode ec) {});
+	}
 }
 
 /**
@@ -107,7 +155,10 @@ MainMenuState::MainMenuState()
  */
 MainMenuState::~MainMenuState()
 {
-
+	if (Options::enableModioSDK)
+	{
+		Modio::DisableModManagement();
+	}
 }
 
 /**

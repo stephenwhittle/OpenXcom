@@ -17,20 +17,24 @@
  * along with OpenXcom.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ModListState.h"
-#include "ModConfirmExtendedState.h"
-#include <climits>
-#include <algorithm>
+#include "../Engine/Action.h"
 #include "../Engine/Game.h"
-#include "../Mod/Mod.h"
 #include "../Engine/LocalizedText.h"
-#include "../Interface/Window.h"
-#include "../Interface/TextList.h"
+#include "../Engine/Options.h"
+#include "../Interface/ComboBox.h"
 #include "../Interface/Text.h"
 #include "../Interface/TextButton.h"
-#include "../Interface/ComboBox.h"
-#include "../Engine/Options.h"
-#include "../Engine/Action.h"
+#include "../Interface/TextList.h"
+#include "../Interface/Window.h"
+#include "../Mod/Mod.h"
+#include "../Mod/RuleInterface.h"
+#include "ErrorMessageState.h"
+#include "ModConfirmExtendedState.h"
+#include "OptionsModBrowserState.h"
 #include "StartState.h"
+#include "modio/ModioSDK.h"
+#include <algorithm>
+#include <climits>
 
 namespace OpenXcom
 {
@@ -50,7 +54,7 @@ ModListState::ModListState() : _curMasterIdx(0)
 
 	_btnOk = new TextButton(100, 16, 8, 176);
 	_btnCancel = new TextButton(100, 16, 212, 176);
-
+	_btnOpenModBrowser = new TextButton(100, 16, 110, 176);
 	_txtTooltip = new Text(305, 25, 8, 148);
 
 	// Set palette
@@ -63,6 +67,15 @@ ModListState::ModListState() : _curMasterIdx(0)
 	add(_btnOk, "button2", "modsMenu");
 	add(_btnCancel, "button2", "modsMenu");
 	add(_txtTooltip, "tooltip", "modsMenu");
+	add(_btnOpenModBrowser, "button", "optionsMenu");
+	if (Options::enableModioSDK)
+	{
+		_btnOpenModBrowser->setHidden(false);
+	}
+	else
+	{
+		_btnOpenModBrowser->setHidden(true);
+	}
 
 	add(_cbxMasters, "button1", "modsMenu");
 
@@ -85,33 +98,6 @@ ModListState::ModListState() : _curMasterIdx(0)
 
 	_txtMaster->setText(tr("STR_BASE_GAME"));
 
-	// scan for masters
-	Options::refreshMods();
-	const std::map<std::string, ModInfo> &modInfos(Options::getModInfos());
-	std::vector<std::string> masterNames;
-	for (std::vector< std::pair<std::string, bool> >::const_iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
-	{
-		std::string modId = i->first;
-		const ModInfo *modInfo = &modInfos.at(modId);
-		if (!modInfo->isMaster())
-		{
-			continue;
-		}
-
-		if (i->second)
-		{
-			_curMasterId = modId;
-		}
-		else if (_curMasterId.empty())
-		{
-			++_curMasterIdx;
-		}
-		_masters.push_back(modInfo);
-		masterNames.push_back(modInfo->getName());
-	}
-
-	_cbxMasters->setOptions(masterNames);
-	_cbxMasters->setSelected(_curMasterIdx);
 	_cbxMasters->onChange((ActionHandler)&ModListState::cbxMasterChange);
 	_cbxMasters->onMouseIn((ActionHandler)&ModListState::txtTooltipIn);
 	_cbxMasters->onMouseOut((ActionHandler)&ModListState::txtTooltipOut);
@@ -142,6 +128,10 @@ ModListState::ModListState() : _curMasterIdx(0)
 	_btnCancel->setText(tr("STR_CANCEL"));
 	_btnCancel->onMouseClick((ActionHandler)&ModListState::btnCancelClick);
 	_btnCancel->onKeyboardPress((ActionHandler)&ModListState::btnCancelClick, Options::keyCancel);
+
+	_btnOpenModBrowser->setText("Mod Browser");
+	_btnOpenModBrowser->onMouseClick((ActionHandler)&ModListState::btnOpenModBrowserClick);
+	_btnOpenModBrowser->onKeyboardPress((ActionHandler)&ModListState::btnOpenModBrowserClick);
 
 	_txtTooltip->setWordWrap(true);
 }
@@ -495,6 +485,54 @@ void ModListState::btnCancelClick(Action *)
 	Options::reload = false;
 	Options::load();
 	_game->popState();
+}
+
+void ModListState::btnOpenModBrowserClick(Action *action)
+{
+	_reloadModsRequired = true;
+	_game->pushState(new OptionsModBrowserState());
+}
+
+void ModListState::init()
+{
+	State::init();
+
+	if (_reloadModsRequired)
+	{
+		// scan for masters
+		Options::refreshMods();
+		Options::reload = true;
+
+		_reloadModsRequired = false;
+	}
+
+	const std::map<std::string, ModInfo> &modInfos(Options::getModInfos());
+	std::vector<std::string> masterNames;
+	for (std::vector<std::pair<std::string, bool> >::const_iterator i = Options::mods.begin(); i != Options::mods.end(); ++i)
+	{
+		std::string modId = i->first;
+		const ModInfo *modInfo = &modInfos.at(modId);
+		if (!modInfo->isMaster())
+		{
+			continue;
+		}
+
+		if (i->second)
+		{
+			_curMasterId = modId;
+		}
+		else if (_curMasterId.empty())
+		{
+			++_curMasterIdx;
+		}
+		_masters.push_back(modInfo);
+		masterNames.push_back(modInfo->getName());
+	}
+
+	_cbxMasters->setOptions(masterNames);
+	_cbxMasters->setSelected(_curMasterIdx);
+
+	lstModsRefresh(0);
 }
 
 /**

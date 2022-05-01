@@ -19,21 +19,27 @@
 
 #include "Options.h"
 #include "../version.h"
+#include "CrossPlatform.h"
+#include "Exception.h"
+#include "FileMap.h"
+#include "Logger.h"
+#include "Screen.h"
 #include <SDL.h>
 #include <SDL_keysym.h>
 #include <SDL_mixer.h>
-#include <stdio.h>
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <sstream>
-#include <fstream>
-#include <algorithm>
+#include <stdio.h>
 #include <yaml-cpp/yaml.h>
-#include "Exception.h"
-#include "Logger.h"
-#include "CrossPlatform.h"
-#include "FileMap.h"
-#include "Screen.h"
+
+#pragma push_macro("Log")
+#undef Log
+#include "modio/ModioSDK.h"
+#include "modio/core/ModioModCollectionEntry.h"
+#pragma pop_macro("Log")
 
 namespace OpenXcom
 {
@@ -144,6 +150,8 @@ void create()
 	_info.push_back(OptionInfo("rootWindowedMode", &rootWindowedMode, false));
 	_info.push_back(OptionInfo("lazyLoadResources", &lazyLoadResources, true));
 	_info.push_back(OptionInfo("backgroundMute", &backgroundMute, false));
+	//TODO:@modio localize
+	_info.push_back(OptionInfo("enableModioSDK", &enableModioSDK, false, "Enable mod.io SDK", "STR_GENERAL"));
 
 	// advanced options
 	_info.push_back(OptionInfo("playIntro", &playIntro, true, "STR_PLAYINTRO", "STR_GENERAL"));
@@ -450,6 +458,44 @@ bool showHelp(int argc, char *argv[])
 
 const std::map<std::string, ModInfo> &getModInfos() { return _modInfos; }
 
+static void loadModFromPath(std::string modPath)
+{
+	Log(LOG_VERBOSE) << "- " << modPath;
+	ModInfo modInfo(modPath);
+
+	std::string metadataPath = modPath + "/metadata.yml";
+	if (!CrossPlatform::fileExists(metadataPath))
+	{
+		Log(LOG_VERBOSE) << metadataPath << " not found; using default values for mod: " << CrossPlatform::baseFilename(modPath);
+	}
+	else
+	{
+		modInfo.load(metadataPath);
+	}
+
+	Log(LOG_VERBOSE) << "  id: " << modInfo.getId();
+	Log(LOG_VERBOSE) << "  name: " << modInfo.getName();
+	Log(LOG_VERBOSE) << "  version: " << modInfo.getVersion();
+	Log(LOG_VERBOSE) << "  description: " << modInfo.getDescription();
+	Log(LOG_VERBOSE) << "  author: " << modInfo.getAuthor();
+	Log(LOG_VERBOSE) << "  master: " << modInfo.getMaster();
+	Log(LOG_VERBOSE) << "  isMaster: " << modInfo.isMaster();
+	Log(LOG_VERBOSE) << "  loadResources:";
+	std::vector<std::string> externals = modInfo.getExternalResourceDirs();
+	for (std::vector<std::string>::iterator j = externals.begin(); j != externals.end(); ++j)
+	{
+		Log(LOG_VERBOSE) << "    " << *j;
+	}
+
+	if (("xcom1" == modInfo.getId() && !_ufoIsInstalled()) || ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
+	{
+		Log(LOG_VERBOSE) << "skipping " << modInfo.getId() << " since related game data isn't installed";
+		return;
+	}
+
+	_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
+}
+
 static void _scanMods(const std::string &modsDir, bool metadataOnly = false)
 {
 	if (!CrossPlatform::folderExists(modsDir))
@@ -477,50 +523,7 @@ static void _scanMods(const std::string &modsDir, bool metadataOnly = false)
 				continue;
 			}
 
-			Log(LOG_VERBOSE) << "- " << modPath;
-			ModInfo modInfo(modPath);
-
-			std::string metadataPath = modPath + metadataFile;
-			if (!CrossPlatform::fileExists(metadataPath))
-			{
-				Log(LOG_VERBOSE) << metadataPath << " not found;";
-				if (metadataOnly)
-				{
-					Log(LOG_VERBOSE) << "skipping invalid mod: " << *i;
-					continue;
-				}
-				else
-				{
-					Log(LOG_VERBOSE) << "using default values for mod: " << *i;
-				}
-			}
-			else
-			{
-				modInfo.load(metadataPath);
-			}
-
-			Log(LOG_VERBOSE) << "  id: " << modInfo.getId();
-			Log(LOG_VERBOSE) << "  name: " << modInfo.getName();
-			Log(LOG_VERBOSE) << "  version: " << modInfo.getVersion();
-			Log(LOG_VERBOSE) << "  description: " << modInfo.getDescription();
-			Log(LOG_VERBOSE) << "  author: " << modInfo.getAuthor();
-			Log(LOG_VERBOSE) << "  master: " << modInfo.getMaster();
-			Log(LOG_VERBOSE) << "  isMaster: " << modInfo.isMaster();
-			Log(LOG_VERBOSE) << "  loadResources:";
-			std::vector<std::string> externals = modInfo.getExternalResourceDirs();
-			for (std::vector<std::string>::iterator j = externals.begin(); j != externals.end(); ++j)
-			{
-				Log(LOG_VERBOSE) << "    " << *j;
-			}
-
-			if (("xcom1" == modInfo.getId() && !_ufoIsInstalled())
-				|| ("xcom2" == modInfo.getId() && !_tftdIsInstalled()))
-			{
-				Log(LOG_VERBOSE) << "skipping " << modInfo.getId() << " since related game data isn't installed";
-				continue;
-			}
-
-			_modInfos.insert(std::pair<std::string, ModInfo>(modInfo.getId(), modInfo));
+			loadModFromPath(modPath);
 		}
 	}
 }
@@ -595,6 +598,34 @@ void refreshMods()
 	modPath = _userFolder + "mods";
 	Log(LOG_INFO) << "Scanning user mods in '" << modPath << "'...";
 	_scanMods(modPath);
+
+	if (Options::enableModioSDK)
+	{
+		if (!Modio::QueryUserProfile())
+		{
+			Log(LOG_INFO) << "mod.io SDK not logged in, skipping load of auto-managed mods...";
+		}
+		else
+		{
+			Log(LOG_INFO) << "Loading auto-managed mods via mod.io SDK...";
+			std::map<Modio::ModID, Modio::ModCollectionEntry> sdkMods = Modio::QueryUserInstallations(true);
+			for (std::pair<const Modio::ModID, Modio::ModCollectionEntry> &sdkMod : sdkMods)
+			{
+				//By default the SDK will retain the enclosing folder present in the zip uploaded to mod.io, so search in the directories for the correct metadata file
+				for (const Modio::filesystem::directory_entry &entry : Modio::filesystem::recursive_directory_iterator(sdkMod.second.GetPath()))
+				{
+					if (entry.is_regular_file())
+					{
+						if (entry.path().filename() == Modio::filesystem::path("metadata.yml"))
+						{
+							loadModFromPath(entry.path().parent_path().u8string());
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// remove mods from list that no longer exist
 	for (std::vector< std::pair<std::string, bool> >::iterator i = mods.begin(); i != mods.end(); )

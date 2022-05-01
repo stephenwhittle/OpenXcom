@@ -2362,7 +2362,7 @@ const std::vector<StatString *> &Mod::getStatStrings() const
  * Compares rules based on their list orders.
  */
 template <typename T>
-struct compareRule : public std::binary_function<const std::string&, const std::string&, bool>
+struct compareRule
 {
 	Mod *_mod;
 	typedef T*(Mod::*RuleLookup)(const std::string &id, bool error);
@@ -2384,7 +2384,7 @@ struct compareRule : public std::binary_function<const std::string&, const std::
  * Craft weapons use the list order of their launcher item.
  */
 template <>
-struct compareRule<RuleCraftWeapon> : public std::binary_function<const std::string&, const std::string&, bool>
+struct compareRule<RuleCraftWeapon>
 {
 	Mod *_mod;
 
@@ -2405,7 +2405,7 @@ struct compareRule<RuleCraftWeapon> : public std::binary_function<const std::str
  * Itemless armor comes before all else.
  */
 template <>
-struct compareRule<Armor> : public std::binary_function<const std::string&, const std::string&, bool>
+struct compareRule<Armor>
 {
 	Mod *_mod;
 
@@ -2434,7 +2434,7 @@ struct compareRule<Armor> : public std::binary_function<const std::string&, cons
  * Ufopaedia articles use section and list order.
  */
 template <>
-struct compareRule<ArticleDefinition> : public std::binary_function<const std::string&, const std::string&, bool>
+struct compareRule<ArticleDefinition>
 {
 	Mod *_mod;
 	const std::map<std::string, int> &_sections;
@@ -2457,7 +2457,7 @@ struct compareRule<ArticleDefinition> : public std::binary_function<const std::s
 /**
  * Ufopaedia sections use article list order.
  */
-struct compareSection : public std::binary_function<const std::string&, const std::string&, bool>
+struct compareSection
 {
 	Mod *_mod;
 	const std::map<std::string, int> &_sections;
